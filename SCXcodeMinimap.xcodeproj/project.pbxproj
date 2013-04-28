@@ -1,0 +1,280 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18D2B13017244C0A0026D09F /* SCSelectionView.m */; };
+		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
+		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		18D2B12F17244C0A0026D09F /* SCSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCSelectionView.h; sourceTree = "<group>"; };
+		18D2B13017244C0A0026D09F /* SCSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCSelectionView.m; sourceTree = "<group>"; };
+		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		18FE09B51707639E00118FEB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		18FE09B81707639E00118FEB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		18FE09B91707639E00118FEB /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		18FE09BA1707639E00118FEB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		18FE09BD1707639E00118FEB /* SCXcodeMinimap-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SCXcodeMinimap-Info.plist"; sourceTree = "<group>"; };
+		18FE09C11707639E00118FEB /* SCXcodeMinimap-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SCXcodeMinimap-Prefix.pch"; sourceTree = "<group>"; };
+		18FE09C7170764E400118FEB /* SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimap.h; sourceTree = "<group>"; };
+		18FE09C8170764E400118FEB /* SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimap.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		18FE09AF1707639E00118FEB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		18FE09A91707639E00118FEB = {
+			isa = PBXGroup;
+			children = (
+				18FE09BB1707639E00118FEB /* SCXcodeMinimap */,
+				18FE09B41707639E00118FEB /* Frameworks */,
+				18FE09B31707639E00118FEB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		18FE09B31707639E00118FEB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		18FE09B41707639E00118FEB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				18FE09B51707639E00118FEB /* Cocoa.framework */,
+				18FE09B71707639E00118FEB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		18FE09B71707639E00118FEB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				18FE09B81707639E00118FEB /* AppKit.framework */,
+				18FE09B91707639E00118FEB /* CoreData.framework */,
+				18FE09BA1707639E00118FEB /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		18FE09BB1707639E00118FEB /* SCXcodeMinimap */ = {
+			isa = PBXGroup;
+			children = (
+				18FE09C7170764E400118FEB /* SCXcodeMinimap.h */,
+				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
+				18D2B12F17244C0A0026D09F /* SCSelectionView.h */,
+				18D2B13017244C0A0026D09F /* SCSelectionView.m */,
+				18FE09BC1707639E00118FEB /* Supporting Files */,
+			);
+			path = SCXcodeMinimap;
+			sourceTree = "<group>";
+		};
+		18FE09BC1707639E00118FEB /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				18FE09BD1707639E00118FEB /* SCXcodeMinimap-Info.plist */,
+				18FE09C11707639E00118FEB /* SCXcodeMinimap-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		18FE09B11707639E00118FEB /* SCXcodeMinimap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18FE09C41707639E00118FEB /* Build configuration list for PBXNativeTarget "SCXcodeMinimap" */;
+			buildPhases = (
+				18FE09AE1707639E00118FEB /* Sources */,
+				18FE09AF1707639E00118FEB /* Frameworks */,
+				18FE09B01707639E00118FEB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SCXcodeMinimap;
+			productName = SCXcodeMinimap;
+			productReference = 18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		18FE09AA1707639E00118FEB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Stefan Ceriu";
+			};
+			buildConfigurationList = 18FE09AD1707639E00118FEB /* Build configuration list for PBXProject "SCXcodeMinimap" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 18FE09A91707639E00118FEB;
+			productRefGroup = 18FE09B31707639E00118FEB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				18FE09B11707639E00118FEB /* SCXcodeMinimap */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		18FE09B01707639E00118FEB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		18FE09AE1707639E00118FEB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */,
+				18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		18FE09C21707639E00118FEB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		18FE09C31707639E00118FEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		18FE09C51707639E00118FEB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(HOME)";
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";
+				INFOPLIST_FILE = "SCXcodeMinimap/SCXcodeMinimap-Info.plist";
+				INSTALL_PATH = "/Library/Application Support/Developer/Shared/Xcode/Plug-ins";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xcplugin;
+			};
+			name = Debug;
+		};
+		18FE09C61707639E00118FEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(HOME)";
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";
+				INFOPLIST_FILE = "SCXcodeMinimap/SCXcodeMinimap-Info.plist";
+				INSTALL_PATH = "/Library/Application Support/Developer/Shared/Xcode/Plug-ins";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xcplugin;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		18FE09AD1707639E00118FEB /* Build configuration list for PBXProject "SCXcodeMinimap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18FE09C21707639E00118FEB /* Debug */,
+				18FE09C31707639E00118FEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		18FE09C41707639E00118FEB /* Build configuration list for PBXNativeTarget "SCXcodeMinimap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18FE09C51707639E00118FEB /* Debug */,
+				18FE09C61707639E00118FEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 18FE09AA1707639E00118FEB /* Project object */;
+}
