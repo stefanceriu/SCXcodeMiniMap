@@ -10,4 +10,6 @@
 
 @interface SCSelectionView : NSView
 
+@property (nonatomic, strong) NSColor *selectionColor;
+
 @end

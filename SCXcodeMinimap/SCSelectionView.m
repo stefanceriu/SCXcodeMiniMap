@@ -10,9 +10,24 @@
 
 @implementation SCSelectionView
 
+- (id)initWithFrame:(NSRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        NSObject *DVTFontAndColorTheme = [NSClassFromString(@"DVTFontAndColorTheme") performSelector:@selector(currentTheme)];
+        NSColor *backgroundColor = [DVTFontAndColorTheme performSelector:@selector(sourceTextBackgroundColor)];
+        
+        // sets the selectionColor to the inverse of the brightnessComponent of the currently selected theme's backgroundColor
+        [self setSelectionColor:[NSColor colorWithCalibratedHue:0.0f saturation:0.0f brightness:(1.0f - [backgroundColor brightnessComponent]) alpha:0.25f]];
+        
+    }
+    return self;
+}
+
 - (void)drawRect:(NSRect)dirtyRect
 {
-    [[NSColor colorWithDeviceRed:0.0f green:0.0f blue:0.0f alpha:0.3f] setFill];
+    [[self selectionColor] setFill];
     NSRectFill(dirtyRect);
 }
 
