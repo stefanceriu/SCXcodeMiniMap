@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "SCTextView.h"
 
-@interface SCXcodeMinimap : NSObject
+@interface SCXcodeMinimap : NSObject <SCTextViewDelegate>
 
 @end
