@@ -175,6 +175,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     [miniMapScrollView setWantsLayer:YES];
     [miniMapScrollView setAutoresizingMask: NSViewMinXMargin | NSViewWidthSizable | NSViewHeightSizable];
     [miniMapScrollView setDrawsBackground:NO];
+    [miniMapScrollView setVerticalScrollElasticity:NSScrollElasticityNone];
     [editorContainerView addSubview:miniMapScrollView];
     [miniMapScrollView release];
     
