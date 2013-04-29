@@ -23,7 +23,7 @@ static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification =
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";//Unused
 
 #define kDefaultZoomLevel 0.1f
-#define kRightSidePadding 15.0f
+#define kRightSidePadding 10.0f
 #define kDefaultShadowLevel 0.1f
 
 @implementation SCXcodeMinimap
@@ -167,7 +167,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     CGFloat width = editorTextView.bounds.size.width * kDefaultZoomLevel;
     
     NSRect frame = editorTextView.frame;
-    frame.size.width -= width;
+    frame.size.width -= (width + kRightSidePadding);
     [editorTextView setFrame:frame];
     
     NSRect miniMapScrollViewFrame = NSMakeRect(editorContainerView.bounds.size.width - width - kRightSidePadding, 0, width, editorScrollView.bounds.size.height);
@@ -175,16 +175,19 @@ static SCXcodeMinimap *sharedMinimap = nil;
     [miniMapScrollView setWantsLayer:YES];
     [miniMapScrollView setAutoresizingMask: NSViewMinXMargin | NSViewWidthSizable | NSViewHeightSizable];
     [miniMapScrollView setDrawsBackground:NO];
+    [miniMapScrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
+    [miniMapScrollView setVerticalScrollElasticity:NSScrollElasticityNone];
     [editorContainerView addSubview:miniMapScrollView];
     [miniMapScrollView release];
     
     objc_setAssociatedObject(editorScrollView, &kKeyMiniMapScrollView, miniMapScrollView, OBJC_ASSOCIATION_ASSIGN);
     
-    NSTextView *miniMapTextView = [[NSTextView alloc] initWithFrame:miniMapScrollView.bounds];
+    SCTextView *miniMapTextView = [[SCTextView alloc] initWithFrame:miniMapScrollView.bounds];
     [miniMapTextView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
     [miniMapTextView.textContainer setLineFragmentPadding:0.0f];
     [miniMapTextView setSelectable:NO];
     [miniMapTextView.layoutManager setDelegate:(id<NSLayoutManagerDelegate>)self];
+    [miniMapTextView setDelegate:self];
     
     objc_setAssociatedObject(miniMapTextView.layoutManager, &kKeyEditorTextView, editorTextView, OBJC_ASSOCIATION_ASSIGN);
     
@@ -225,5 +228,31 @@ static SCXcodeMinimap *sharedMinimap = nil;
     NSTextView *editorTextView = objc_getAssociatedObject(layoutManager, &kKeyEditorTextView);
     return [(id<NSLayoutManagerDelegate>)editorTextView layoutManager:layoutManager shouldUseTemporaryAttributes:attrs forDrawingToScreen:toScreen atCharacterIndex:charIndex effectiveRange:effectiveCharRange];
 }
+
+#pragma mark - SCTextViewDelegate
+
+- (void)textView:(SCTextView *)textView goAtRelativePosition:(NSPoint)position
+{
+    NSTextView *editorTextView = objc_getAssociatedObject(textView.layoutManager, &kKeyEditorTextView);
+
+    NSScrollView *editorScrollView = objc_getAssociatedObject(textView.textContainer, &kKeyEditorScrollView);
+
+    CGFloat documentHeight = [editorScrollView.documentView frame].size.height;
+    CGSize boundsSize = editorScrollView.bounds.size;
+    CGFloat maxOffset = documentHeight - boundsSize.height;
+    
+    NSLog(@"Position Y = %f",position.y);
+    NSLog(@"Document Frame Height = %f", documentHeight);
+//    NSLog(@"Bounds Height = %f", boundsHeight);
+    NSLog(@"Max Offset = %f", maxOffset);
+
+    CGFloat offset =  floor(documentHeight * position.y - boundsSize.height/2);
+
+    offset = MIN(MAX(0, offset), maxOffset);
+
+    [editorTextView scrollRectToVisible:NSMakeRect(0, offset, boundsSize.width, boundsSize.height)];
+//    [editorScrollView.contentView scrollToPoint:NSMakePoint(0,offset)];
+}
+
 
 @end
