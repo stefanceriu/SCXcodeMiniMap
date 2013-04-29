@@ -152,7 +152,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     CGFloat width = editorTextView.bounds.size.width * kDefaultZoomLevel;
     
     NSRect frame = editorTextView.frame;
-    frame.size.width -= (width + kRightSidePadding);
+    frame.size.width -= width;
     [editorTextView setFrame:frame];
     
     NSRect miniMapScrollViewFrame = NSMakeRect(editorContainerView.bounds.size.width - width - kRightSidePadding, 0, width, editorScrollView.bounds.size.height);
@@ -212,10 +212,12 @@ static SCXcodeMinimap *sharedMinimap = nil;
 
 #pragma mark - NSLayoutManagerDelegate
 
-- (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinishedFlag
+- (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
 {
-    NSScrollView *editorScrollView = objc_getAssociatedObject(textContainer, &kKeyEditorScrollView);
-    [self updateMiniMapForEditorScrollView:editorScrollView];
+    if(layoutFinished) {
+        NSScrollView *editorScrollView = objc_getAssociatedObject(textContainer, &kKeyEditorScrollView);
+        [self updateMiniMapForEditorScrollView:editorScrollView];
+    }
 }
 
 - (NSDictionary *)layoutManager:(NSLayoutManager *)layoutManager shouldUseTemporaryAttributes:(NSDictionary *)attrs forDrawingToScreen:(BOOL)toScreen atCharacterIndex:(NSUInteger)charIndex effectiveRange:(NSRangePointer)effectiveCharRange
