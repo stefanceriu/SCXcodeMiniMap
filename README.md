@@ -11,6 +11,8 @@ SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
 - It blends with the currently selected theme 
 - Size configurable via the kDefaultZoomLevel parameter (defaults to 10% out of the editor's size)
 
+- Tested on OS X 10.7.5 Xcode 4.6(4H127) and OS X 1.8.3 Xcode 4.6.2(4H1003)
+
 ## Installation
 - Build the project and restart Xcode
 
@@ -25,7 +27,7 @@ SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
 - menu option for hiding/showing the MiniMap
  
 ## License
-SCStringsUtility is released under the GNU GENERAL PUBLIC LICENSE (see the LICENSE file)
+SCXcodeMiniMap is released under the GNU GENERAL PUBLIC LICENSE (see the LICENSE file)
 
 ## Contact
-Any suggestions or improvements are more than welcome. Feel free to contact me at stefan.ceriu@yahoo.com or @stefanceriu.
+Any suggestions or improvements are more than welcome. Feel free to contact me at [stefan.ceriu@yahoo.com](mailto://stefan.ceriu@yahoo.com) or [@stefanceriu](https://twitter.com/stefanceriu).
