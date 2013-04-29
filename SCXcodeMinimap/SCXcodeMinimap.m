@@ -206,6 +206,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     NSRect miniMapSelectionViewFrame = NSMakeRect(0, 0, miniMapScrollView.bounds.size.width, editorScrollView.visibleRect.size.height * kDefaultZoomLevel);
     SCSelectionView *miniMapSelectionView = [[SCSelectionView alloc] initWithFrame:miniMapSelectionViewFrame];
     [miniMapSelectionView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable | NSViewMinYMargin | NSViewMaxYMargin];
+    //[miniMapSelectionView setShouldInverseColors:YES];
     [miniMapScrollView.contentView addSubview:miniMapSelectionView];
     [miniMapSelectionView release];
     
