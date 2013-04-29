@@ -78,26 +78,11 @@ static SCXcodeMinimap *sharedMinimap = nil;
     [mutableAttributedString enumerateAttributesInRange:NSMakeRange(0, mutableAttributedString.length) options:NSAttributedStringEnumerationReverse usingBlock:
      ^(NSDictionary *attributes, NSRange range, BOOL *stop) {
          
-         NSMutableParagraphStyle *newParagraphStyle = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy];
-         newParagraphStyle.minimumLineHeight *= kDefaultZoomLevel;
-         newParagraphStyle.maximumLineHeight *= kDefaultZoomLevel;
-         newParagraphStyle.paragraphSpacing *= kDefaultZoomLevel;
-         newParagraphStyle.paragraphSpacingBefore *= kDefaultZoomLevel;
-         newParagraphStyle.firstLineHeadIndent *= kDefaultZoomLevel;
-         newParagraphStyle.headIndent *= kDefaultZoomLevel;
-         newParagraphStyle.tailIndent *= kDefaultZoomLevel;
-         newParagraphStyle.tighteningFactorForTruncation *= kDefaultZoomLevel;
-         
          NSFont *font = [attributes objectForKey:NSFontAttributeName];
          NSFont *newFont = [NSFont fontWithName:font.familyName size:font.pointSize * kDefaultZoomLevel];
          
-         NSObject *DVTFontAndColorTheme = [NSClassFromString(@"DVTFontAndColorTheme") performSelector:@selector(currentTheme)];
-         NSColor *textColor = [DVTFontAndColorTheme performSelector:@selector(sourcePlainTextColor)];
-         
          NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
-         [mutableAttributes setObject:newParagraphStyle forKey:NSParagraphStyleAttributeName];
          [mutableAttributes setObject:newFont forKey:NSFontAttributeName];
-         [mutableAttributes setObject:textColor forKey:NSForegroundColorAttributeName];
          [mutableAttributedString setAttributes:mutableAttributes range:range];
      }];
     
@@ -194,9 +179,18 @@ static SCXcodeMinimap *sharedMinimap = nil;
     [miniMapScrollView setDocumentView:miniMapTextView];
     [miniMapTextView release];
     
-    NSObject *DVTFontAndColorTheme = [NSClassFromString(@"DVTFontAndColorTheme") performSelector:@selector(currentTheme)];
-    NSColor *backgroundColor = [DVTFontAndColorTheme performSelector:@selector(sourceTextBackgroundColor)];
-    [miniMapTextView setBackgroundColor:[backgroundColor shadowWithLevel:kDefaultShadowLevel]];
+    NSColor *miniMapBackgroundColor = [NSColor clearColor];
+    Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+    if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
+        NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
+        
+        if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+            miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+            
+        }
+    }
+    
+    [miniMapTextView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
     
     objc_setAssociatedObject(editorDocument, &kKeyMiniMapTextView, miniMapTextView, OBJC_ASSOCIATION_ASSIGN);
     objc_setAssociatedObject(editorScrollView, &kKeyMiniMapTextView, miniMapTextView, OBJC_ASSOCIATION_ASSIGN);
