@@ -30,4 +30,4 @@ SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
 SCXcodeMiniMap is released under the GNU GENERAL PUBLIC LICENSE (see the LICENSE file)
 
 ## Contact
-Any suggestions or improvements are more than welcome. Feel free to contact me at [stefan.ceriu@yahoo.com](mailto://stefan.ceriu@yahoo.com) or [@stefanceriu](https://twitter.com/stefanceriu).
+Any suggestions or improvements are more than welcome. Feel free to contact me at [stefan.ceriu@yahoo.com](mailto:stefan.ceriu@yahoo.com) or [@stefanceriu](https://twitter.com/stefanceriu).
