@@ -233,25 +233,19 @@ static SCXcodeMinimap *sharedMinimap = nil;
 
 - (void)textView:(SCTextView *)textView goAtRelativePosition:(NSPoint)position
 {
-    NSTextView *editorTextView = objc_getAssociatedObject(textView.layoutManager, &kKeyEditorTextView);
-
     NSScrollView *editorScrollView = objc_getAssociatedObject(textView.textContainer, &kKeyEditorScrollView);
 
     CGFloat documentHeight = [editorScrollView.documentView frame].size.height;
     CGSize boundsSize = editorScrollView.bounds.size;
     CGFloat maxOffset = documentHeight - boundsSize.height;
     
-    NSLog(@"Position Y = %f",position.y);
-    NSLog(@"Document Frame Height = %f", documentHeight);
-//    NSLog(@"Bounds Height = %f", boundsHeight);
-    NSLog(@"Max Offset = %f", maxOffset);
-
     CGFloat offset =  floor(documentHeight * position.y - boundsSize.height/2);
 
     offset = MIN(MAX(0, offset), maxOffset);
 
+    NSTextView *editorTextView = objc_getAssociatedObject(textView.layoutManager, &kKeyEditorTextView);
+    
     [editorTextView scrollRectToVisible:NSMakeRect(0, offset, boundsSize.width, boundsSize.height)];
-//    [editorScrollView.contentView scrollToPoint:NSMakePoint(0,offset)];
 }
 
 
