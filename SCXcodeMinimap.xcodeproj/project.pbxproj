@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00DE23BB172E7DDE00DCC8A8 /* SCInvertedSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DE23BA172E7DD900DCC8A8 /* SCInvertedSelectionView.m */; };
 		18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18D2B13017244C0A0026D09F /* SCSelectionView.m */; };
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00DE23B9172E7DD900DCC8A8 /* SCInvertedSelectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCInvertedSelectionView.h; sourceTree = "<group>"; };
+		00DE23BA172E7DD900DCC8A8 /* SCInvertedSelectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCInvertedSelectionView.m; sourceTree = "<group>"; };
 		18D2B12F17244C0A0026D09F /* SCSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCSelectionView.h; sourceTree = "<group>"; };
 		18D2B13017244C0A0026D09F /* SCSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCSelectionView.m; sourceTree = "<group>"; };
 		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -81,6 +84,8 @@
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
 				18D2B12F17244C0A0026D09F /* SCSelectionView.h */,
 				18D2B13017244C0A0026D09F /* SCSelectionView.m */,
+				00DE23B9172E7DD900DCC8A8 /* SCInvertedSelectionView.h */,
+				00DE23BA172E7DD900DCC8A8 /* SCInvertedSelectionView.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 			);
 			path = SCXcodeMinimap;
@@ -158,6 +163,7 @@
 			files = (
 				18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */,
 				18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */,
+				00DE23BB172E7DDE00DCC8A8 /* SCInvertedSelectionView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

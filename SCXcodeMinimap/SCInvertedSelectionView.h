@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SCSelectionView : NSView
+@interface SCInvertedSelectionView : NSView
 
 @property (nonatomic, strong) NSColor *selectionColor;
 
