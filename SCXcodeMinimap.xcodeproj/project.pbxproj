@@ -10,7 +10,8 @@
 		18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18D2B13017244C0A0026D09F /* SCSelectionView.m */; };
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
-		B2A3E44A172E714F004A56C1 /* SCTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = B2A3E449172E714F004A56C1 /* SCTextView.m */; };
+		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
+		B25F211C172FE208001A9E6E /* SCMiniMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = B25F211B172FE208001A9E6E /* SCMiniMapView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,8 +26,10 @@
 		18FE09C11707639E00118FEB /* SCXcodeMinimap-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SCXcodeMinimap-Prefix.pch"; sourceTree = "<group>"; };
 		18FE09C7170764E400118FEB /* SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimap.h; sourceTree = "<group>"; };
 		18FE09C8170764E400118FEB /* SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimap.m; sourceTree = "<group>"; };
-		B2A3E448172E714F004A56C1 /* SCTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCTextView.h; sourceTree = "<group>"; };
-		B2A3E449172E714F004A56C1 /* SCTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCTextView.m; sourceTree = "<group>"; };
+		8742532217307161001C947C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		B25F211A172FE208001A9E6E /* SCMiniMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCMiniMapView.h; sourceTree = "<group>"; };
+		B25F211B172FE208001A9E6E /* SCMiniMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCMiniMapView.m; sourceTree = "<group>"; };
+		B25F211D172FE3B3001A9E6E /* Conf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Conf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8742532317307161001C947C /* QuartzCore.framework in Frameworks */,
 				18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,6 +74,7 @@
 		18FE09B71707639E00118FEB /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8742532217307161001C947C /* QuartzCore.framework */,
 				18FE09B81707639E00118FEB /* AppKit.framework */,
 				18FE09B91707639E00118FEB /* CoreData.framework */,
 				18FE09BA1707639E00118FEB /* Foundation.framework */,
@@ -80,12 +85,13 @@
 		18FE09BB1707639E00118FEB /* SCXcodeMinimap */ = {
 			isa = PBXGroup;
 			children = (
+				B25F211D172FE3B3001A9E6E /* Conf.h */,
 				18FE09C7170764E400118FEB /* SCXcodeMinimap.h */,
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
+				B25F211A172FE208001A9E6E /* SCMiniMapView.h */,
+				B25F211B172FE208001A9E6E /* SCMiniMapView.m */,
 				18D2B12F17244C0A0026D09F /* SCSelectionView.h */,
 				18D2B13017244C0A0026D09F /* SCSelectionView.m */,
-				B2A3E448172E714F004A56C1 /* SCTextView.h */,
-				B2A3E449172E714F004A56C1 /* SCTextView.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 			);
 			path = SCXcodeMinimap;
@@ -163,7 +169,7 @@
 			files = (
 				18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */,
 				18D2B13117244C0A0026D09F /* SCSelectionView.m in Sources */,
-				B2A3E44A172E714F004A56C1 /* SCTextView.m in Sources */,
+				B25F211C172FE208001A9E6E /* SCMiniMapView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
