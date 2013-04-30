@@ -148,8 +148,6 @@ static SCXcodeMinimap *sharedMinimap = nil;
     objc_setAssociatedObject(editorScrollView,  &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
     objc_setAssociatedObject(editorDocument,    &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
 
-    [miniMapView updateTextView];
-
     if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
         [miniMapView hide];
     }
@@ -158,7 +156,6 @@ static SCXcodeMinimap *sharedMinimap = nil;
     }
 
     [miniMapView release];
-
 }
 
 @end

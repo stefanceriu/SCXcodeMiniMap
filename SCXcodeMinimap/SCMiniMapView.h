@@ -7,12 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "SCTextView.h"
 #import "SCSelectionView.h"
 
-@interface SCMiniMapView : NSScrollView <NSLayoutManagerDelegate, SCTextViewDelegate>
+@interface SCMiniMapView : NSScrollView <NSLayoutManagerDelegate>
 
-@property (nonatomic, retain) SCTextView *textView;
+@property (nonatomic, retain) NSTextView *textView;
 @property (nonatomic, retain) SCSelectionView *selectionView;
 
 @property (nonatomic, assign) NSScrollView *editorScrollView;

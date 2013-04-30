@@ -8,56 +8,21 @@
 
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation SCMiniMapView
 
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
-    if (self) {
-
+    if (self)
+    {
         /* Configure ScrollView */
         [self setWantsLayer:YES];
         [self setAutoresizingMask: NSViewMinXMargin | NSViewWidthSizable | NSViewHeightSizable];
         [self setDrawsBackground:NO];
         [self setHorizontalScrollElasticity:NSScrollElasticityNone];
         [self setVerticalScrollElasticity:NSScrollElasticityNone];
-
-        /* Configure Text View */
-        SCTextView *miniMapTextView = [[SCTextView alloc] initWithFrame:self.bounds];
-        [miniMapTextView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
-        [miniMapTextView.textContainer setLineFragmentPadding:0.0f];
-        [miniMapTextView setSelectable:NO];
-        [miniMapTextView.layoutManager setDelegate:self];
-        [miniMapTextView setDelegate:self];
-
-        [self setDocumentView:miniMapTextView];
-
-        NSColor *miniMapBackgroundColor = [NSColor clearColor];
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-
-            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
-                miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
-
-            }
-        }
-
-        [miniMapTextView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
-        
-        self.textView = miniMapTextView;
-
-        [miniMapTextView release];
-
-        /* Configure Selection View */
-        SCSelectionView *miniMapSelectionView = [[SCSelectionView alloc] init];
-        [miniMapSelectionView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable | NSViewMinYMargin | NSViewMaxYMargin];
-        //[miniMapSelectionView setShouldInverseColors:YES];
-        [self addSubview:miniMapSelectionView];
-
-        self.selectionView = miniMapSelectionView;
-        [miniMapSelectionView release];
 
         /* Subscribe to show/hide notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -82,6 +47,48 @@
     [super dealloc];
 }
 
+#pragma mark - Lazy Initialization
+
+- (NSTextView *)textView
+{
+    if (_textView == nil) {
+        _textView = [[NSTextView alloc] initWithFrame:self.bounds];
+        [_textView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
+        [_textView.textContainer setLineFragmentPadding:0.0f];
+        [_textView setSelectable:NO];
+        [_textView.layoutManager setDelegate:self];
+        
+        [self setDocumentView:_textView];
+        
+        NSColor *miniMapBackgroundColor = [NSColor clearColor];
+        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+        
+        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
+            
+            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
+            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+                miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+            }
+        }
+        
+        [_textView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
+    }
+    
+    return _textView;
+}
+
+- (SCSelectionView *)selectionView
+{
+    if (_selectionView == nil) {
+        _selectionView = [[SCSelectionView alloc] init];
+        [_selectionView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable | NSViewMinYMargin | NSViewMaxYMargin];
+        //[_selectionView setShouldInverseColors:YES];
+        [self.textView addSubview:_selectionView];
+    }
+    
+    return _selectionView;
+}
+
 #pragma mark - Show/Hide
 
 - (void) show
@@ -91,6 +98,9 @@
     NSRect editorTextViewFrame = self.editorTextView.frame;
     editorTextViewFrame.size.width = self.editorTextView.superview.frame.size.width - self.bounds.size.width - kRightSidePadding;
     self.editorTextView.frame = editorTextViewFrame;
+    
+    [self updateTextView];
+    [self updateSelectionView];
 }
 
 - (void) hide
@@ -106,6 +116,10 @@
 
 - (void)updateTextView
 {
+    if ([self isHidden]) {
+        return;
+    }
+     
     NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
 
     if(mutableAttributedString == nil) {
@@ -129,6 +143,10 @@
 
 - (void)updateSelectionView
 {
+    if ([self isHidden]) {
+        return;
+    }
+
     NSRect selectionViewFrame = NSMakeRect(0,
                                            0,
                                            self.bounds.size.width,
@@ -170,9 +188,40 @@
                                                             effectiveRange:effectiveCharRange];
 }
 
-#pragma mark - SCTextViewDelegate
+#pragma mark - Navigation
 
-- (void)textView:(SCTextView *)textView goAtRelativePosition:(NSPoint)position
+- (void)mouseDown:(NSEvent *)theEvent
+{
+    [super mouseDown:theEvent];
+    [self handleMouseEvent:theEvent];
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent
+{
+    [super mouseDragged:theEvent];
+    [self handleMouseEvent:theEvent];
+}
+
+- (void) handleMouseEvent:(NSEvent *)theEvent
+{
+        NSPoint locationInSelf = [self convertPoint:theEvent.locationInWindow fromView:nil];
+        
+        NSSize textSize = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size;
+        NSSize frameSize = self.frame.size;
+    
+    NSLog(@"text Height : %f ; frame Height : %f",textSize.height, frameSize.height);
+        NSPoint point;
+        if (textSize.height < frameSize.height) {
+            point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / textSize.height);
+        }
+        else {
+            point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / frameSize.height);
+        }
+    
+    [self goAtRelativePosition:point];
+}
+
+- (void)goAtRelativePosition:(NSPoint)position
 {
     CGFloat documentHeight = [self.editorScrollView.documentView frame].size.height;
     CGSize boundsSize = self.editorScrollView.bounds.size;
