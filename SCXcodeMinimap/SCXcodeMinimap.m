@@ -41,8 +41,39 @@ static SCXcodeMinimap *sharedMinimap = nil;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishSetup:) name:IDESourceCodeEditorDidFinishSetupNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDocumentDidChange:) name:IDEEditorDocumentDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCodeEditorBoundsChange:) name:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil];
+        [self createMenuItem];
     }
 	return self;
+}
+
+- (void)createMenuItem
+{
+    NSMenuItem *windowMenuItem = [[NSApp mainMenu] itemWithTitle:@"Edit"];
+    NSMenuItem *pluginManagerItem = [[NSMenuItem alloc] initWithTitle:@"Show Mini Map"
+                                                               action:@selector(hide:)
+                                                        keyEquivalent:@""];
+    [pluginManagerItem setState:NSOnState];
+    pluginManagerItem.target = self;
+    
+    [windowMenuItem.submenu insertItem:[NSMenuItem separatorItem]
+                               atIndex:[windowMenuItem.submenu numberOfItems]];
+    [windowMenuItem.submenu insertItem:pluginManagerItem
+                               atIndex:[windowMenuItem.submenu numberOfItems]];
+    [pluginManagerItem release];
+}
+
+- (void) hide:(NSMenuItem *)sender
+{
+    [sender setState:NSOffState];
+    [sender setAction:@selector(show:)];
+    NSLog(@"HIDE MINI MAP PLEASE");
+}
+
+- (void) show:(NSMenuItem *)sender
+{
+    [sender setState:NSOnState];
+    [sender setAction:@selector(hide:)];
+    NSLog(@"SHOW MINI MAP PLEASE");
 }
 
 - (void)onDocumentDidChange:(NSNotification*)sender
