@@ -9,6 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "SCTextView.h"
 
-@interface SCXcodeMinimap : NSObject <SCTextViewDelegate>
+extern NSString *const SCXodeMinimapWantsToBeShownNotification;
+extern NSString *const SCXodeMinimapWantsToBeHiddenNotification;
+
+@interface SCXcodeMinimap : NSObject
 
 @end

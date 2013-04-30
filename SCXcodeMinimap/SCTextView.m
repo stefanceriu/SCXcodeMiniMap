@@ -10,21 +10,6 @@
 
 @implementation SCTextView
 
-- (id)initWithFrame:(NSRect)frameRect
-{
-    self = [super initWithFrame:frameRect];
-    if (self) {
-        NSLog(@"INIT TEXT VIEW");
-    }
-    return self;
-}
-
-- (void)dealloc
-{
-    NSLog(@"DEALLOC TEXT VIEW");
-    [super dealloc];
-}
-
 - (void)mouseDown:(NSEvent *)theEvent
 {
     [super mouseDown:theEvent];
