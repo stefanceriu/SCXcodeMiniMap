@@ -9,6 +9,7 @@ SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
 - The minimap and its selection view scroll seamlessly with the editor and provide a nice way of figuring out the current position in the document
 - Full syntax highlighting
 - It blends with the currently selected theme 
+- View menu item for showing/hiding it (Ctrl+Shift+M)
 - Size configurable via the kDefaultZoomLevel parameter (defaults to 10% out of the editor's size)
 
 - Tested on OS X 10.7.5 Xcode 4.6(4H127) and OS X 1.8.3 Xcode 4.6.2(4H1003)
