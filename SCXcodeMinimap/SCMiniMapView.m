@@ -8,7 +8,6 @@
 
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
-#import <QuartzCore/QuartzCore.h>
 
 @implementation SCMiniMapView
 
@@ -91,7 +90,7 @@
 
 #pragma mark - Show/Hide
 
-- (void) show
+- (void)show
 {
     self.hidden = NO;
 
@@ -103,7 +102,7 @@
     [self updateSelectionView];
 }
 
-- (void) hide
+- (void)hide
 {
     self.hidden = YES;
 
@@ -204,19 +203,18 @@
 
 - (void) handleMouseEvent:(NSEvent *)theEvent
 {
-        NSPoint locationInSelf = [self convertPoint:theEvent.locationInWindow fromView:nil];
-        
-        NSSize textSize = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size;
-        NSSize frameSize = self.frame.size;
+    NSPoint locationInSelf = [self convertPoint:theEvent.locationInWindow fromView:nil];
     
-    NSLog(@"text Height : %f ; frame Height : %f",textSize.height, frameSize.height);
-        NSPoint point;
-        if (textSize.height < frameSize.height) {
-            point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / textSize.height);
-        }
-        else {
-            point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / frameSize.height);
-        }
+    NSSize textSize = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size;
+    NSSize frameSize = self.frame.size;
+    
+    NSPoint point;
+    if (textSize.height < frameSize.height) {
+        point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / textSize.height);
+    }
+    else {
+        point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / frameSize.height);
+    }
     
     [self goAtRelativePosition:point];
 }

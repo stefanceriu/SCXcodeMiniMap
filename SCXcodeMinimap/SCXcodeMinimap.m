@@ -8,7 +8,6 @@
 
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
-#import "SCSelectionView.h"
 #import <objc/runtime.h>
 
 static char kKeyMiniMapView;
@@ -45,10 +44,11 @@ static SCXcodeMinimap *sharedMinimap = nil;
 
 - (void)createMenuItem
 {
-    NSMenuItem *editMenuItem = [[NSApp mainMenu] itemWithTitle:@"Edit"];
-    NSMenuItem *miniMapItem = [[NSMenuItem alloc] initWithTitle:@"Show Mini Map"
+    NSMenuItem *editMenuItem = [[NSApp mainMenu] itemWithTitle:@"View"];
+    NSMenuItem *miniMapItem = [[NSMenuItem alloc] initWithTitle:@""
                                                                action:NULL
-                                                        keyEquivalent:@""];
+                                                        keyEquivalent:@"M"];
+    [miniMapItem setKeyEquivalentModifierMask:NSControlKeyMask | NSShiftKeyMask];
     
     miniMapItem.target = self;
     
@@ -67,21 +67,21 @@ static SCXcodeMinimap *sharedMinimap = nil;
     }
 }
 
-- (void) hideMiniMap:(NSMenuItem *)sender
+- (void)hideMiniMap:(NSMenuItem *)sender
 {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SCXodeMinimapIsInitiallyHidden];
 
-    [sender setState:NSOffState];
+    [sender setTitle:@"Show MiniMap"];
     [sender setAction:@selector(showMiniMap:)];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeHiddenNotification object:nil];
 }
 
-- (void) showMiniMap:(NSMenuItem *)sender
+- (void)showMiniMap:(NSMenuItem *)sender
 {
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:SCXodeMinimapIsInitiallyHidden];
 
-    [sender setState:NSOnState];
+    [sender setTitle:@"Hide MiniMap"];
     [sender setAction:@selector(hideMiniMap:)];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeShownNotification object:nil];
