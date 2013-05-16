@@ -189,6 +189,13 @@
 
 #pragma mark - Navigation
 
+
+- (void)mouseUp:(NSEvent *)theEvent
+{
+    [super mouseUp:theEvent];
+    [self handleMouseEvent:theEvent];
+}
+
 - (void)mouseDown:(NSEvent *)theEvent
 {
     [super mouseDown:theEvent];
