@@ -54,8 +54,24 @@
         _textView = [[NSTextView alloc] initWithFrame:self.bounds];
         [_textView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
         [_textView.textContainer setLineFragmentPadding:0.0f];
-        [_textView setSelectable:NO];
+
         [_textView.layoutManager setDelegate:self];
+        [_textView.layoutManager setAllowsNonContiguousLayout:YES];
+        [_textView.layoutManager setBackgroundLayoutEnabled:YES];
+        
+        [_textView setAllowsUndo:NO];
+        [_textView setAllowsImageEditing:NO];
+        [_textView setAutomaticDashSubstitutionEnabled:NO];
+        [_textView setAutomaticDataDetectionEnabled:NO];
+        [_textView setAutomaticLinkDetectionEnabled:NO];
+        [_textView setAutomaticQuoteSubstitutionEnabled:NO];
+        [_textView setAutomaticSpellingCorrectionEnabled:NO];
+        [_textView setAutomaticTextReplacementEnabled:NO];
+        [_textView setContinuousSpellCheckingEnabled:NO];
+        [_textView setDisplaysLinkToolTips:NO];
+        [_textView setEditable:NO];        
+        [_textView setRichText:YES];
+        [_textView setSelectable:NO];
         
         [self setDocumentView:_textView];
         
@@ -188,7 +204,6 @@
 }
 
 #pragma mark - Navigation
-
 
 - (void)mouseUp:(NSEvent *)theEvent
 {
