@@ -92,7 +92,6 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
     if (_selectionView == nil) {
         _selectionView = [[SCSelectionView alloc] init];
-        [_selectionView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable | NSViewMinYMargin | NSViewMaxYMargin];
         //[_selectionView setShouldInverseColors:YES];
         [self.textView addSubview:_selectionView];
     }
@@ -169,7 +168,18 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     [mutableAttributedString release];
 }
 
+- (void)resizeWithOldSuperviewSize:(NSSize)oldSize
+{
+    [super resizeWithOldSuperviewSize:oldSize];
+    [self updateSelectionViewAnimated:YES];
+}
+
 - (void)updateSelectionView
+{
+    [self updateSelectionViewAnimated:NO];
+}
+
+- (void)updateSelectionViewAnimated:(BOOL)animated
 {
     if ([self isHidden]) {
         return;
@@ -195,7 +205,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
     }
 
-    self.selectionView.frame = selectionViewFrame;
+    if(animated) {
+        [self.selectionView.animator setFrame:selectionViewFrame];
+    } else {
+        [self.selectionView setFrame:selectionViewFrame];
+    }
 }
 
 #pragma mark - NSLayoutManagerDelegate
