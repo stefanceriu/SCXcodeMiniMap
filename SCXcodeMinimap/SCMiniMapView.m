@@ -11,6 +11,12 @@
 
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
+@interface SCMiniMapView ()
+
+@property (nonatomic, retain) NSColor *backgroundColor;
+
+@end
+
 @implementation SCMiniMapView
 
 - (id)initWithFrame:(NSRect)frame
@@ -60,6 +66,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if (_textView == nil) {
         _textView = [[NSTextView alloc] initWithFrame:self.bounds];
         [_textView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
+        [_textView setBackgroundColor:[NSColor clearColor]];
+        
         [_textView.textContainer setLineFragmentPadding:0.0f];
 
         [_textView.layoutManager setDelegate:self];
@@ -137,7 +145,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         }
     }
     
-    [self.textView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
+    self.backgroundColor = [miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel];
+    [self.textView.textStorage addAttribute:NSBackgroundColorAttributeName value:self.backgroundColor range:NSMakeRange(0, self.textView.textStorage.length)];
     [self.selectionView setSelectionColor:nil];
 }
 
@@ -165,6 +174,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
      }];
 
     [self.textView.textStorage setAttributedString:mutableAttributedString];
+    [self.textView.textStorage addAttribute:NSBackgroundColorAttributeName value:self.backgroundColor range:NSMakeRange(0, self.textView.textStorage.length)];
     [mutableAttributedString release];
 }
 
