@@ -8,13 +8,8 @@
 
 #import "SCSelectionView.h"
 
-@interface SCSelectionView ()
-
-@property (nonatomic, retain) NSColor *selectionColor;
-
-@end
-
 @implementation SCSelectionView
+@synthesize selectionColor = _selectionColor;
 
 - (void)dealloc
 {
@@ -26,14 +21,6 @@
 {
     [[self selectionColor] setFill];
     NSRectFill(dirtyRect);
-}
-
-- (void)setNeedsDisplay:(BOOL)flag
-{
-    if(self.needsDisplay == flag) return;
-    
-    [self setSelectionColor:nil];
-    [super setNeedsDisplay:flag];
 }
 
 - (NSColor *)selectionColor
@@ -68,6 +55,14 @@
     }
     
     return _selectionColor;
+}
+
+- (void)setSelectionColor:(NSColor *)selectionColor
+{
+    if([_selectionColor isEqual:selectionColor]) return;
+    
+    _selectionColor = selectionColor;
+    [self setNeedsDisplay:YES];
 }
 
 - (void)setShouldInverseColors:(BOOL)shouldInverseColors

@@ -138,7 +138,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     }
     
     [self.textView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
-    [self.selectionView setNeedsDisplay:YES];
+    [self.selectionView setSelectionColor:nil];
 }
 
 - (void)updateTextView
