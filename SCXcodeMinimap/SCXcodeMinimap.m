@@ -15,12 +15,11 @@ static char kKeyMiniMapView;
 static NSString * const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
 static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocumentDidChangeNotification";
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
-static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";//Unused
 
-NSString *const SCXodeMinimapWantsToBeShownNotification = @"SCXodeMinimapWantsToBeShownNotification";
-NSString *const SCXodeMinimapWantsToBeHiddenNotification = @"SCXodeMinimapWantsToBeHiddenNotification";
+NSString * const SCXodeMinimapWantsToBeShownNotification = @"SCXodeMinimapWantsToBeShownNotification";
+NSString * const SCXodeMinimapWantsToBeHiddenNotification = @"SCXodeMinimapWantsToBeHiddenNotification";
 
-NSString *const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
+NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
 
 @implementation SCXcodeMinimap
 

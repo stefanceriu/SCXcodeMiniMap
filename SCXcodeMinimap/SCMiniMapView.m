@@ -9,6 +9,8 @@
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
 
+static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
+
 @implementation SCMiniMapView
 
 - (id)initWithFrame:(NSRect)frame
@@ -32,6 +34,11 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(hide)
                                                      name:SCXodeMinimapWantsToBeHiddenNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(updateTheme)
+                                                     name:DVTFontAndColorSourceTextSettingsChangedNotification
                                                    object:nil];
     }
     return self;
@@ -75,18 +82,7 @@
         
         [self setDocumentView:_textView];
         
-        NSColor *miniMapBackgroundColor = [NSColor clearColor];
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
-                miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
-            }
-        }
-        
-        [_textView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
+        [self updateTheme];
     }
     
     return _textView;
@@ -128,6 +124,23 @@
 }
 
 #pragma mark - Updating
+
+- (void)updateTheme
+{
+    NSColor *miniMapBackgroundColor = [NSColor clearColor];
+    Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+    
+    if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
+        
+        NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
+        if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+            miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+        }
+    }
+    
+    [self.textView setBackgroundColor:[miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel]];
+    [self.selectionView setNeedsDisplay:YES];
+}
 
 - (void)updateTextView
 {

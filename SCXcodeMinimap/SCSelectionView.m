@@ -28,6 +28,14 @@
     NSRectFill(dirtyRect);
 }
 
+- (void)setNeedsDisplay:(BOOL)flag
+{
+    if(self.needsDisplay == flag) return;
+    
+    [self setSelectionColor:nil];
+    [super setNeedsDisplay:flag];
+}
+
 - (NSColor *)selectionColor
 {
     if(_selectionColor == nil) {
