@@ -14,6 +14,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 @interface SCMiniMapView ()
 
 @property (nonatomic, retain) NSColor *backgroundColor;
+@property (nonatomic, retain) NSFont *font;
 
 @end
 
@@ -56,6 +57,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     
     [_selectionView release];
     [_textView release];
+    [_backgroundColor release];
+    [_font release];
     [super dealloc];
 }
 
@@ -107,6 +110,44 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     return _selectionView;
 }
 
+- (NSFont *)font
+{
+    if(_font == nil) {    
+        _font = [NSFont fontWithName:@"Menlo" size:11 * kDefaultZoomLevel];
+        
+        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
+            
+            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
+            if([theme respondsToSelector:@selector(sourcePlainTextFont)]) {
+                NSFont *themeFont = [theme performSelector:@selector(sourcePlainTextFont)];
+                self.font = [NSFont fontWithName:themeFont.familyName size:themeFont.pointSize * kDefaultZoomLevel];
+            }
+        }
+    }
+    
+    return _font;
+}
+
+- (NSColor *)backgroundColor
+{
+    if(_backgroundColor == nil) {
+        _backgroundColor = [[NSColor clearColor] shadowWithLevel:kDefaultShadowLevel];
+        
+        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
+            
+            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
+            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+                NSColor *themeBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+                self.backgroundColor = [themeBackgroundColor shadowWithLevel:kDefaultShadowLevel];
+            }
+        }
+    }
+
+    return _backgroundColor;
+}
+
 #pragma mark - Show/Hide
 
 - (void)show
@@ -134,19 +175,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)updateTheme
 {
-    NSColor *miniMapBackgroundColor = [NSColor clearColor];
-    Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
+    [self setFont:nil];
+    [self updateTextView];
     
-    if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-        
-        NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-        if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
-            miniMapBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
-        }
-    }
-    
-    self.backgroundColor = [miniMapBackgroundColor shadowWithLevel:kDefaultShadowLevel];
-    [self.textView.textStorage addAttribute:NSBackgroundColorAttributeName value:self.backgroundColor range:NSMakeRange(0, self.textView.textStorage.length)];
+    [self setBackgroundColor:nil];
     [self.selectionView setSelectionColor:nil];
 }
 
@@ -162,19 +194,9 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         return;
     }
 
-    [mutableAttributedString enumerateAttributesInRange:NSMakeRange(0, mutableAttributedString.length) options:NSAttributedStringEnumerationReverse usingBlock:
-     ^(NSDictionary *attributes, NSRange range, BOOL *stop) {
-
-         NSFont *font = [attributes objectForKey:NSFontAttributeName];
-         NSFont *newFont = [NSFont fontWithName:font.familyName size:font.pointSize * kDefaultZoomLevel];
-
-         NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionaryWithDictionary:attributes];
-         [mutableAttributes setObject:newFont forKey:NSFontAttributeName];
-         [mutableAttributedString setAttributes:mutableAttributes range:range];
-     }];
+    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSBackgroundColorAttributeName : self.backgroundColor} range:NSMakeRange(0, mutableAttributedString.length)];
 
     [self.textView.textStorage setAttributedString:mutableAttributedString];
-    [self.textView.textStorage addAttribute:NSBackgroundColorAttributeName value:self.backgroundColor range:NSMakeRange(0, self.textView.textStorage.length)];
     [mutableAttributedString release];
 }
 
