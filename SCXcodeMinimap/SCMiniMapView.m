@@ -74,8 +74,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [_textView.textContainer setLineFragmentPadding:0.0f];
 
         [_textView.layoutManager setDelegate:self];
-        [_textView.layoutManager setAllowsNonContiguousLayout:YES];
-        [_textView.layoutManager setBackgroundLayoutEnabled:YES];
+//        [_textView.layoutManager setAllowsNonContiguousLayout:YES];
+//        [_textView.layoutManager setBackgroundLayoutEnabled:YES];
         
         [_textView setAllowsUndo:NO];
         [_textView setAllowsImageEditing:NO];
