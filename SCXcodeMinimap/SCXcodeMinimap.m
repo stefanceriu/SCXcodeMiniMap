@@ -32,11 +32,13 @@ static SCXcodeMinimap *sharedMinimap = nil;
 }
 
 - (id)init {
-	if (self = [super init]) {        
+	if (self = [super init]) {
+        
+        [self createMenuItem];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishSetup:) name:IDESourceCodeEditorDidFinishSetupNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDocumentDidChange:) name:IDEEditorDocumentDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCodeEditorBoundsChange:) name:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil];
-        [self createMenuItem];
     }
 	return self;
 }
@@ -44,6 +46,12 @@ static SCXcodeMinimap *sharedMinimap = nil;
 - (void)createMenuItem
 {
     NSMenuItem *editMenuItem = [[NSApp mainMenu] itemWithTitle:@"View"];
+    
+    if(editMenuItem == nil) {
+        NSLog(@"Could not fetch 'View' main menu item");
+        return;
+    }
+    
     NSMenuItem *miniMapItem = [[NSMenuItem alloc] initWithTitle:@""
                                                                action:NULL
                                                         keyEquivalent:@"M"];
