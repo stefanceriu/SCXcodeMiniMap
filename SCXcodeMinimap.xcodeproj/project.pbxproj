@@ -236,10 +236,11 @@
 		18FE09C51707639E00118FEB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(HOME)";
-				GCC_ENABLE_OBJC_GC = supported;
+				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";
 				INFOPLIST_FILE = "SCXcodeMinimap/SCXcodeMinimap-Info.plist";
@@ -252,10 +253,11 @@
 		18FE09C61707639E00118FEB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(HOME)";
-				GCC_ENABLE_OBJC_GC = supported;
+				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";
 				INFOPLIST_FILE = "SCXcodeMinimap/SCXcodeMinimap-Info.plist";

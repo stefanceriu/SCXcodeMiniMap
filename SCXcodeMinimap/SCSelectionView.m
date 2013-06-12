@@ -11,12 +11,6 @@
 @implementation SCSelectionView
 @synthesize selectionColor = _selectionColor;
 
-- (void)dealloc
-{
-    [self.selectionColor release];
-    [super dealloc];
-}
-
 - (void)drawRect:(NSRect)dirtyRect
 {
     [[self selectionColor] setFill];

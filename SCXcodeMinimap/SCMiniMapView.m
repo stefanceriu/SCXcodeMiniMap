@@ -54,12 +54,6 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    [_selectionView release];
-    [_textView release];
-    [_backgroundColor release];
-    [_font release];
-    [super dealloc];
 }
 
 #pragma mark - Lazy Initialization
@@ -197,7 +191,6 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSBackgroundColorAttributeName : self.backgroundColor} range:NSMakeRange(0, mutableAttributedString.length)];
 
     [self.textView.textStorage setAttributedString:mutableAttributedString];
-    [mutableAttributedString release];
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
@@ -248,7 +241,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
 {
-    if(layoutFinished) {
+    if([layoutManager isEqual:self.editorTextView.layoutManager]) {
+        [(id<NSLayoutManagerDelegate>)self.editorTextView layoutManager:layoutManager
+                                      didCompleteLayoutForTextContainer:textContainer
+                                                                  atEnd:layoutFinished];
+    }
+    else if(layoutFinished) {
         [self updateSelectionView];
     }
 }

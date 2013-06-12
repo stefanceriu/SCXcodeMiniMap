@@ -63,8 +63,6 @@ static SCXcodeMinimap *sharedMinimap = nil;
                                atIndex:[editMenuItem.submenu numberOfItems]];
     [editMenuItem.submenu insertItem:miniMapItem
                                atIndex:[editMenuItem.submenu numberOfItems]];
-    
-    [miniMapItem release];
 
     if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
         [self hideMiniMap:miniMapItem];
@@ -161,8 +159,6 @@ static SCXcodeMinimap *sharedMinimap = nil;
     else {
         [miniMapView show];
     }
-
-    [miniMapView release];
 }
 
 @end
