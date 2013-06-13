@@ -10,7 +10,7 @@
 
 @interface SCSelectionView : NSView
 
-@property (nonatomic, retain) NSColor *selectionColor;
+@property (nonatomic, strong) NSColor *selectionColor;
 @property (nonatomic, assign) BOOL shouldInverseColors;
 
 @end

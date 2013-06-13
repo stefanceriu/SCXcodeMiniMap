@@ -11,10 +11,10 @@
 
 @interface SCMiniMapView : NSScrollView <NSLayoutManagerDelegate>
 
-@property (nonatomic, retain) NSTextView *textView;
-@property (nonatomic, retain) SCSelectionView *selectionView;
+@property (nonatomic, strong) NSTextView *textView;
+@property (nonatomic, strong) SCSelectionView *selectionView;
 
-@property (nonatomic, assign) NSScrollView *editorScrollView;
+@property (nonatomic, weak) NSScrollView *editorScrollView;
 @property (nonatomic, assign) NSTextView *editorTextView;
 
 - (void)updateTextView;

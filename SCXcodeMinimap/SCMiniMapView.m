@@ -13,8 +13,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @interface SCMiniMapView ()
 
-@property (nonatomic, retain) NSColor *backgroundColor;
-@property (nonatomic, retain) NSFont *font;
+@property (nonatomic, strong) NSColor *backgroundColor;
+@property (nonatomic, strong) NSFont *font;
 
 @end
 
