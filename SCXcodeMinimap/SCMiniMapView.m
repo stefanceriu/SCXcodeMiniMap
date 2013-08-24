@@ -27,7 +27,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     {
         /* Configure ScrollView */
         [self setWantsLayer:YES];
-        [self setAutoresizingMask: NSViewMinXMargin | NSViewWidthSizable | NSViewHeightSizable];
+        [self setAutoresizingMask: NSViewMinXMargin | NSViewHeightSizable];
         [self setDrawsBackground:NO];
         [self setHorizontalScrollElasticity:NSScrollElasticityNone];
         [self setVerticalScrollElasticity:NSScrollElasticityNone];
@@ -62,14 +62,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
     if (_textView == nil) {
         _textView = [[NSTextView alloc] initWithFrame:self.bounds];
-        [_textView setAutoresizingMask: NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
         [_textView setBackgroundColor:[NSColor clearColor]];
         
         [_textView.textContainer setLineFragmentPadding:0.0f];
 
         [_textView.layoutManager setDelegate:self];
-//        [_textView.layoutManager setAllowsNonContiguousLayout:YES];
-//        [_textView.layoutManager setBackgroundLayoutEnabled:YES];
         
         [_textView setAllowsUndo:NO];
         [_textView setAllowsImageEditing:NO];
@@ -147,10 +144,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)show
 {
     self.hidden = NO;
-
-    NSRect editorTextViewFrame = self.editorTextView.frame;
-    editorTextViewFrame.size.width = self.editorTextView.superview.frame.size.width - self.bounds.size.width - kRightSidePadding;
-    self.editorTextView.frame = editorTextViewFrame;
+	
+    NSRect editorTextViewFrame = self.editorScrollView.frame;
+    editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width - self.bounds.size.width;
+    self.editorScrollView.frame = editorTextViewFrame;
     
     [self updateTextView];
     [self updateSelectionView];
@@ -160,9 +157,9 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
     self.hidden = YES;
 
-    NSRect editorTextViewFrame = self.editorTextView.frame;
-    editorTextViewFrame.size.width = self.editorTextView.superview.frame.size.width;
-    self.editorTextView.frame = editorTextViewFrame;
+    NSRect editorTextViewFrame = self.editorScrollView.frame;
+    editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width;
+    self.editorScrollView.frame = editorTextViewFrame;
 }
 
 #pragma mark - Updating
@@ -170,10 +167,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)updateTheme
 {
     [self setFont:nil];
-    [self updateTextView];
     
     [self setBackgroundColor:nil];
     [self.selectionView setSelectionColor:nil];
+    [self.textView setBackgroundColor:self.backgroundColor];
 }
 
 - (void)updateTextView
@@ -188,23 +185,17 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         return;
     }
 
-    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSBackgroundColorAttributeName : self.backgroundColor} range:NSMakeRange(0, mutableAttributedString.length)];
-
+    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font} range:NSMakeRange(0, mutableAttributedString.length)];
     [self.textView.textStorage setAttributedString:mutableAttributedString];
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
     [super resizeWithOldSuperviewSize:oldSize];
-    [self updateSelectionViewAnimated:YES];
+    [self updateSelectionView];
 }
 
 - (void)updateSelectionView
-{
-    [self updateSelectionViewAnimated:NO];
-}
-
-- (void)updateSelectionViewAnimated:(BOOL)animated
 {
     if ([self isHidden]) {
         return;
@@ -229,12 +220,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         ratio = (textHeight - self.selectionView.bounds.size.height) / editorContentHeight;
         selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
     }
-
-    if(animated) {
-        [self.selectionView.animator setFrame:selectionViewFrame];
-    } else {
-        [self.selectionView setFrame:selectionViewFrame];
-    }
+	
+    [self.selectionView setFrame:selectionViewFrame];
 }
 
 #pragma mark - NSLayoutManagerDelegate
