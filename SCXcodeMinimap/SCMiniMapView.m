@@ -184,8 +184,18 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if(mutableAttributedString == nil) {
         return;
     }
+	
+	__block NSMutableParagraphStyle *style;
+	[mutableAttributedString enumerateAttribute:NSParagraphStyleAttributeName
+										inRange:NSMakeRange(0, mutableAttributedString.length)
+										options:0
+									 usingBlock:^(id value, NSRange range, BOOL *stop) {
+										 style = [value mutableCopy];
+									 }];
+	[style setTabStops:@[]];
+	[style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
 
-    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font} range:NSMakeRange(0, mutableAttributedString.length)];
+    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
     [self.textView.textStorage setAttributedString:mutableAttributedString];
 }
 
