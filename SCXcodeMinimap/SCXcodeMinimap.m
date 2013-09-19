@@ -94,8 +94,12 @@ static SCXcodeMinimap *sharedMinimap = nil;
 
 - (void)onDocumentDidChange:(NSNotification*)sender
 {
+	if ([[[sender object] class] isSubclassOfClass:[NSDocument class]])
+	{
     SCMiniMapView *miniMapView = objc_getAssociatedObject([sender object], &kKeyMiniMapView);
     [miniMapView updateTextView];
+}
+
 }
 
 - (void)onCodeEditorBoundsChange:(NSNotification*)sender
