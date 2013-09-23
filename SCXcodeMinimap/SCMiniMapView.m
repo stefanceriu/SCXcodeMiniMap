@@ -13,8 +13,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @interface SCMiniMapView ()
 
-@property (nonatomic, retain) NSColor *backgroundColor;
-@property (nonatomic, retain) NSFont *font;
+@property (nonatomic, strong) NSColor *backgroundColor;
+@property (nonatomic, strong) NSFont *font;
 
 @end
 
@@ -54,12 +54,6 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    [_selectionView release];
-    [_textView release];
-    [_backgroundColor release];
-    [_font release];
-    [super dealloc];
 }
 
 #pragma mark - Lazy Initialization
@@ -73,7 +67,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [_textView.textContainer setLineFragmentPadding:0.0f];
 
         [_textView.layoutManager setDelegate:self];
-
+        
         [_textView setAllowsUndo:NO];
         [_textView setAllowsImageEditing:NO];
         [_textView setAutomaticDashSubstitutionEnabled:NO];
@@ -151,9 +145,9 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
     self.hidden = NO;
 
-    NSRect frame = self.editorScrollView.frame;
-    frame.size.width = self.editorScrollView.superview.frame.size.width - self.bounds.size.width;
-    self.editorScrollView.frame = frame;
+    NSRect editorTextViewFrame = self.editorScrollView.frame;
+    editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width - self.bounds.size.width;
+    self.editorScrollView.frame = editorTextViewFrame;
     
     [self updateTextView];
     [self updateSelectionView];
@@ -163,9 +157,9 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
     self.hidden = YES;
 
-    NSRect frame = self.editorScrollView.frame;
-    frame.size.width = self.editorScrollView.superview.frame.size.width;
-    self.editorScrollView.frame = frame;
+    NSRect editorTextViewFrame = self.editorScrollView.frame;
+    editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width;
+    self.editorScrollView.frame = editorTextViewFrame;
 }
 
 #pragma mark - Updating
@@ -173,11 +167,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)updateTheme
 {
     [self setFont:nil];
-    [self updateTextView];
     
     [self setBackgroundColor:nil];
     [self.selectionView setSelectionColor:nil];
-	[self.textView setBackgroundColor:self.backgroundColor];
+    [self.textView setBackgroundColor:self.backgroundColor];
 }
 
 - (void)updateTextView
@@ -204,7 +197,6 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
     [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
     [self.textView.textStorage setAttributedString:mutableAttributedString];
-    [mutableAttributedString release];
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
@@ -238,7 +230,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         ratio = (textHeight - self.selectionView.bounds.size.height) / editorContentHeight;
         selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
     }
-
+    
 	[self.selectionView setFrame:selectionViewFrame];
 }
 
@@ -246,7 +238,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
 {
-    if(layoutFinished) {
+    if([layoutManager isEqual:self.editorTextView.layoutManager]) {
+        [(id<NSLayoutManagerDelegate>)self.editorTextView layoutManager:layoutManager
+                                      didCompleteLayoutForTextContainer:textContainer
+                                                                  atEnd:layoutFinished];
+    }
+    else if(layoutFinished) {
         [self updateSelectionView];
     }
 }
