@@ -32,7 +32,7 @@
                 NSColor *backgroundColor = [[theme performSelector:@selector(sourceTextBackgroundColor)] colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
                 
                 if(self.shouldInverseColors) {
-
+                    
                     _selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [backgroundColor redComponent])
                                                                 green:(1.0f - [backgroundColor greenComponent])
                                                                  blue:(1.0f - [backgroundColor blueComponent])

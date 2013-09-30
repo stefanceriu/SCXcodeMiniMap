@@ -22,8 +22,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (id)initWithFrame:(NSRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self)
+    if (self = [super initWithFrame:frame])
     {
         /* Configure ScrollView */
         [self setWantsLayer:YES];
@@ -31,7 +30,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [self setDrawsBackground:NO];
         [self setHorizontalScrollElasticity:NSScrollElasticityNone];
         [self setVerticalScrollElasticity:NSScrollElasticityNone];
-
+        
         /* Subscribe to show/hide notifications */
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(show)
@@ -65,7 +64,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [_textView setBackgroundColor:[NSColor clearColor]];
         
         [_textView.textContainer setLineFragmentPadding:0.0f];
-
+        
         [_textView.layoutManager setDelegate:self];
         
         [_textView setAllowsUndo:NO];
@@ -78,7 +77,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [_textView setAutomaticTextReplacementEnabled:NO];
         [_textView setContinuousSpellCheckingEnabled:NO];
         [_textView setDisplaysLinkToolTips:NO];
-        [_textView setEditable:NO];        
+        [_textView setEditable:NO];
         [_textView setRichText:YES];
         [_textView setSelectable:NO];
         
@@ -103,7 +102,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (NSFont *)font
 {
-    if(_font == nil) {    
+    if(_font == nil) {
         _font = [NSFont fontWithName:@"Menlo" size:11 * kDefaultZoomLevel];
         
         Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
@@ -135,7 +134,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
             }
         }
     }
-
+    
     return _backgroundColor;
 }
 
@@ -144,7 +143,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)show
 {
     self.hidden = NO;
-
+    
     NSRect editorTextViewFrame = self.editorScrollView.frame;
     editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width - self.bounds.size.width;
     self.editorScrollView.frame = editorTextViewFrame;
@@ -156,7 +155,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (void)hide
 {
     self.hidden = YES;
-
+    
     NSRect editorTextViewFrame = self.editorScrollView.frame;
     editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width;
     self.editorScrollView.frame = editorTextViewFrame;
@@ -178,24 +177,26 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if ([self isHidden]) {
         return;
     }
-     
+    
     NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
-
+    
     if(mutableAttributedString == nil) {
         return;
     }
 	
-	__block NSMutableParagraphStyle *style;
 	[mutableAttributedString enumerateAttribute:NSParagraphStyleAttributeName
 										inRange:NSMakeRange(0, mutableAttributedString.length)
 										options:0
 									 usingBlock:^(id value, NSRange range, BOOL *stop) {
-										 style = [value mutableCopy];
+                                         
+										 NSMutableParagraphStyle *style = [value mutableCopy];
+                                         [style setTabStops:@[]];
+                                         [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
+                                         [mutableAttributedString addAttributes:@{NSParagraphStyleAttributeName:style} range:range];
 									 }];
-	[style setTabStops:@[]];
-	[style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
-
-    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
+    
+    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font} range:NSMakeRange(0, mutableAttributedString.length)];
+    
     [self.textView.textStorage setAttributedString:mutableAttributedString];
 }
 
@@ -210,22 +211,22 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if ([self isHidden]) {
         return;
     }
-
+    
     NSRect selectionViewFrame = NSMakeRect(0,
                                            0,
                                            self.bounds.size.width,
                                            self.editorScrollView.visibleRect.size.height * kDefaultZoomLevel);
-
-
+    
+    
     CGFloat editorContentHeight = [self.editorScrollView.documentView frame].size.height - self.editorScrollView.bounds.size.height;
-
+    
     if(editorContentHeight == 0) {
         selectionViewFrame.origin.y = 0;
     }
     else {
         CGFloat ratio = ([self.documentView frame].size.height - self.bounds.size.height) / editorContentHeight;
         [self.contentView scrollToPoint:NSMakePoint(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio))];
-
+        
         CGFloat textHeight = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size.height;
         ratio = (textHeight - self.selectionView.bounds.size.height) / editorContentHeight;
         selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
@@ -300,11 +301,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     CGFloat documentHeight = [self.editorScrollView.documentView frame].size.height;
     CGSize boundsSize = self.editorScrollView.bounds.size;
     CGFloat maxOffset = documentHeight - boundsSize.height;
-
+    
     CGFloat offset =  floor(documentHeight * position.y - boundsSize.height/2);
-
+    
     offset = MIN(MAX(0, offset), maxOffset);
-
+    
     [self.editorTextView scrollRectToVisible:NSMakeRect(0, offset, boundsSize.width, boundsSize.height)];
 }
 

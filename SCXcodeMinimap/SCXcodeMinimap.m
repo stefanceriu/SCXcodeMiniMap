@@ -53,17 +53,17 @@ static SCXcodeMinimap *sharedMinimap = nil;
     }
     
     NSMenuItem *miniMapItem = [[NSMenuItem alloc] initWithTitle:@""
-                                                               action:NULL
-                                                        keyEquivalent:@"M"];
+                                                         action:NULL
+                                                  keyEquivalent:@"M"];
     [miniMapItem setKeyEquivalentModifierMask:NSControlKeyMask | NSShiftKeyMask];
     
     miniMapItem.target = self;
     
     [editMenuItem.submenu insertItem:[NSMenuItem separatorItem]
-                               atIndex:[editMenuItem.submenu numberOfItems]];
+                             atIndex:[editMenuItem.submenu numberOfItems]];
     [editMenuItem.submenu insertItem:miniMapItem
-                               atIndex:[editMenuItem.submenu numberOfItems]];
-
+                             atIndex:[editMenuItem.submenu numberOfItems]];
+    
     if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
         [self hideMiniMap:miniMapItem];
     }
@@ -75,31 +75,27 @@ static SCXcodeMinimap *sharedMinimap = nil;
 - (void)hideMiniMap:(NSMenuItem *)sender
 {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SCXodeMinimapIsInitiallyHidden];
-
+    
     [sender setTitle:@"Show MiniMap"];
     [sender setAction:@selector(showMiniMap:)];
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeHiddenNotification object:nil];
 }
 
 - (void)showMiniMap:(NSMenuItem *)sender
 {
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:SCXodeMinimapIsInitiallyHidden];
-
+    
     [sender setTitle:@"Hide MiniMap"];
     [sender setAction:@selector(hideMiniMap:)];
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeShownNotification object:nil];
 }
 
 - (void)onDocumentDidChange:(NSNotification*)sender
 {
-	if ([[[sender object] class] isSubclassOfClass:[NSDocument class]])
-	{
     SCMiniMapView *miniMapView = objc_getAssociatedObject([sender object], &kKeyMiniMapView);
     [miniMapView updateTextView];
-}
-
 }
 
 - (void)onCodeEditorBoundsChange:(NSNotification*)sender
@@ -131,7 +127,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
         NSLog(@"Could not fetch editor document");
         return;
     }
-
+    
     /* Get Editor Components */
     NSDocument *editorDocument      = [[sender object] performSelector:@selector(sourceCodeDocument)];
     NSView *editorContainerView     = [[sender object] performSelector:@selector(containerView)];
@@ -139,7 +135,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     NSTextView *editorTextView      = [[sender object] performSelector:@selector(textView)];
     
     [editorTextView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
-
+    
     /* Create Mini Map */
     CGFloat width = editorTextView.bounds.size.width * kDefaultZoomLevel;
     
@@ -147,16 +143,16 @@ static SCXcodeMinimap *sharedMinimap = nil;
                                                0,
                                                width,
                                                editorScrollView.bounds.size.height);
-
+    
     SCMiniMapView *miniMapView = [[SCMiniMapView alloc] initWithFrame:miniMapScrollViewFrame];
     miniMapView.editorScrollView = editorScrollView;
     miniMapView.editorTextView = editorTextView;
     [editorContainerView addSubview:miniMapView];
-
+    
     /* Setup Associated Objects */
     objc_setAssociatedObject(editorScrollView,  &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
     objc_setAssociatedObject(editorDocument,    &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
-
+    
     if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
         [miniMapView hide];
     }
