@@ -151,7 +151,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     
     /* Setup Associated Objects */
     objc_setAssociatedObject(editorScrollView,  &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
-    objc_setAssociatedObject(editorDocument,    &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(editorDocument,    &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_RETAIN);
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
         [miniMapView hide];

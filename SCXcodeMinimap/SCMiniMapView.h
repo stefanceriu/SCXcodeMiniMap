@@ -15,7 +15,7 @@
 @property (nonatomic, strong) SCSelectionView *selectionView;
 
 @property (nonatomic, weak) NSScrollView *editorScrollView;
-@property (nonatomic, assign) NSTextView *editorTextView;
+@property (nonatomic, strong) NSTextView *editorTextView;
 
 - (void)updateTextView;
 - (void)updateSelectionView;
