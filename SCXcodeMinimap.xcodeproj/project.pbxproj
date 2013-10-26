@@ -29,7 +29,6 @@
 		8742532217307161001C947C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		B25F211A172FE208001A9E6E /* SCMiniMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCMiniMapView.h; sourceTree = "<group>"; };
 		B25F211B172FE208001A9E6E /* SCMiniMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCMiniMapView.m; sourceTree = "<group>"; };
-		B25F211D172FE3B3001A9E6E /* Conf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Conf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +84,6 @@
 		18FE09BB1707639E00118FEB /* SCXcodeMinimap */ = {
 			isa = PBXGroup;
 			children = (
-				B25F211D172FE3B3001A9E6E /* Conf.h */,
 				18FE09C7170764E400118FEB /* SCXcodeMinimap.h */,
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
 				B25F211A172FE208001A9E6E /* SCMiniMapView.h */,

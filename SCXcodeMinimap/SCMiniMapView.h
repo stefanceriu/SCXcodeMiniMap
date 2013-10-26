@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "SCSelectionView.h"
 
+extern const CGFloat kDefaultZoomLevel;
+
 @interface SCMiniMapView : NSScrollView <NSLayoutManagerDelegate>
 
 @property (nonatomic, strong) NSTextView *textView;

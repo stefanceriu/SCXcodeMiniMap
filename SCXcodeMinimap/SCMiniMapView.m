@@ -9,6 +9,9 @@
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
 
+const CGFloat kDefaultZoomLevel = 0.1f;
+static const CGFloat kDefaultShadowLevel = 0.1f;
+
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
 @interface SCMiniMapView ()
@@ -184,18 +187,21 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         return;
     }
 	
+    __block NSMutableParagraphStyle *style;
+
 	[mutableAttributedString enumerateAttribute:NSParagraphStyleAttributeName
 										inRange:NSMakeRange(0, mutableAttributedString.length)
 										options:0
 									 usingBlock:^(id value, NSRange range, BOOL *stop) {
-                                         
-										 NSMutableParagraphStyle *style = [value mutableCopy];
-                                         [style setTabStops:@[]];
-                                         [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
-                                         [mutableAttributedString addAttributes:@{NSParagraphStyleAttributeName:style} range:range];
-									 }];
+                                         style = [value mutableCopy];
+                                         *stop = YES;
+                                     }];
     
-    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font} range:NSMakeRange(0, mutableAttributedString.length)];
+    
+    [style setTabStops:@[]];
+	[style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
+
+    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
     
     [self.textView.textStorage setAttributedString:mutableAttributedString];
 }
