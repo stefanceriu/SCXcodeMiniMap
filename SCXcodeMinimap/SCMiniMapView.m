@@ -183,7 +183,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     
     NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
     
-    if(mutableAttributedString == nil) {
+    if(mutableAttributedString.length == 0) {
         return;
     }
 	
