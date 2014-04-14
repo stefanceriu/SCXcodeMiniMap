@@ -48,7 +48,6 @@ static SCXcodeMinimap *sharedMinimap = nil;
     NSMenuItem *editMenuItem = [[NSApp mainMenu] itemWithTitle:@"View"];
     
     if(editMenuItem == nil) {
-        NSLog(@"Could not fetch 'View' main menu item");
         return;
     }
     
