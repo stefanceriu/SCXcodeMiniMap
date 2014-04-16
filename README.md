@@ -2,7 +2,7 @@
 
 SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
 
-![SCXcodeMiniMap](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap.png)
+![SCXcodeMiniMap](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/SCXcodeMiniMapv1.3.png)
 
 ## Features
 - It works with an unlimited number of opened editors, including the assistant and version editors
