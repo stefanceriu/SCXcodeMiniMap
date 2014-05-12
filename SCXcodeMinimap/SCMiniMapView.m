@@ -286,8 +286,13 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void) handleMouseEvent:(NSEvent *)theEvent
 {
-    NSPoint locationInSelf = [self convertPoint:theEvent.locationInWindow fromView:nil];
+    static BOOL isDragging;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        isDragging = NO;
+    });
     
+    NSPoint locationInSelf = [self convertPoint:theEvent.locationInWindow fromView:nil];
     NSSize textSize = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size;
     NSSize frameSize = self.frame.size;
     
@@ -299,17 +304,43 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         point = NSMakePoint(locationInSelf.x / textSize.width, locationInSelf.y / frameSize.height);
     }
     
-    [self goAtRelativePosition:point];
+    BOOL justStartDragging = NO;
+    if (theEvent.type == NSLeftMouseUp) {
+        isDragging = NO;
+    }
+    else {
+        justStartDragging = !isDragging;
+        isDragging = YES;
+    }
+    
+    [self goAtRelativePosition:point justStartDragging:justStartDragging];
 }
 
-- (void)goAtRelativePosition:(NSPoint)position
+- (void)goAtRelativePosition:(NSPoint)position justStartDragging:(BOOL)justStartDragging
 {
+    static CGFloat mouseDownOffset;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        mouseDownOffset = 0;
+    });
+    
     CGFloat documentHeight = [self.editorScrollView.documentView frame].size.height;
     CGSize boundsSize = self.editorScrollView.bounds.size;
     CGFloat maxOffset = documentHeight - boundsSize.height;
+    CGFloat locationInDocumentY = documentHeight * position.y;
     
-    CGFloat offset =  floor(documentHeight * position.y - boundsSize.height/2);
+    if (justStartDragging) {
+        mouseDownOffset = locationInDocumentY -
+        (self.editorScrollView.contentView.documentVisibleRect.origin.y + boundsSize.height/2.0);
+    }
     
+    CGFloat offset;
+    if (fabs(mouseDownOffset) <= boundsSize.height/2.0) {
+        offset = floor(locationInDocumentY - boundsSize.height/2 - mouseDownOffset);
+    }
+    else {
+        offset = floor(locationInDocumentY - boundsSize.height/2);
+    }
     offset = MIN(MAX(0, offset), maxOffset);
     
     [self.editorTextView scrollRectToVisible:NSMakeRect(0, offset, boundsSize.width, boundsSize.height)];
