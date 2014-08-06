@@ -11,7 +11,7 @@
 
 extern const CGFloat kDefaultZoomLevel;
 
-@interface SCMiniMapView : NSScrollView <NSLayoutManagerDelegate>
+@interface SCMiniMapView : NSScrollView
 
 @property (nonatomic, strong) NSTextView *textView;
 @property (nonatomic, strong) SCSelectionView *selectionView;

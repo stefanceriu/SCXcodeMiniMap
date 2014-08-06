@@ -21,18 +21,20 @@ NSString * const SCXodeMinimapWantsToBeHiddenNotification = @"SCXodeMinimapWants
 
 NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
 
+static const CGFloat kDefaultUpdateInterval = 0.25f;
+
 @implementation SCXcodeMinimap
 
 static SCXcodeMinimap *sharedMinimap = nil;
 + (void)pluginDidLoad:(NSBundle *)plugin {
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		sharedMinimap = [[self alloc] init];
-	});
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedMinimap = [[self alloc] init];
+    });
 }
 
 - (id)init {
-	if (self = [super init]) {
+    if (self = [super init]) {
         
         [self createMenuItem];
         
@@ -40,7 +42,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDocumentDidChange:) name:IDEEditorDocumentDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCodeEditorBoundsChange:) name:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil];
     }
-	return self;
+    return self;
 }
 
 - (void)createMenuItem
@@ -94,7 +96,9 @@ static SCXcodeMinimap *sharedMinimap = nil;
 - (void)onDocumentDidChange:(NSNotification*)sender
 {
     SCMiniMapView *miniMapView = objc_getAssociatedObject([sender object], &kKeyMiniMapView);
-    [miniMapView updateTextView];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:miniMapView selector:@selector(updateTextView) object:nil];
+    [miniMapView performSelector:@selector(updateTextView) withObject:nil afterDelay:kDefaultUpdateInterval];
 }
 
 - (void)onCodeEditorBoundsChange:(NSNotification*)sender
