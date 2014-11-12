@@ -18,6 +18,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @property (nonatomic, strong) NSColor *backgroundColor;
 @property (nonatomic, strong) NSFont *font;
+@property (nonatomic, readwrite) NSInteger lastCalculatedLines;
 
 @end
 
@@ -185,29 +186,53 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         return;
     }
     
-    NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
+    typeof(self) __weak weakSelf = self;
+    NSOperationQueue *background = [[NSOperationQueue alloc] init];
     
-    if(mutableAttributedString.length == 0) {
-        return;
-    }
+    //Run the attributed strings operation on a background thread
+    [background addOperationWithBlock:^{
+        NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
+        
+        if(mutableAttributedString.length == 0) {
+            //Nothing to do here.
+            weakSelf.lastCalculatedLines = 0;
+            return;
+        }
+        
+        __block NSMutableParagraphStyle *style;
+        
+        [mutableAttributedString enumerateAttribute:NSParagraphStyleAttributeName
+                                            inRange:NSMakeRange(0, mutableAttributedString.length)
+                                            options:0
+                                         usingBlock:^(id value, NSRange range, BOOL *stop) {
+                                             style = [value mutableCopy];
+                                             *stop = YES;
+                                         }];
+        
+        
+        [style setTabStops:@[]];
+        [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
+        
+        [mutableAttributedString setAttributes:@{NSFontAttributeName: weakSelf.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
+        
+        //Send the text storage update off to the main thread
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [weakSelf.textView.textStorage setAttributedString:mutableAttributedString];
+            
+        }];
+        
+        //Now that we've sent that off, let's see how many lines we have while
+        //we're in here:
+        [weakSelf calculateLinesFromString:[mutableAttributedString string]];
+    }];
+}
+
+- (void)calculateLinesFromString:(NSString *)string
+{
+    NSArray *lines = [string componentsSeparatedByString:@"\n"];
     
-    __block NSMutableParagraphStyle *style;
-    
-    [mutableAttributedString enumerateAttribute:NSParagraphStyleAttributeName
-                                        inRange:NSMakeRange(0, mutableAttributedString.length)
-                                        options:0
-                                     usingBlock:^(id value, NSRange range, BOOL *stop) {
-                                         style = [value mutableCopy];
-                                         *stop = YES;
-                                     }];
-    
-    
-    [style setTabStops:@[]];
-    [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
-    
-    [mutableAttributedString setAttributes:@{NSFontAttributeName: self.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
-    
-    [self.textView.textStorage setAttributedString:mutableAttributedString];
+    //Cache the last calculated lines so we can figure out how long we should take to render this minimap.
+    self.lastCalculatedLines = lines.count;
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
