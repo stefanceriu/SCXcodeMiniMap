@@ -218,7 +218,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         //Send the text storage update off to the main thread
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [weakSelf.textView.textStorage setAttributedString:mutableAttributedString];
-            
+            [weakSelf updateSelectionView];
         }];
         
         //Now that we've sent that off, let's see how many lines we have while
@@ -229,10 +229,14 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)calculateLinesFromString:(NSString *)string
 {
-    NSArray *lines = [string componentsSeparatedByString:@"\n"];
+    NSUInteger stringLength = [string length];
+    NSInteger numberOfLines = 0;
+    for (NSInteger index = 0;  index < stringLength; numberOfLines++) {
+        index = NSMaxRange([string lineRangeForRange:NSMakeRange(index, 0)]);
+    }
     
     //Cache the last calculated lines so we can figure out how long we should take to render this minimap.
-    self.lastCalculatedLines = lines.count;
+    self.lastCalculatedLines = numberOfLines;
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
