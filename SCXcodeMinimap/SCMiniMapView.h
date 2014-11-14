@@ -19,7 +19,7 @@ extern const CGFloat kDefaultZoomLevel;
 @property (nonatomic, weak) NSScrollView *editorScrollView;
 @property (nonatomic, strong) NSTextView *editorTextView;
 
-@property (nonatomic, readonly) NSInteger lastCalculatedLines;
+@property (nonatomic, readonly) NSInteger numberOfLines;
 
 - (void)updateTextView;
 - (void)updateSelectionView;

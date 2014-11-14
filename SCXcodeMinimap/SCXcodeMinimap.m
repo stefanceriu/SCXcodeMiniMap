@@ -98,7 +98,7 @@ static SCXcodeMinimap *sharedMinimap = nil;
     SCMiniMapView *miniMapView = objc_getAssociatedObject([sender object], &kKeyMiniMapView);
     
     //150 lines per multiplier means a 1500 line file should have a delay of 2.5 seconds. 
-    CGFloat multiplier = ceilf((CGFloat)miniMapView.lastCalculatedLines / 150.0f);
+    CGFloat multiplier = ceilf((CGFloat)miniMapView.numberOfLines / 150.0f);
     NSTimeInterval updateInterval = (CGFloat)multiplier * kDefaultUpdateInterval;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:miniMapView selector:@selector(updateTextView) object:nil];

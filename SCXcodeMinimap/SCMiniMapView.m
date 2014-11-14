@@ -18,7 +18,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @property (nonatomic, strong) NSColor *backgroundColor;
 @property (nonatomic, strong) NSFont *font;
-@property (nonatomic, readwrite) NSInteger lastCalculatedLines;
+@property (nonatomic, assign) NSInteger numberOfLines;
 
 @end
 
@@ -187,15 +187,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     }
     
     typeof(self) __weak weakSelf = self;
-    NSOperationQueue *background = [[NSOperationQueue alloc] init];
-    
-    //Run the attributed strings operation on a background thread
-    [background addOperationWithBlock:^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         NSMutableAttributedString *mutableAttributedString = [self.editorTextView.textStorage mutableCopy];
         
         if(mutableAttributedString.length == 0) {
             //Nothing to do here.
-            weakSelf.lastCalculatedLines = 0;
+            weakSelf.numberOfLines = 0;
             return;
         }
         
@@ -216,27 +213,25 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         [mutableAttributedString setAttributes:@{NSFontAttributeName: weakSelf.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
         
         //Send the text storage update off to the main thread
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf.textView.textStorage setAttributedString:mutableAttributedString];
             [weakSelf updateSelectionView];
-        }];
+        });
         
-        //Now that we've sent that off, let's see how many lines we have while
-        //we're in here:
+        //Calculate the total number of lines
         [weakSelf calculateLinesFromString:[mutableAttributedString string]];
-    }];
+    });
 }
 
 - (void)calculateLinesFromString:(NSString *)string
 {
-    NSUInteger stringLength = [string length];
-    NSInteger numberOfLines = 0;
-    for (NSInteger index = 0;  index < stringLength; numberOfLines++) {
+    NSInteger count = 0;
+    for (NSInteger index = 0;  index < [string length]; count++) {
         index = NSMaxRange([string lineRangeForRange:NSMakeRange(index, 0)]);
     }
     
     //Cache the last calculated lines so we can figure out how long we should take to render this minimap.
-    self.lastCalculatedLines = numberOfLines;
+    self.numberOfLines = count;
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
