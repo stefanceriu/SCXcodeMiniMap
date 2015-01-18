@@ -206,11 +206,17 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
                                              *stop = YES;
                                          }];
         
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(#import.*\n)" color:[NSColor brownColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(#pragma mark.+\n)" color:[NSColor brownColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(//.*\n)" color:[NSColor greenColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(/\\*(?>(?:(?>[^*]+)|\\*(?!/))*)\\*/\n)" color:[NSColor greenColor]];
         
         [style setTabStops:@[]];
         [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
         
-        [mutableAttributedString setAttributes:@{NSFontAttributeName: weakSelf.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
+        [mutableAttributedString addAttribute:NSFontAttributeName value:weakSelf.font range:NSMakeRange(0, mutableAttributedString.length)];
+        [mutableAttributedString addAttribute:NSParagraphStyleAttributeName value:style range:NSMakeRange(0, mutableAttributedString.length)];
+        
         
         //Send the text storage update off to the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -221,6 +227,21 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         //Calculate the total number of lines
         [weakSelf calculateLinesFromString:[mutableAttributedString string]];
     });
+}
+
+- (void)highlightMutableAttributedString:(NSMutableAttributedString *)attributedString withPattern:(NSString *)pattern color:(NSColor *)color
+{
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                           options:NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines error:nil];
+    
+    [regex enumerateMatchesInString:[attributedString string]
+                            options:0
+                              range:NSMakeRange(0, attributedString.length)
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+     {
+         [attributedString addAttribute:NSBackgroundColorAttributeName value:color?:color range:[match rangeAtIndex:1]];
+     }];
+    
 }
 
 - (void)calculateLinesFromString:(NSString *)string
