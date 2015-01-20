@@ -9,6 +9,9 @@
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
 
+#import "DVTSourceTextView.h"
+#import "DVTFontAndColorTheme.h"
+//
 const CGFloat kDefaultZoomLevel = 0.1f;
 static const CGFloat kDefaultShadowLevel = 0.1f;
 
@@ -65,7 +68,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (NSTextView *)textView
 {
     if (_textView == nil) {
-        _textView = [[NSClassFromString(@"DVTSourceTextView") alloc] initWithFrame:self.bounds];
+        _textView = [[DVTSourceTextView alloc] initWithFrame:self.bounds];
         
         [_textView setBackgroundColor:[NSColor clearColor]];
         
@@ -113,14 +116,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if(_font == nil) {
         _font = [NSFont fontWithName:@"Menlo" size:11 * kDefaultZoomLevel];
         
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-            if([theme respondsToSelector:@selector(sourcePlainTextFont)]) {
-                NSFont *themeFont = [theme performSelector:@selector(sourcePlainTextFont)];
-                self.font = [NSFont fontWithName:themeFont.familyName size:themeFont.pointSize * kDefaultZoomLevel];
-            }
+        NSObject *theme = [DVTFontAndColorTheme currentTheme];
+        if([theme respondsToSelector:@selector(sourcePlainTextFont)]) {
+            NSFont *themeFont = [theme performSelector:@selector(sourcePlainTextFont)];
+            self.font = [NSFont fontWithName:themeFont.familyName size:themeFont.pointSize * kDefaultZoomLevel];
         }
     }
     
@@ -132,14 +131,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if(_backgroundColor == nil) {
         _backgroundColor = [[NSColor clearColor] shadowWithLevel:kDefaultShadowLevel];
         
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
-                NSColor *themeBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
-                self.backgroundColor = [themeBackgroundColor shadowWithLevel:kDefaultShadowLevel];
-            }
+        NSObject *theme = [DVTFontAndColorTheme currentTheme];
+        if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+            NSColor *themeBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+            self.backgroundColor = [themeBackgroundColor shadowWithLevel:kDefaultShadowLevel];
         }
     }
     
@@ -206,11 +201,17 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
                                              *stop = YES;
                                          }];
         
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(#import.*\n)" color:[NSColor brownColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(#pragma mark.+\n)" color:[NSColor brownColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(//.*\n)" color:[NSColor greenColor]];
+        [weakSelf highlightMutableAttributedString:mutableAttributedString withPattern:@"^(/\\*(?>(?:(?>[^*]+)|\\*(?!/))*)\\*/\n)" color:[NSColor greenColor]];
         
         [style setTabStops:@[]];
         [style setDefaultTabInterval:style.defaultTabInterval * kDefaultZoomLevel];
         
-        [mutableAttributedString setAttributes:@{NSFontAttributeName: weakSelf.font, NSParagraphStyleAttributeName : style} range:NSMakeRange(0, mutableAttributedString.length)];
+        [mutableAttributedString addAttribute:NSFontAttributeName value:weakSelf.font range:NSMakeRange(0, mutableAttributedString.length)];
+        [mutableAttributedString addAttribute:NSParagraphStyleAttributeName value:style range:NSMakeRange(0, mutableAttributedString.length)];
+        
         
         //Send the text storage update off to the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -221,6 +222,21 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
         //Calculate the total number of lines
         [weakSelf calculateLinesFromString:[mutableAttributedString string]];
     });
+}
+
+- (void)highlightMutableAttributedString:(NSMutableAttributedString *)attributedString withPattern:(NSString *)pattern color:(NSColor *)color
+{
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                           options:NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines error:nil];
+    
+    [regex enumerateMatchesInString:[attributedString string]
+                            options:0
+                              range:NSMakeRange(0, attributedString.length)
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+     {
+         [attributedString addAttribute:NSBackgroundColorAttributeName value:color?:color range:[match rangeAtIndex:1]];
+     }];
+    
 }
 
 - (void)calculateLinesFromString:(NSString *)string
