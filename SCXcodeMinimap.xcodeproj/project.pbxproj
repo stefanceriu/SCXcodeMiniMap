@@ -11,6 +11,7 @@
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
 		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
+		AC2B366E1A6DD9C60073E663 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC2B366D1A6DD9C60073E663 /* DVTKit.framework */; };
 		B25F211C172FE208001A9E6E /* SCMiniMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = B25F211B172FE208001A9E6E /* SCMiniMapView.m */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,18 @@
 		18FE09C7170764E400118FEB /* SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimap.h; sourceTree = "<group>"; };
 		18FE09C8170764E400118FEB /* SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimap.m; sourceTree = "<group>"; };
 		8742532217307161001C947C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		AC2B366D1A6DD9C60073E663 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = ../../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
+		AC9C254D1A6DCE90009C4DC9 /* DVTCompletingTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTCompletingTextView.h; sourceTree = "<group>"; };
+		AC9C254E1A6DCE90009C4DC9 /* DVTFontAndColorTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTFontAndColorTheme.h; sourceTree = "<group>"; };
+		AC9C254F1A6DCE90009C4DC9 /* DVTLayoutManagerDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTLayoutManagerDelegate-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25501A6DCE90009C4DC9 /* DVTPreferenceSet-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTPreferenceSet-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25511A6DCEF1009C4DC9 /* DVTSourceTextScrollViewDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTSourceTextScrollViewDelegate-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25521A6DCEF1009C4DC9 /* DVTSourceTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTSourceTextView.h; sourceTree = "<group>"; };
+		AC9C25551A6DCF63009C4DC9 /* DVTFoldingLayoutManagerDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTFoldingLayoutManagerDelegate-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25561A6DD0DA009C4DC9 /* DVTSourceTextViewDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTSourceTextViewDelegate-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25571A6DD12F009C4DC9 /* DVTInvalidation-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTInvalidation-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25581A6DD1A9009C4DC9 /* DVTCompletingTextViewDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTCompletingTextViewDelegate-Protocol.h"; sourceTree = "<group>"; };
+		AC9C25591A6DD307009C4DC9 /* DVTTextStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTTextStorage.h; sourceTree = "<group>"; };
 		B25F211A172FE208001A9E6E /* SCMiniMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCMiniMapView.h; sourceTree = "<group>"; };
 		B25F211B172FE208001A9E6E /* SCMiniMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCMiniMapView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -36,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AC2B366E1A6DD9C60073E663 /* DVTKit.framework in Frameworks */,
 				8742532317307161001C947C /* QuartzCore.framework in Frameworks */,
 				18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */,
 			);
@@ -47,6 +61,7 @@
 		18FE09A91707639E00118FEB = {
 			isa = PBXGroup;
 			children = (
+				AC9C253C1A6DC836009C4DC9 /* XcodeHeaders */,
 				18FE09BB1707639E00118FEB /* SCXcodeMinimap */,
 				18FE09B41707639E00118FEB /* Frameworks */,
 				18FE09B31707639E00118FEB /* Products */,
@@ -64,6 +79,7 @@
 		18FE09B41707639E00118FEB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AC2B366D1A6DD9C60073E663 /* DVTKit.framework */,
 				18FE09B51707639E00118FEB /* Cocoa.framework */,
 				18FE09B71707639E00118FEB /* Other Frameworks */,
 			);
@@ -102,6 +118,32 @@
 				18FE09C11707639E00118FEB /* SCXcodeMinimap-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		AC9C253C1A6DC836009C4DC9 /* XcodeHeaders */ = {
+			isa = PBXGroup;
+			children = (
+				AC9C254C1A6DCE90009C4DC9 /* DVTKit */,
+			);
+			path = XcodeHeaders;
+			sourceTree = "<group>";
+		};
+		AC9C254C1A6DCE90009C4DC9 /* DVTKit */ = {
+			isa = PBXGroup;
+			children = (
+				AC9C25591A6DD307009C4DC9 /* DVTTextStorage.h */,
+				AC9C25581A6DD1A9009C4DC9 /* DVTCompletingTextViewDelegate-Protocol.h */,
+				AC9C25571A6DD12F009C4DC9 /* DVTInvalidation-Protocol.h */,
+				AC9C25561A6DD0DA009C4DC9 /* DVTSourceTextViewDelegate-Protocol.h */,
+				AC9C25551A6DCF63009C4DC9 /* DVTFoldingLayoutManagerDelegate-Protocol.h */,
+				AC9C25511A6DCEF1009C4DC9 /* DVTSourceTextScrollViewDelegate-Protocol.h */,
+				AC9C25521A6DCEF1009C4DC9 /* DVTSourceTextView.h */,
+				AC9C254D1A6DCE90009C4DC9 /* DVTCompletingTextView.h */,
+				AC9C254E1A6DCE90009C4DC9 /* DVTFontAndColorTheme.h */,
+				AC9C254F1A6DCE90009C4DC9 /* DVTLayoutManagerDelegate-Protocol.h */,
+				AC9C25501A6DCE90009C4DC9 /* DVTPreferenceSet-Protocol.h */,
+			);
+			path = DVTKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -236,6 +278,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(HOME)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/SharedFrameworks",
+				);
 				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";
@@ -253,6 +299,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(HOME)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/SharedFrameworks",
+				);
 				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SCXcodeMinimap/SCXcodeMinimap-Prefix.pch";

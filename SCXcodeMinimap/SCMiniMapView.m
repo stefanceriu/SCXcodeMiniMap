@@ -9,6 +9,9 @@
 #import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
 
+#import "DVTSourceTextView.h"
+#import "DVTFontAndColorTheme.h"
+//
 const CGFloat kDefaultZoomLevel = 0.1f;
 static const CGFloat kDefaultShadowLevel = 0.1f;
 
@@ -65,7 +68,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (NSTextView *)textView
 {
     if (_textView == nil) {
-        _textView = [[NSClassFromString(@"DVTSourceTextView") alloc] initWithFrame:self.bounds];
+        _textView = [[DVTSourceTextView alloc] initWithFrame:self.bounds];
         
         [_textView setBackgroundColor:[NSColor clearColor]];
         
@@ -113,14 +116,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if(_font == nil) {
         _font = [NSFont fontWithName:@"Menlo" size:11 * kDefaultZoomLevel];
         
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-            if([theme respondsToSelector:@selector(sourcePlainTextFont)]) {
-                NSFont *themeFont = [theme performSelector:@selector(sourcePlainTextFont)];
-                self.font = [NSFont fontWithName:themeFont.familyName size:themeFont.pointSize * kDefaultZoomLevel];
-            }
+        NSObject *theme = [DVTFontAndColorTheme currentTheme];
+        if([theme respondsToSelector:@selector(sourcePlainTextFont)]) {
+            NSFont *themeFont = [theme performSelector:@selector(sourcePlainTextFont)];
+            self.font = [NSFont fontWithName:themeFont.familyName size:themeFont.pointSize * kDefaultZoomLevel];
         }
     }
     
@@ -132,14 +131,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
     if(_backgroundColor == nil) {
         _backgroundColor = [[NSColor clearColor] shadowWithLevel:kDefaultShadowLevel];
         
-        Class DVTFontAndColorThemeClass = NSClassFromString(@"DVTFontAndColorTheme");
-        if([DVTFontAndColorThemeClass respondsToSelector:@selector(currentTheme)]) {
-            
-            NSObject *theme = [DVTFontAndColorThemeClass performSelector:@selector(currentTheme)];
-            if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
-                NSColor *themeBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
-                self.backgroundColor = [themeBackgroundColor shadowWithLevel:kDefaultShadowLevel];
-            }
+        NSObject *theme = [DVTFontAndColorTheme currentTheme];
+        if([theme respondsToSelector:@selector(sourceTextBackgroundColor)]) {
+            NSColor *themeBackgroundColor = [theme performSelector:@selector(sourceTextBackgroundColor)];
+            self.backgroundColor = [themeBackgroundColor shadowWithLevel:kDefaultShadowLevel];
         }
     }
     
