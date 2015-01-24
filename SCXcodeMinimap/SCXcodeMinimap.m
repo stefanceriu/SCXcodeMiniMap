@@ -6,44 +6,48 @@
 //  Copyright (c) 2013 Stefan Ceriu. All rights reserved
 //
 
-#import "SCMiniMapView.h"
 #import "SCXcodeMinimap.h"
+#import "SCXcodeMinimapView.h"
 #import <objc/runtime.h>
 
-static char kKeyMiniMapView;
+#import "IDESourceCodeEditor.h"
+#import "DVTSourceTextView.h"
+
+static char kAssociatedObjectMinimapViewKey;
 
 static NSString * const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
 static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocumentDidChangeNotification";
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 
-NSString * const SCXodeMinimapWantsToBeShownNotification = @"SCXodeMinimapWantsToBeShownNotification";
-NSString * const SCXodeMinimapWantsToBeHiddenNotification = @"SCXodeMinimapWantsToBeHiddenNotification";
+NSString * const SCXodeMinimapShowNotification = @"SCXodeMinimapShowNotification";
+NSString * const SCXodeMinimapHideNotification = @"SCXodeMinimapHideNotification";
 
 NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
 
-static const CGFloat kDefaultUpdateInterval = 0.25f;
-
 @implementation SCXcodeMinimap
 
-static SCXcodeMinimap *sharedMinimap = nil;
-+ (void)pluginDidLoad:(NSBundle *)plugin {
++ (void)pluginDidLoad:(NSBundle *)plugin
+{
+	static SCXcodeMinimap *sharedMinimap = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedMinimap = [[self alloc] init];
     });
 }
 
-- (id)init {
+- (id)init
+{
     if (self = [super init]) {
-        
+		
         [self createMenuItem];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishSetup:) name:IDESourceCodeEditorDidFinishSetupNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDocumentDidChange:) name:IDEEditorDocumentDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCodeEditorBoundsChange:) name:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil];
     }
     return self;
 }
+
+#pragma mark - Menu Items and Actions
 
 - (void)createMenuItem
 {
@@ -77,95 +81,55 @@ static SCXcodeMinimap *sharedMinimap = nil;
 {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SCXodeMinimapIsInitiallyHidden];
     
-    [sender setTitle:@"Show MiniMap"];
+    [sender setTitle:@"Show Minimap"];
     [sender setAction:@selector(showMiniMap:)];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeHiddenNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapHideNotification object:nil];
 }
 
 - (void)showMiniMap:(NSMenuItem *)sender
 {
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:SCXodeMinimapIsInitiallyHidden];
     
-    [sender setTitle:@"Hide MiniMap"];
+    [sender setTitle:@"Hide Minimap"];
     [sender setAction:@selector(hideMiniMap:)];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapWantsToBeShownNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapShowNotification object:nil];
 }
 
-- (void)onDocumentDidChange:(NSNotification*)sender
-{
-    SCMiniMapView *miniMapView = objc_getAssociatedObject([sender object], &kKeyMiniMapView);
-    
-    //150 lines per multiplier means a 1500 line file should have a delay of 2.5 seconds. 
-    CGFloat multiplier = ceilf((CGFloat)miniMapView.numberOfLines / 150.0f);
-    NSTimeInterval updateInterval = (CGFloat)multiplier * kDefaultUpdateInterval;
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:miniMapView selector:@selector(updateTextView) object:nil];
-    [miniMapView performSelector:@selector(updateTextView) withObject:nil afterDelay:updateInterval];
-}
+#pragma mark - Xcode Notification
 
 - (void)onCodeEditorBoundsChange:(NSNotification*)sender
 {
-    if(![sender.object respondsToSelector:@selector(scrollView)]) {
-        NSLog(@"Could not fetch scroll view");
-        return;
-    }
-    NSScrollView *editorScrollView = [sender.object performSelector:@selector(scrollView)];
-    SCMiniMapView *miniMapView = objc_getAssociatedObject(editorScrollView, &kKeyMiniMapView);
-    [miniMapView updateSelectionView];
+	if(![sender.object isKindOfClass:[IDESourceCodeEditor class]]) {
+		NSLog(@"Could not fetch source code editor container");
+		return;
+	}
+	
+	IDESourceCodeEditor *editor = (IDESourceCodeEditor *)[sender object];
+	SCXcodeMinimapView *miniMapView = objc_getAssociatedObject(editor.scrollView, &kAssociatedObjectMinimapViewKey);
+    [miniMapView updateOffset];
 }
 
 - (void)onDidFinishSetup:(NSNotification*)sender
 {
-    if(![[sender object] respondsToSelector:@selector(containerView)]) {
-        NSLog(@"Could not fetch editor container view");
-        return;
-    }
-    if(![[sender object] respondsToSelector:@selector(scrollView)]) {
-        NSLog(@"Could not fetch editor scroll view");
-        return;
-    }
-    if(![[sender object] respondsToSelector:@selector(textView)]) {
-        NSLog(@"Could not fetch editor text view");
-        return;
-    }
-    if(![[sender object] respondsToSelector:@selector(sourceCodeDocument)]) {
-        NSLog(@"Could not fetch editor document");
-        return;
-    }
-    
-    /* Get Editor Components */
-    NSDocument *editorDocument      = [[sender object] performSelector:@selector(sourceCodeDocument)];
-    NSView *editorContainerView     = [[sender object] performSelector:@selector(containerView)];
-    NSScrollView *editorScrollView  = [[sender object] performSelector:@selector(scrollView)];
-    NSTextView *editorTextView      = [[sender object] performSelector:@selector(textView)];
-    
-    [editorTextView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
-    
-    /* Create Mini Map */
-    CGFloat width = editorTextView.bounds.size.width * kDefaultZoomLevel;
-    
-    NSRect miniMapScrollViewFrame = NSMakeRect(editorContainerView.bounds.size.width - width,
-                                               0,
-                                               width,
-                                               editorScrollView.bounds.size.height);
-    
-    SCMiniMapView *miniMapView = [[SCMiniMapView alloc] initWithFrame:miniMapScrollViewFrame];
-    miniMapView.editorScrollView = editorScrollView;
-    miniMapView.editorTextView = editorTextView;
-    [editorContainerView addSubview:miniMapView];
-    
-    /* Setup Associated Objects */
-    objc_setAssociatedObject(editorScrollView,  &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_ASSIGN);
-    objc_setAssociatedObject(editorDocument,    &kKeyMiniMapView, miniMapView, OBJC_ASSOCIATION_RETAIN);
-    
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
-        [miniMapView hide];
-    }
-    else {
-        [miniMapView show];
-    }
+	if(![sender.object isKindOfClass:[IDESourceCodeEditor class]]) {
+		NSLog(@"Could not fetch source code editor container");
+		return;
+	}
+	
+	IDESourceCodeEditor *editor = (IDESourceCodeEditor *)[sender object];
+    [editor.textView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
+	
+    CGFloat width = editor.textView.bounds.size.width * kDefaultZoomLevel;
+    NSRect miniMapScrollViewFrame = NSMakeRect(editor.containerView.bounds.size.width - width, 0, width, editor.scrollView.bounds.size.height);
+	
+    SCXcodeMinimapView *miniMapView = [[SCXcodeMinimapView alloc] initWithFrame:miniMapScrollViewFrame editorScrollView:editor.scrollView editorTextView:editor.textView];
+    [editor.containerView addSubview:miniMapView];
+	
+    objc_setAssociatedObject(editor.scrollView, &kAssociatedObjectMinimapViewKey, miniMapView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
+	[miniMapView setVisible:![[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]];
 }
 
 @end

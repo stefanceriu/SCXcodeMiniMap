@@ -8,8 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString *const SCXodeMinimapWantsToBeShownNotification;
-extern NSString *const SCXodeMinimapWantsToBeHiddenNotification;
+extern NSString *const SCXodeMinimapShowNotification;
+extern NSString *const SCXodeMinimapHideNotification;
 
 @interface SCXcodeMinimap : NSObject
 
