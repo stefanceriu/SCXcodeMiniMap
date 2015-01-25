@@ -20,6 +20,8 @@
 const CGFloat kDefaultZoomLevel = 0.1f;
 const CGFloat kDefaultShadowLevel = 0.1f;
 
+static NSString * const kXcodeSyntaxCommentColor = @"xcode.syntax.comment";
+static NSString * const kXcodeSyntaxPreprocessorColor = @"xcode.syntax.preprocessor";
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate>
@@ -102,7 +104,27 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	if(visible) {
 		[self updateOffset];
 	}
+	
+	// Ensure the layout manager's delegate is set to self. The DVTSourceTextView resets it if called to early.
+	[self.textView.layoutManager setDelegate:self];
 }
+
+#pragma mark - NSLayoutManagerDelegate
+
+- (NSDictionary *)layoutManager:(NSLayoutManager *)layoutManager shouldUseTemporaryAttributes:(NSDictionary *)attrs forDrawingToScreen:(BOOL)toScreen atCharacterIndex:(NSUInteger)charIndex effectiveRange:(NSRangePointer)effectiveCharRange
+{
+	DVTTextStorage *storage = [self.editorTextView textStorage];
+	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
+	return @{NSForegroundColorAttributeName : color};
+}
+
+- (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
+{
+	if(layoutFinished) {
+		[self updateOffset];
+	}
+}
+
 
 #pragma mark - Navigation
 
@@ -181,6 +203,16 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	}
 	
 	return [[NSColor clearColor] shadowWithLevel:kDefaultShadowLevel];
+}
+
+- (NSColor *)commentColor
+{
+	return [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentColor]];
+}
+
+- (NSColor *)preprocessorColor
+{
+	return [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorColor]];
 }
 
 #pragma mark - Autoresizing

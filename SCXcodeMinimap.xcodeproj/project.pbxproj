@@ -39,7 +39,6 @@
 		184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapSelectionView.m; sourceTree = "<group>"; };
 		184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapView.h; sourceTree = "<group>"; };
 		184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapView.m; sourceTree = "<group>"; };
-		184C11851A740F97002A7C65 /* ShitFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShitFile.h; sourceTree = "<group>"; };
 		184C118E1A741136002A7C65 /* DVTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTFoundation.framework; path = ../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTFoundation.framework; sourceTree = "<group>"; };
 		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = ../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
 		1883080B1A7411930005DF40 /* IDESourceEditor.ideplugin */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = IDESourceEditor.ideplugin; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin; sourceTree = "<group>"; };
@@ -145,7 +144,6 @@
 				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
 				184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */,
 				184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */,
-				184C11851A740F97002A7C65 /* ShitFile.h */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 				184C11701A740F8A002A7C65 /* Xcode Headers */,
 			);
