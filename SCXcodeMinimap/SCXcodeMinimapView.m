@@ -150,8 +150,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		return;
 	}
 	
-	CGPoint offset = NSMakePoint(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification));
-	[self.scrollView.contentView scrollToPoint:offset];
+	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
+	[self.scrollView.documentView scrollPoint:offset];
 	
 	CGFloat textHeight = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size.height;
 	ratio = (textHeight - self.selectionView.bounds.size.height) / editorContentHeight;
