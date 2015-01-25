@@ -16,12 +16,13 @@
 #import "DVTSourceNodeTypes.h"
 #import "DVTFontAndColorTheme.h"
 
-
 const CGFloat kDefaultZoomLevel = 0.1f;
-const CGFloat kDefaultShadowLevel = 0.1f;
+const CGFloat kBackgroundColorShadowLevel = 0.1f;
+const CGFloat kHighlightColorAlphaLevel = 0.3f;
 
-static NSString * const kXcodeSyntaxCommentColor = @"xcode.syntax.comment";
-static NSString * const kXcodeSyntaxPreprocessorColor = @"xcode.syntax.preprocessor";
+static NSString * const kXcodeSyntaxCommentNodeName = @"xcode.syntax.comment";
+static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.preprocessor";
+
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate>
@@ -114,8 +115,26 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 - (NSDictionary *)layoutManager:(NSLayoutManager *)layoutManager shouldUseTemporaryAttributes:(NSDictionary *)attrs forDrawingToScreen:(BOOL)toScreen atCharacterIndex:(NSUInteger)charIndex effectiveRange:(NSRangePointer)effectiveCharRange
 {
 	DVTTextStorage *storage = [self.editorTextView textStorage];
+	
+	short currentNodeId = [storage nodeTypeAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
+	
 	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
-	return @{NSForegroundColorAttributeName : color};
+	NSColor *backgroundColor = nil;
+	
+	if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]) {
+		NSColor *color =  [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
+		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
+	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
+		NSColor *color = [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
+		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
+	}
+	
+	if(backgroundColor) {
+		NSColor *foregroundColor = [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor];
+		return @{NSForegroundColorAttributeName : foregroundColor, NSBackgroundColorAttributeName : backgroundColor};
+	} else {
+		return @{NSForegroundColorAttributeName : color};
+	}
 }
 
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
@@ -189,30 +208,18 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)updateTheme
 {
-	[self.scrollView setBackgroundColor:self.backgroundColor];
-	[self.textView setBackgroundColor:self.backgroundColor];
-	[self.selectionView setSelectionColor:nil];
-}
-
-- (NSColor *)backgroundColor
-{
 	DVTFontAndColorTheme *theme = [DVTFontAndColorTheme currentTheme];
+	NSColor *backgroundColor = [theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
 	
-	if(theme.sourceTextBackgroundColor) {
-		return [theme.sourceTextBackgroundColor shadowWithLevel:kDefaultShadowLevel];
-	}
+	[self.scrollView setBackgroundColor:backgroundColor];
+	[self.textView setBackgroundColor:backgroundColor];
 	
-	return [[NSColor clearColor] shadowWithLevel:kDefaultShadowLevel];
-}
-
-- (NSColor *)commentColor
-{
-	return [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentColor]];
-}
-
-- (NSColor *)preprocessorColor
-{
-	return [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorColor]];
+	NSColor *selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [backgroundColor redComponent])
+														green:(1.0f - [backgroundColor greenComponent])
+														 blue:(1.0f - [backgroundColor blueComponent])
+														alpha:kHighlightColorAlphaLevel];
+	
+	[self.selectionView setSelectionColor:selectionColor];
 }
 
 #pragma mark - Autoresizing

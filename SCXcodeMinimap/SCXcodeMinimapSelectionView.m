@@ -18,48 +18,12 @@
 	NSRectFill(dirtyRect);
 }
 
-- (NSColor *)selectionColor
-{
-	if(_selectionColor == nil) {
-		
-		_selectionColor = [NSColor colorWithDeviceRed:0.0f green:0.0f blue:0.0f alpha:0.3f];
-		
-		NSColor *backgroundColor = [[[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor] colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]];
-		
-		if(self.shouldInverseColors) {
-			
-			_selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [backgroundColor redComponent])
-														green:(1.0f - [backgroundColor greenComponent])
-														 blue:(1.0f - [backgroundColor blueComponent])
-														alpha:0.3f];
-		} else {
-			
-			_selectionColor = [NSColor colorWithCalibratedHue:0.0f
-												   saturation:0.0f
-												   brightness:(1.0f - [backgroundColor brightnessComponent])
-														alpha:0.3f];
-		}
-	}
-	
-	return _selectionColor;
-}
-
 - (void)setSelectionColor:(NSColor *)selectionColor
 {
 	if([_selectionColor isEqual:selectionColor]) return;
 	
 	_selectionColor = selectionColor;
 	[self setNeedsDisplay:YES];
-}
-
-- (void)setShouldInverseColors:(BOOL)shouldInverseColors
-{
-	if(_shouldInverseColors == shouldInverseColors) {
-		return;
-	}
-	
-	_shouldInverseColors = shouldInverseColors;
-	_selectionColor = nil;
 }
 
 @end
