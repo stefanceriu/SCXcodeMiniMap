@@ -11,8 +11,6 @@
 @class DVTSourceTextView;
 @class SCSelectionView;
 
-extern const CGFloat kDefaultZoomLevel;
-
 @interface SCXcodeMinimapView : NSView
 
 - (instancetype)initWithFrame:(NSRect)frameRect

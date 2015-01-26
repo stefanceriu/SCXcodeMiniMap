@@ -13,6 +13,8 @@
 #import "IDESourceCodeEditor.h"
 #import "DVTSourceTextView.h"
 
+const CGFloat kDefaultZoomLevel = 0.15f;
+
 static char kAssociatedObjectMinimapViewKey;
 
 static NSString * const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";

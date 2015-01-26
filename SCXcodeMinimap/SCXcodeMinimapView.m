@@ -16,11 +16,12 @@
 #import "DVTSourceNodeTypes.h"
 #import "DVTFontAndColorTheme.h"
 
-const CGFloat kDefaultZoomLevel = 0.1f;
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
 const CGFloat kHighlightColorAlphaLevel = 0.3f;
 
 static NSString * const kXcodeSyntaxCommentNodeName = @"xcode.syntax.comment";
+static NSString * const kXcodeSyntaxCommentDocNodeName = @"xcode.syntax.comment.doc";
+static NSString * const kXcodeSyntaxCommentDocKeywordNodeName = @"xcode.syntax.comment.doc.keyword";
 static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.preprocessor";
 
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
@@ -121,10 +122,14 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
 	NSColor *backgroundColor = nil;
 	
-	if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]) {
+	if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
+	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
+	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
+	{
 		NSColor *color =  [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
 		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
-	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
+	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName])
+	{
 		NSColor *color = [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
 		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
 	}

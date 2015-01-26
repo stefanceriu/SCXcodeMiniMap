@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+const CGFloat kDefaultZoomLevel;
+
 extern NSString *const SCXodeMinimapShowNotification;
 extern NSString *const SCXodeMinimapHideNotification;
 
