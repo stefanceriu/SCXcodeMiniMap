@@ -167,7 +167,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		return;
 	}
 	
-	CGFloat ratio = (CGRectGetHeight([self.scrollView.documentView frame]) - CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification)) / editorContentHeight * (1 / self.scrollView.magnification);
+	CGFloat ratio = (MAX(CGRectGetHeight(self.scrollView.bounds) , (CGRectGetHeight([self.scrollView.documentView frame]) - CGRectGetHeight(self.scrollView.bounds))) * (1 / self.scrollView.magnification)) / editorContentHeight * (1 / self.scrollView.magnification);
 	
 	if(ratio == 0.0f) {
 		[self.selectionView setFrame:selectionViewFrame];
