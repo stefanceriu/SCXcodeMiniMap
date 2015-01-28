@@ -10,6 +10,7 @@
 #import "SCXcodeMinimap.h"
 #import "SCXcodeMinimapSelectionView.h"
 
+#import "IDESourceCodeEditor.h"
 #import "DVTTextStorage.h"
 #import "DVTPointerArray.h"
 #import "DVTSourceTextView.h"
@@ -44,29 +45,30 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (id)initWithFrame:(NSRect)frame editorScrollView:(NSScrollView *)editorScrollView editorTextView:(DVTSourceTextView *)editorTextView
+- (instancetype)initWithFrame:(NSRect)frame editor:(IDESourceCodeEditor *)editor
 {
 	if (self = [super initWithFrame:frame])
 	{
+		self.editorScrollView = editor.scrollView;
+		self.editorTextView = editor.textView;
+		
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
 		
-		self.editorScrollView = editorScrollView;
-		self.editorTextView = editorTextView;
-		
 		self.scrollView = [[NSScrollView alloc] initWithFrame:self.bounds];
 		[self.scrollView setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
+		[self.scrollView setDrawsBackground:NO];
 		
 		[self.scrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
 		[self.scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
 		[self addSubview:self.scrollView];
 		
 		self.textView = [[DVTSourceTextView alloc] initWithFrame:self.editorTextView.bounds];
+		[self.textView setTextStorage:editor.textView.textStorage];
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
-		[self.textView setTextStorage:editorTextView.textStorage];
-		[self.scrollView setDocumentView:self.textView];
 		
+		[self.scrollView setDocumentView:self.textView];
 		
 		self.selectionView = [[SCXcodeMinimapSelectionView alloc] init];
 		[self.textView addSubview:_selectionView];
@@ -163,16 +165,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	NSRect selectionViewFrame = NSMakeRect(0, 0, self.bounds.size.width * (1 / self.scrollView.magnification), self.editorScrollView.visibleRect.size.height);
 	
 	if(editorContentHeight == 0.0f) {
+		NSLog(@"editorContentHeight IS %f", editorContentHeight);
 		[self.selectionView setFrame:selectionViewFrame];
 		return;
 	}
 	
-	CGFloat ratio = (MAX(CGRectGetHeight(self.scrollView.bounds) , (CGRectGetHeight([self.scrollView.documentView frame]) - CGRectGetHeight(self.scrollView.bounds))) * (1 / self.scrollView.magnification)) / editorContentHeight * (1 / self.scrollView.magnification);
-	
-	if(ratio == 0.0f) {
-		[self.selectionView setFrame:selectionViewFrame];
-		return;
-	}
+	CGFloat ratio = (CGRectGetHeight([self.scrollView.documentView frame]) - CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification)) / editorContentHeight * (1 / self.scrollView.magnification);
 	
 	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
 	[self.scrollView.documentView scrollPoint:offset];

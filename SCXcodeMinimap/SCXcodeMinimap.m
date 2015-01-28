@@ -126,7 +126,7 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 	CGFloat width = editor.textView.bounds.size.width * kDefaultZoomLevel;
 	NSRect miniMapScrollViewFrame = NSMakeRect(editor.containerView.bounds.size.width - width, 0, width, editor.scrollView.bounds.size.height);
 	
-	SCXcodeMinimapView *miniMapView = [[SCXcodeMinimapView alloc] initWithFrame:miniMapScrollViewFrame editorScrollView:editor.scrollView editorTextView:editor.textView];
+	SCXcodeMinimapView *miniMapView = [[SCXcodeMinimapView alloc] initWithFrame:miniMapScrollViewFrame editor:editor];
 	[editor.containerView addSubview:miniMapView];
 	
 	objc_setAssociatedObject(editor.scrollView, &kAssociatedObjectMinimapViewKey, miniMapView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

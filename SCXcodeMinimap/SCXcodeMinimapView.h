@@ -8,14 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class DVTSourceTextView;
-@class SCSelectionView;
+@class IDESourceCodeEditor;
 
 @interface SCXcodeMinimapView : NSView
 
-- (instancetype)initWithFrame:(NSRect)frameRect
-			 editorScrollView:(NSScrollView *)editorScrollView
-			   editorTextView:(DVTSourceTextView *)editorTextView;
+- (instancetype)initWithFrame:(NSRect)frame editor:(IDESourceCodeEditor *)editor;
 
 - (void)updateOffset;
 

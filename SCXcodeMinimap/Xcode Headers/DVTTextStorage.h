@@ -12,13 +12,8 @@
 @property DVTSourceModel* sourceModel;
 @property(readonly) id sourceModelService; // DVTSourceTextStorage
 
-@property(readonly) unsigned long long currentChangeIndex;
-
 -(NSColor*)colorAtCharacterIndex:(unsigned long long)charIndex effectiveRange:(NSRangePointer)range context:(id)context;
--(void)fixSyntaxColoringInRange:(NSRange)range;
+
 -(short)nodeTypeAtCharacterIndex:(unsigned long long)charIndex effectiveRange:(NSRangePointer)range context:(id)context;
-// FIXME: Workaround for NSObject+YOLO buggyness
--(NSColor*)yl_colorAtCharacterIndex:(unsigned long long)charIndex effectiveRange:(NSRangePointer)range context:(id)context;
-- (id<DVTSourceLanguageSourceModelService>)sourceModelItemAtCharacterIndex:(unsigned long long)arg1; //DVTSourceTextStorage in Xcode 5, DVTSourceLanguageSourceModelService protocol in Xcode 5.1
 
 @end
