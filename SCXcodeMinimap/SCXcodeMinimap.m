@@ -15,11 +15,7 @@
 
 const CGFloat kDefaultZoomLevel = 0.15f;
 
-static char kAssociatedObjectMinimapViewKey;
-
 static NSString * const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
-static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocumentDidChangeNotification";
-static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 
 NSString * const SCXodeMinimapShowNotification = @"SCXodeMinimapShowNotification";
 NSString * const SCXodeMinimapHideNotification = @"SCXodeMinimapHideNotification";
@@ -44,7 +40,6 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 		[self createMenuItem];
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishSetup:) name:IDESourceCodeEditorDidFinishSetupNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCodeEditorBoundsChange:) name:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil];
 	}
 	return self;
 }
@@ -101,18 +96,6 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 
 #pragma mark - Xcode Notification
 
-- (void)onCodeEditorBoundsChange:(NSNotification*)sender
-{
-	if(![sender.object isKindOfClass:[IDESourceCodeEditor class]]) {
-		NSLog(@"Could not fetch source code editor container");
-		return;
-	}
-	
-	IDESourceCodeEditor *editor = (IDESourceCodeEditor *)[sender object];
-	SCXcodeMinimapView *miniMapView = objc_getAssociatedObject(editor.scrollView, &kAssociatedObjectMinimapViewKey);
-	[miniMapView updateOffset];
-}
-
 - (void)onDidFinishSetup:(NSNotification*)sender
 {
 	if(![sender.object isKindOfClass:[IDESourceCodeEditor class]]) {
@@ -128,8 +111,6 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 	
 	SCXcodeMinimapView *miniMapView = [[SCXcodeMinimapView alloc] initWithFrame:miniMapScrollViewFrame editor:editor];
 	[editor.containerView addSubview:miniMapView];
-	
-	objc_setAssociatedObject(editor.scrollView, &kAssociatedObjectMinimapViewKey, miniMapView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	
 	[miniMapView setVisible:![[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]];
 }

@@ -47,6 +47,8 @@
 		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = ../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
 		1883080B1A7411930005DF40 /* IDESourceEditor.ideplugin */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = IDESourceEditor.ideplugin; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin; sourceTree = "<group>"; };
 		1883080F1A7411A70005DF40 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = "<group>"; };
+		18C8F0331A7ECB1300C7A76F /* DVTFoldingLayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTFoldingLayoutManager.h; sourceTree = "<group>"; };
+		18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTLayoutManager.h; sourceTree = "<group>"; };
 		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FE09B51707639E00118FEB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		18FE09B81707639E00118FEB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -81,8 +83,10 @@
 			isa = PBXGroup;
 			children = (
 				184C11711A740F8A002A7C65 /* DVTCompletingTextView.h */,
+				18C8F0331A7ECB1300C7A76F /* DVTFoldingLayoutManager.h */,
 				184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */,
 				184C11731A740F8A002A7C65 /* DVTInvalidation-Protocol.h */,
+				18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */,
 				184C11741A740F8A002A7C65 /* DVTPointerArray.h */,
 				184C11751A740F8A002A7C65 /* DVTPreferenceSet-Protocol.h */,
 				184C11761A740F8A002A7C65 /* DVTSourceLanguageSourceModelService.h */,
@@ -93,12 +97,12 @@
 				184C117B1A740F8A002A7C65 /* DVTTextStorage.h */,
 				184C117C1A740F8A002A7C65 /* DVTViewController.h */,
 				184C117D1A740F8A002A7C65 /* IDEEditor.h */,
+				1876135D1A77A69F00974BE1 /* IDEEditorDocument.h */,
+				18FEFA8C1A782D8600DC98C5 /* IDEFileTextSettings.h */,
+				1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */,
 				184C117E1A740F8A002A7C65 /* IDESourceCodeEditor.h */,
 				184C117F1A740F8A002A7C65 /* IDESourceCodeEditorContainerView.h */,
 				184C11801A740F8A002A7C65 /* IDEViewController.h */,
-				1876135D1A77A69F00974BE1 /* IDEEditorDocument.h */,
-				1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */,
-				18FEFA8C1A782D8600DC98C5 /* IDEFileTextSettings.h */,
 			);
 			path = "Xcode Headers";
 			sourceTree = "<group>";
