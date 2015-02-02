@@ -153,6 +153,8 @@ static SCXcodeMinimap *sharedMinimap = nil;
     
     SCMiniMapView *miniMapView = [[SCMiniMapView alloc] initWithFrame:miniMapScrollViewFrame];
     miniMapView.editorScrollView = editorScrollView;
+    
+    [miniMapView.editorScrollView setHasVerticalScroller:NO];
     miniMapView.editorTextView = editorTextView;
     [editorContainerView addSubview:miniMapView];
     
