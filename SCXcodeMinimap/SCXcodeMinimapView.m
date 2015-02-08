@@ -32,21 +32,6 @@ static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocu
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
-
-@interface NSObject (SCXcodeMinimapDelayedLayoutManager)
-
-- (void)sc_performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay cancelPreviousRequest:(BOOL)cancel;
-
-@end
-
-
-@interface SCXcodeMinimapDelayedLayoutManager : DVTLayoutManager
-
-@property (nonatomic, strong) NSValue *combinedRangeValue;
-
-@end
-
-
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate>
 
 @property (nonatomic, strong) IDESourceCodeEditor *editor;
@@ -57,6 +42,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 @property (nonatomic, strong) DVTSourceTextView *textView;
 @property (nonatomic, strong) SCXcodeMinimapSelectionView *selectionView;
 @property (nonatomic, strong) IDESourceCodeDocument *document;
+
+@property (nonatomic, assign) BOOL shouldAllowFullSyntaxHighlight;
+
+@property (nonatomic, strong) NSColor *commentColor;
+@property (nonatomic, strong) NSColor *preprocessorColor;
 
 @end
 
@@ -89,17 +79,15 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		[self addSubview:self.scrollView];
 		
 		self.textView = [[DVTSourceTextView alloc] initWithFrame:self.editorTextView.bounds];
-		SCXcodeMinimapDelayedLayoutManager *layoutManager = [[SCXcodeMinimapDelayedLayoutManager alloc] init];
-		[self.textView.textContainer replaceLayoutManager:layoutManager];
+		[self.editorTextView.textStorage addLayoutManager:self.textView.layoutManager];
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
-		
-		[self.editorTextView.textStorage addLayoutManager:layoutManager];
 		
 		[self.scrollView setDocumentView:self.textView];
 		
 		[self.scrollView setAllowsMagnification:YES];
 		[self.scrollView setMinMagnification:kDefaultZoomLevel];
+		[self.scrollView setMaxMagnification:kDefaultZoomLevel];
 		[self.scrollView setMagnification:kDefaultZoomLevel];
 		
 		
@@ -125,7 +113,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			if([note.object isEqual:weakSelf.editor]) {
-				[self updateOffset];
+				[weakSelf updateOffset];
 			}
 		}];
 	}
@@ -145,79 +133,99 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	
 	if(visible) {
 		[self updateOffset];
+		
+		[self.textView.layoutManager setDelegate:self];
+	} else {
+		[self.textView.layoutManager setDelegate:nil];
 	}
-	
-	// Ensure the layout manager's delegate is set to self. The DVTSourceTextView resets it if called to early.
-	[self.textView.layoutManager setDelegate:self];
-	[self.textView.layoutManager setAllowsNonContiguousLayout:NO];
 }
 
 #pragma mark - NSLayoutManagerDelegate
 
-- (NSDictionary *)layoutManager:(NSLayoutManager *)layoutManager shouldUseTemporaryAttributes:(NSDictionary *)attrs forDrawingToScreen:(BOOL)toScreen atCharacterIndex:(NSUInteger)charIndex effectiveRange:(NSRangePointer)effectiveCharRange
+- (NSDictionary *)layoutManager:(NSLayoutManager *)layoutManager
+   shouldUseTemporaryAttributes:(NSDictionary *)attrs
+			 forDrawingToScreen:(BOOL)toScreen
+			   atCharacterIndex:(NSUInteger)charIndex
+				 effectiveRange:(NSRangePointer)effectiveCharRange
 {
 	if(!toScreen || self.hidden) {
 		return nil;
 	}
 	
+	// Prevent full range invalidation for performance reasons.
+	if(!self.shouldAllowFullSyntaxHighlight) {
+		NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
+		if(charIndex > visibleEditorRange.location + visibleEditorRange.length ) {
+			*effectiveCharRange = NSMakeRange(visibleEditorRange.location + visibleEditorRange.length,
+											  layoutManager.textStorage.length - visibleEditorRange.location - visibleEditorRange.length);
+			
+			return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourcePlainTextColor]};
+		}
+		
+		if(charIndex < visibleEditorRange.location) {
+			*effectiveCharRange = NSMakeRange(0, visibleEditorRange.location);
+			return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourcePlainTextColor]};
+		}
+	}
+	
+	// Attempt a full range invalidation after all temporary attributes are set
+	__weak typeof(self) weakSelf = self;
+	[self performBlock:^{
+		weakSelf.shouldAllowFullSyntaxHighlight = YES;
+		NSRange visibleMinimapRange = [weakSelf.textView visibleCharacterRange];
+		[weakSelf.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
+	} afterDelay:0.5f cancelPreviousRequest:YES];
+	
+	// Rely on the colorAtCharacterIndex: method to update the effective range
 	DVTTextStorage *storage = [self.editorTextView textStorage];
-	
-	short currentNodeId = [storage nodeTypeAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
-	
 	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
-	NSColor *backgroundColor = nil;
 	
+	// Background color for comments and preprocessor directives
+	short currentNodeId = [storage nodeTypeAtCharacterIndex:charIndex effectiveRange:NULL context:nil];
 	if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
 	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
-	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
-	{
-		NSColor *color =  [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
-		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
-	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName])
-	{
-		NSColor *color = [[[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType] pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
-		backgroundColor = [NSColor colorWithCalibratedRed:color.redComponent green:color.greenComponent blue:color.blueComponent alpha:kHighlightColorAlphaLevel];
+	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]) {
+		return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.commentColor};
+	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
+		return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.preprocessorColor};
 	}
 	
-	if(backgroundColor) {
-		NSColor *foregroundColor = [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor];
-		return @{NSForegroundColorAttributeName : foregroundColor, NSBackgroundColorAttributeName : backgroundColor};
-	} else {
-		return @{NSForegroundColorAttributeName : color};
-	}
+	return @{NSForegroundColorAttributeName : color};
 }
 
-- (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinished
+- (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinishedFlag
 {
-	if(layoutFinished) {
-		[self updateOffset];
-	}
+	self.shouldAllowFullSyntaxHighlight = NO;
 }
 
 #pragma mark - Navigation
 
 - (void)updateOffset
 {
-	if ([self isHidden]) {
+	if (self.isHidden) {
 		return;
 	}
 	
-	CGFloat editorContentHeight = [self.editorScrollView.documentView frame].size.height - self.editorScrollView.bounds.size.height;
+	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
+	CGFloat minimapTextHeight = CGRectGetHeight([self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer]);
+	
+	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editorScrollView.bounds);
+	CGFloat adjustedMinimapContentHeight = minimapTextHeight - (CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification));
 	
 	NSRect selectionViewFrame = NSMakeRect(0, 0, self.bounds.size.width * (1 / self.scrollView.magnification), self.editorScrollView.visibleRect.size.height);
 	
-	if(editorContentHeight == 0.0f) {
+	if(adjustedEditorContentHeight == 0.0f) {
 		[self.selectionView setFrame:selectionViewFrame];
 		return;
 	}
 	
-	CGFloat ratio = (CGRectGetHeight([self.scrollView.documentView frame]) - CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification)) / editorContentHeight * (1 / self.scrollView.magnification);
-	
+	CGFloat ratio = (adjustedMinimapContentHeight / adjustedEditorContentHeight) * (1 / self.scrollView.magnification);
 	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
+	
 	[self.scrollView.documentView scrollPoint:offset];
 	
-	CGFloat textHeight = [self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer].size.height;
-	ratio = (textHeight - self.selectionView.bounds.size.height) / editorContentHeight;
+	
+	ratio = (minimapTextHeight - self.selectionView.bounds.size.height) / adjustedEditorContentHeight;
 	selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
 	
 	[self.selectionView setFrame:selectionViewFrame];
@@ -245,7 +253,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 {
 	NSPoint point = [self.textView convertPoint:theEvent.locationInWindow fromView:nil];
 	NSUInteger characterIndex = [self.textView characterIndexForInsertionAtPoint:point];
-	[self.editorTextView scrollRangeToVisible:NSMakeRange(characterIndex, 0)];
+	[self.editorTextView scrollRangeToVisible:NSMakeRange(characterIndex, 0) animate:YES];
 }
 
 #pragma mark - Theme
@@ -263,6 +271,20 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 														 blue:(1.0f - [backgroundColor blueComponent])
 														alpha:kHighlightColorAlphaLevel];
 	
+	DVTPointerArray *colors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
+	self.commentColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
+	self.commentColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
+												  green:self.commentColor.greenComponent
+												   blue:self.commentColor.blueComponent
+												  alpha:kHighlightColorAlphaLevel];
+	
+	
+	self.preprocessorColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
+	self.preprocessorColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
+													   green:self.commentColor.greenComponent
+														blue:self.commentColor.blueComponent
+													   alpha:kHighlightColorAlphaLevel];
+	
 	[self.selectionView setSelectionColor:selectionColor];
 }
 
@@ -274,75 +296,19 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	[self updateOffset];
 }
 
-@end
-
-
-@implementation SCXcodeMinimapDelayedLayoutManager
-
-- (void)delayedAddOperation:(NSOperation *)operation {
-	[[NSOperationQueue currentQueue] addOperation:operation];
-}
-
-- (void)performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay {
-	[self performSelector:@selector(delayedAddOperation:)
-			   withObject:[NSBlockOperation blockOperationWithBlock:block]
-			   afterDelay:delay];
-}
+#pragma mark - Helpers
 
 - (void)performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay cancelPreviousRequest:(BOOL)cancel {
 	if (cancel) {
 		[NSObject cancelPreviousPerformRequestsWithTarget:self];
 	}
-	[self performBlock:block afterDelay:delay];
-}
-
-- (void)invalidateDisplayForCharacterRange:(NSRange)charRange
-{
-	if(self.combinedRangeValue) {
-		self.combinedRangeValue = [NSValue valueWithRange:NSUnionRange(self.combinedRangeValue.rangeValue, charRange)];
-	} else {
-		self.combinedRangeValue = [NSValue valueWithRange:charRange];
-	}
 	
-	[self performBlock:^{
-		
-		NSRange range = NSIntersectionRange(self.combinedRangeValue.rangeValue, NSMakeRange(0, self.textStorage.length));
-		[super invalidateDisplayForCharacterRange:range];
-		self.combinedRangeValue = nil;
-	} afterDelay:0.5f cancelPreviousRequest:YES];
-}
-
-- (void)_invalidateLayoutForExtendedCharacterRange:(NSRange)charRange isSoft:(BOOL)isSoft
-{
-	if(isSoft) {
-		[super _invalidateLayoutForExtendedCharacterRange:charRange isSoft:isSoft];
-	}
-}
-
-- (void)textStorage:(id)arg1 edited:(unsigned long long)arg2 range:(struct _NSRange)arg3 changeInLength:(long long)arg4 invalidatedRange:(struct _NSRange)arg5
-{
-	
-}
-
-@end
-
-
-@implementation NSObject (SCXcodeMinimapDelayedLayoutManager)
-
-- (void)sc_performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay {
 	[self performSelector:@selector(delayedAddOperation:)
 			   withObject:[NSBlockOperation blockOperationWithBlock:block]
 			   afterDelay:delay];
 }
 
-- (void)sc_performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay cancelPreviousRequest:(BOOL)cancel {
-	if (cancel) {
-		[NSObject cancelPreviousPerformRequestsWithTarget:self];
-	}
-	[self sc_performBlock:block afterDelay:delay];
-}
-
-- (void)sc_delayedAddOperation:(NSOperation *)operation {
+- (void)delayedAddOperation:(NSOperation *)operation {
 	[[NSOperationQueue currentQueue] addOperation:operation];
 }
 
