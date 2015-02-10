@@ -18,7 +18,9 @@
 #import "DVTPointerArray.h"
 #import "DVTSourceTextView.h"
 #import "DVTSourceNodeTypes.h"
+
 #import "DVTFontAndColorTheme.h"
+#import "DVTPreferenceSetManager.h"
 
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
 const CGFloat kHighlightColorAlphaLevel = 0.3f;
@@ -47,6 +49,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @property (nonatomic, strong) NSColor *commentColor;
 @property (nonatomic, strong) NSColor *preprocessorColor;
+
+@property (nonatomic, strong) DVTFontAndColorTheme *theme;
 
 @end
 
@@ -79,7 +83,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		[self addSubview:self.scrollView];
 		
 		self.textView = [[DVTSourceTextView alloc] initWithFrame:self.editorTextView.bounds];
-		[self.editorTextView.textStorage addLayoutManager:self.textView.layoutManager];
+		[self.textView setTextStorage:self.editorTextView.textStorage];
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
 		
@@ -154,40 +158,47 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	
 	// Prevent full range invalidation for performance reasons.
 	if(!self.shouldAllowFullSyntaxHighlight) {
+		
+		// Attempt a full range invalidation after all temporary attributes are set
+		__weak typeof(self) weakSelf = self;
+		void(^invalidationBlock)() = ^{
+			weakSelf.shouldAllowFullSyntaxHighlight = YES;
+			NSRange visibleMinimapRange = [weakSelf.textView visibleCharacterRange];
+			[weakSelf.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
+		};
+		
 		NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
 		if(charIndex > visibleEditorRange.location + visibleEditorRange.length ) {
 			*effectiveCharRange = NSMakeRange(visibleEditorRange.location + visibleEditorRange.length,
 											  layoutManager.textStorage.length - visibleEditorRange.location - visibleEditorRange.length);
+		
+			[self performBlock:invalidationBlock afterDelay:0.5f cancelPreviousRequest:YES];
 			
-			return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourcePlainTextColor]};
+			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
 		}
 		
 		if(charIndex < visibleEditorRange.location) {
 			*effectiveCharRange = NSMakeRange(0, visibleEditorRange.location);
-			return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourcePlainTextColor]};
+			
+			[self performBlock:invalidationBlock afterDelay:0.5f cancelPreviousRequest:YES];
+			
+			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
 		}
 	}
-	
-	// Attempt a full range invalidation after all temporary attributes are set
-	__weak typeof(self) weakSelf = self;
-	[self performBlock:^{
-		weakSelf.shouldAllowFullSyntaxHighlight = YES;
-		NSRange visibleMinimapRange = [weakSelf.textView visibleCharacterRange];
-		[weakSelf.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
-	} afterDelay:0.5f cancelPreviousRequest:YES];
 	
 	// Rely on the colorAtCharacterIndex: method to update the effective range
 	DVTTextStorage *storage = [self.editorTextView textStorage];
 	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
 	
-	// Background color for comments and preprocessor directives
-	short currentNodeId = [storage nodeTypeAtCharacterIndex:charIndex effectiveRange:NULL context:nil];
-	if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
-	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
-	   currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]) {
-		return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.commentColor};
-	} else if(currentNodeId == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
-		return @{NSForegroundColorAttributeName : [[DVTFontAndColorTheme currentTheme] sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.preprocessorColor};
+	// Background color for comments and preprocessor directives. Could query for nodeTypeAtCharacterIndex: but it's too slow.
+	DVTPointerArray *colors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
+	if([color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]]] ||
+	   [color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName]]] ||
+	   [color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]]])
+	{
+		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.commentColor};
+	} else if([color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]]]) {
+		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.preprocessorColor};
 	}
 	
 	return @{NSForegroundColorAttributeName : color};
@@ -260,8 +271,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)updateTheme
 {
-	DVTFontAndColorTheme *theme = [DVTFontAndColorTheme currentTheme];
-	NSColor *backgroundColor = [theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
+	//DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
+	//NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
+	//self.theme = [preferenceSet lastObject];
+	self.theme = [DVTFontAndColorTheme currentTheme];
+	
+	NSColor *backgroundColor = [self.theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
 	
 	[self.scrollView setBackgroundColor:backgroundColor];
 	[self.textView setBackgroundColor:backgroundColor];
@@ -271,7 +286,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 														 blue:(1.0f - [backgroundColor blueComponent])
 														alpha:kHighlightColorAlphaLevel];
 	
-	DVTPointerArray *colors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
+	DVTPointerArray *colors = [self.theme syntaxColorsByNodeType];
 	self.commentColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
 	self.commentColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
 												  green:self.commentColor.greenComponent
@@ -280,9 +295,9 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	
 	
 	self.preprocessorColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
-	self.preprocessorColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
-													   green:self.commentColor.greenComponent
-														blue:self.commentColor.blueComponent
+	self.preprocessorColor = [NSColor colorWithCalibratedRed:self.preprocessorColor.redComponent
+													   green:self.preprocessorColor.greenComponent
+														blue:self.preprocessorColor.blueComponent
 													   alpha:kHighlightColorAlphaLevel];
 	
 	[self.selectionView setSelectionColor:selectionColor];
