@@ -161,10 +161,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		return nil;
 	}
 	
-	// Prevent full range invalidation for performance reasons.
+	// Delay invalidation for performance reasons.
 	if(!self.shouldAllowFullSyntaxHighlight) {
 		
-		// Attempt a full range invalidation after all temporary attributes are set
+		// Attempt a full range invalidation after
 		__weak typeof(self) weakSelf = self;
 		void(^invalidationBlock)() = ^{
 			weakSelf.shouldAllowFullSyntaxHighlight = YES;
@@ -172,28 +172,13 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 			[weakSelf.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
 		};
 		
-		NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
-		if(charIndex > visibleEditorRange.location + visibleEditorRange.length ) {
-			*effectiveCharRange = NSMakeRange(visibleEditorRange.location + visibleEditorRange.length,
-											  layoutManager.textStorage.length - visibleEditorRange.location - visibleEditorRange.length);
-			
-			[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
-			
-			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
-		}
+		[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
 		
-		if(charIndex < visibleEditorRange.location) {
-			*effectiveCharRange = NSMakeRange(0, visibleEditorRange.location);
-			
-			[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
-			
-			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
-		}
+		return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
 	}
 	
 	// Rely on the colorAtCharacterIndex: method to update the effective range
-	DVTTextStorage *storage = [self.editorTextView textStorage];
-	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
+	NSColor *color = [(DVTTextStorage *)[self.editorTextView textStorage] colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
 	
 	// Background color for comments and preprocessor directives. Could query for nodeTypeAtCharacterIndex: but it's too slow.
 	DVTPointerArray *editorColors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
