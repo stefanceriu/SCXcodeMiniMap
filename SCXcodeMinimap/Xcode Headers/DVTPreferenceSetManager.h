@@ -14,7 +14,6 @@
 	NSMutableSet *_specifierNamesInDataStore;
 	NSMutableArray *_userPreferenceSets;
 	NSMutableArray *_availablePreferenceSets;
-	id <DVTPreferenceSet> _currentPreferenceSet;
 	DVTMapTable *_preferenceSetObserverTokens;
 	DVTDelayedInvocation *_autosavePreferenceSetsInvocation;
 }
@@ -36,7 +35,6 @@
 - (id)_availablePreferenceSetWithLocalizedName:(id)arg1;
 - (id)preferenceSetForName:(id)arg1;
 @property(readonly) NSArray *builtInPreferenceSets;
-@property(retain) id <DVTPreferenceSet> currentPreferenceSet;
 - (void)_rebuildAvailableandUserSetsList;
 - (void)dealloc;
 - (id)initWithPreferenceSetClass:(Class)arg1;

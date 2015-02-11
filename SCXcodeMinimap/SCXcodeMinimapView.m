@@ -24,6 +24,7 @@
 
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
 const CGFloat kHighlightColorAlphaLevel = 0.3f;
+const CGFloat kDurationBetweenInvalidations = 0.5f;
 
 static NSString * const kXcodeSyntaxCommentNodeName = @"xcode.syntax.comment";
 static NSString * const kXcodeSyntaxCommentDocNodeName = @"xcode.syntax.comment.doc";
@@ -115,6 +116,10 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 			[weakSelf updateTheme];
 		}];
 		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf updateTheme];
+		}];
+		
 		[[NSNotificationCenter defaultCenter] addObserverForName:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			if([note.object isEqual:weakSelf.editor]) {
 				[weakSelf updateOffset];
@@ -171,8 +176,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		if(charIndex > visibleEditorRange.location + visibleEditorRange.length ) {
 			*effectiveCharRange = NSMakeRange(visibleEditorRange.location + visibleEditorRange.length,
 											  layoutManager.textStorage.length - visibleEditorRange.location - visibleEditorRange.length);
-		
-			[self performBlock:invalidationBlock afterDelay:0.5f cancelPreviousRequest:YES];
+			
+			[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
 			
 			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
 		}
@@ -180,7 +185,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		if(charIndex < visibleEditorRange.location) {
 			*effectiveCharRange = NSMakeRange(0, visibleEditorRange.location);
 			
-			[self performBlock:invalidationBlock afterDelay:0.5f cancelPreviousRequest:YES];
+			[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
 			
 			return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
 		}
@@ -191,15 +196,18 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	NSColor *color = [storage colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
 	
 	// Background color for comments and preprocessor directives. Could query for nodeTypeAtCharacterIndex: but it's too slow.
-	DVTPointerArray *colors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
-	if([color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]]] ||
-	   [color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName]]] ||
-	   [color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]]])
+	DVTPointerArray *editorColors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
+	if([color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]]] ||
+	   [color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName]]] ||
+	   [color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]]])
 	{
 		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.commentColor};
-	} else if([color isEqual:[colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]]]) {
+	} else if([color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]]]) {
 		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.preprocessorColor};
 	}
+	
+	DVTPointerArray *minimapColors = [self.theme syntaxColorsByNodeType];
+	color = [minimapColors pointerAtIndex:[editorColors indexOfPointerIdenticalTo:color]];
 	
 	return @{NSForegroundColorAttributeName : color};
 }
@@ -271,10 +279,19 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 - (void)updateTheme
 {
-	//DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
-	//NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
-	//self.theme = [preferenceSet lastObject];
-	self.theme = [DVTFontAndColorTheme currentTheme];
+	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
+	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
+	
+	NSString *themeName = [[NSUserDefaults standardUserDefaults] objectForKey:SCXodeMinimapTheme];
+	NSUInteger themeIndex = [preferenceSet indexesOfObjectsPassingTest:^BOOL(DVTFontAndColorTheme *theme, NSUInteger idx, BOOL *stop) {
+		return [theme.localizedName isEqualTo:themeName];
+	}].lastIndex;
+	
+	if(themeIndex == NSNotFound) {
+		self.theme = [DVTFontAndColorTheme currentTheme];
+	} else {
+		self.theme = preferenceSet[themeIndex];
+	}
 	
 	NSColor *backgroundColor = [self.theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
 	

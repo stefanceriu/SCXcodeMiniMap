@@ -13,6 +13,9 @@ const CGFloat kDefaultZoomLevel;
 extern NSString *const SCXodeMinimapShowNotification;
 extern NSString *const SCXodeMinimapHideNotification;
 
+extern NSString *const SCXodeMinimapThemeChangeNotification;
+extern NSString *const SCXodeMinimapTheme;
+
 @interface SCXcodeMinimap : NSObject
 
 @end

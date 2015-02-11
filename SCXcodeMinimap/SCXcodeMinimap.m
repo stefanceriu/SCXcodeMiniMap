@@ -13,14 +13,20 @@
 #import "IDESourceCodeEditor.h"
 #import "DVTSourceTextView.h"
 
+#import "DVTPreferenceSetManager.h"
+#import "DVTFontAndColorTheme.h"
+
 const CGFloat kDefaultZoomLevel = 0.1f;
 
-static NSString * const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
+NSString *const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
 
-NSString * const SCXodeMinimapShowNotification = @"SCXodeMinimapShowNotification";
-NSString * const SCXodeMinimapHideNotification = @"SCXodeMinimapHideNotification";
+NSString *const SCXodeMinimapShowNotification = @"SCXodeMinimapShowNotification";
+NSString *const SCXodeMinimapHideNotification = @"SCXodeMinimapHideNotification";
 
-NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
+NSString *const SCXodeMinimapThemeChangeNotification = @"SCXodeMinimapThemeChangeNotification";
+
+NSString *const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHidden";
+NSString *const SCXodeMinimapTheme  = @"SCXodeMinimapTheme";
 
 @implementation SCXcodeMinimap
 
@@ -54,24 +60,62 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 		return;
 	}
 	
-	NSMenuItem *miniMapItem = [[NSMenuItem alloc] initWithTitle:@""
-														 action:NULL
-												  keyEquivalent:@"M"];
-	[miniMapItem setKeyEquivalentModifierMask:NSControlKeyMask | NSShiftKeyMask];
+	[editMenuItem.submenu addItem:[NSMenuItem separatorItem]];
 	
-	miniMapItem.target = self;
+	NSMenuItem *minimapMenuItem = [[NSMenuItem alloc] initWithTitle:@"Minimap" action:nil keyEquivalent:@""];
+	[editMenuItem.submenu addItem:minimapMenuItem];
 	
-	[editMenuItem.submenu insertItem:[NSMenuItem separatorItem]
-							 atIndex:[editMenuItem.submenu numberOfItems]];
-	[editMenuItem.submenu insertItem:miniMapItem
-							 atIndex:[editMenuItem.submenu numberOfItems]];
-	
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
-		[self hideMiniMap:miniMapItem];
+	NSMenu *minimapMenu = [[NSMenu alloc] init];
+	{
+		NSMenuItem *showHideMinimapItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@"M"];
+		[showHideMinimapItem setKeyEquivalentModifierMask:NSControlKeyMask | NSShiftKeyMask];
+		[showHideMinimapItem setTarget:self];
+		[minimapMenu addItem:showHideMinimapItem];
+		
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:SCXodeMinimapIsInitiallyHidden]) {
+			[self hideMiniMap:showHideMinimapItem];
+		}
+		else {
+			[self showMiniMap:showHideMinimapItem];
+		}
+		
+		[minimapMenu addItem:[NSMenuItem separatorItem]];
 	}
-	else {
-		[self showMiniMap:miniMapItem];
+	
+	{
+		NSMenuItem *themesMenuItem = [[NSMenuItem alloc] initWithTitle:@"Theme" action:nil keyEquivalent:@""];
+		[minimapMenu addItem:themesMenuItem];
+		
+		NSMenu *themesMenu = [[NSMenu alloc] init];
+		{
+			NSMenuItem *editorThemeMenuItem = [[NSMenuItem alloc] initWithTitle:@"Editor Theme" action:@selector(setMinimapTheme:) keyEquivalent:@""];
+			[editorThemeMenuItem setTarget:self];
+			[themesMenu addItem:editorThemeMenuItem];
+			
+			[themesMenu addItem:[NSMenuItem separatorItem]];
+			
+			NSArray *themes = [[DVTFontAndColorTheme preferenceSetsManager] availablePreferenceSets];
+			NSArray *builtInThemes = [themes filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.isBuiltIn == YES"]];
+			NSArray *userThemes = [themes filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.isBuiltIn == NO"]];
+			
+			for(DVTFontAndColorTheme *theme in builtInThemes) {
+				NSMenuItem *themeMenuItem = [[NSMenuItem alloc] initWithTitle:theme.localizedName action:@selector(setMinimapTheme:) keyEquivalent:@""];
+				[themeMenuItem setTarget:self];
+				[themesMenu addItem:themeMenuItem];
+			}
+			
+			[themesMenu addItem:[NSMenuItem separatorItem]];
+			
+			for(DVTFontAndColorTheme *theme in userThemes) {
+				NSMenuItem *themeMenuItem = [[NSMenuItem alloc] initWithTitle:theme.localizedName action:@selector(setMinimapTheme:) keyEquivalent:@""];
+				[themeMenuItem setTarget:self];
+				[themesMenu addItem:themeMenuItem];
+			}
+		}
+		[themesMenuItem setSubmenu:themesMenu];
+		
 	}
+	[minimapMenuItem setSubmenu:minimapMenu];
 }
 
 - (void)hideMiniMap:(NSMenuItem *)sender
@@ -92,6 +136,17 @@ NSString * const SCXodeMinimapIsInitiallyHidden  = @"SCXodeMinimapIsInitiallyHid
 	[sender setAction:@selector(hideMiniMap:)];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapShowNotification object:nil];
+}
+
+- (void)setMinimapTheme:(NSMenuItem *)sender
+{
+	if([sender.menu indexOfItem:sender] == 0) {
+		[[NSUserDefaults standardUserDefaults] removeObjectForKey:SCXodeMinimapTheme];
+	} else {
+		[[NSUserDefaults standardUserDefaults] setObject:sender.title forKey:SCXodeMinimapTheme];
+	}
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SCXodeMinimapThemeChangeNotification object:nil];
 }
 
 #pragma mark - Xcode Notification
