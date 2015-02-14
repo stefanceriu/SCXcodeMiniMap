@@ -70,10 +70,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		self.editorScrollView = editor.scrollView;
 		self.editorTextView = editor.textView;
 		
-		
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
-		
 		
 		self.scrollView = [[NSScrollView alloc] initWithFrame:self.bounds];
 		[self.scrollView setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
@@ -95,28 +93,35 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		[self.scrollView setMaxMagnification:kDefaultZoomLevel];
 		[self.scrollView setMagnification:kDefaultZoomLevel];
 		
-		
 		self.selectionView = [[SCXcodeMinimapSelectionView alloc] init];
 		[self.textView addSubview:_selectionView];
 		
-		
 		[self updateTheme];
 		
+		[self.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue]];
 		
 		__weak typeof(self) weakSelf = self;
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXodeMinimapShowNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf setVisible:YES];
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplay] boolValue]];
 		}];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXodeMinimapHideNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf setVisible:NO];
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf invalidateVisibleMinimapRange];
 		}];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:DVTFontAndColorSourceTextSettingsChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightPreprocessorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf invalidateVisibleMinimapRange];
+		}];
+		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue]];
+		}];
+		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf updateTheme];
 		}];
-		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+				
+		[[NSNotificationCenter defaultCenter] addObserverForName:DVTFontAndColorSourceTextSettingsChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf updateTheme];
 		}];
 		
@@ -171,13 +176,21 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 																			  effectiveRange:effectiveCharRange
 																					 context:self.editorTextView.syntaxColoringContext];
 	
-	if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
-	   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
-	   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
-	{
-		return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.commentColor};
-	} else if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
-		return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.preprocessorColor};
+	BOOL shouldHighlightComments = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightComments] boolValue];
+	if(shouldHighlightComments) {
+		if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
+		   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
+		   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
+		{
+			return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.commentColor};
+		}
+	}
+	
+	BOOL shouldHighlightPreprocessor = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightPreprocessor] boolValue];
+	if(shouldHighlightPreprocessor) {
+		if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
+			return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.preprocessorColor};
+		}
 	}
 	
 	NSColor *color = [self.theme.syntaxColorsByNodeType pointerAtIndex:nodeType];
@@ -265,7 +278,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
 	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
 	
-	NSString *themeName = [[NSUserDefaults standardUserDefaults] objectForKey:SCXodeMinimapTheme];
+	NSString *themeName = [[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapTheme];
 	NSUInteger themeIndex = [preferenceSet indexesOfObjectsPassingTest:^BOOL(DVTFontAndColorTheme *theme, NSUInteger idx, BOOL *stop) {
 		return [theme.localizedName isEqualTo:themeName];
 	}].lastIndex;

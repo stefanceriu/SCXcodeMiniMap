@@ -10,11 +10,20 @@
 
 const CGFloat kDefaultZoomLevel;
 
-extern NSString *const SCXodeMinimapShowNotification;
-extern NSString *const SCXodeMinimapHideNotification;
+extern NSString *const SCXcodeMinimapShouldDisplayChangeNotification;
+extern NSString *const SCXcodeMinimapShouldDisplay;
 
-extern NSString *const SCXodeMinimapThemeChangeNotification;
-extern NSString *const SCXodeMinimapTheme;
+extern NSString *const SCXcodeMinimapThemeChangeNotification;
+extern NSString *const SCXcodeMinimapTheme;
+
+extern NSString *const SCXcodeMinimapHighlightCommentsChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHighlightComments;
+
+extern NSString *const SCXcodeMinimapHighlightPreprocessorChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHighlightPreprocessor;
+
+extern NSString *const SCXcodeMinimapHideEditorScrollerChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHideEditorScroller;
 
 @interface SCXcodeMinimap : NSObject
 

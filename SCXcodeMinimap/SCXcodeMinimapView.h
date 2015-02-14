@@ -14,8 +14,6 @@
 
 - (instancetype)initWithFrame:(NSRect)frame editor:(IDESourceCodeEditor *)editor;
 
-- (void)updateOffset;
-
 - (void)setVisible:(BOOL)visible;
 
 @end
