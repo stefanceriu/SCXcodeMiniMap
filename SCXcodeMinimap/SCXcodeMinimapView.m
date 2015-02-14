@@ -11,6 +11,7 @@
 #import "SCXcodeMinimapSelectionView.h"
 
 #import "IDESourceCodeEditor.h"
+#import "IDEEditorDocument.h"
 
 #import "DVTTextStorage.h"
 #import "DVTLayoutManager.h"
@@ -23,9 +24,11 @@
 #import "DVTPreferenceSetManager.h"
 
 #import "DVTFoldingManager.h"
+#import "IDEBreakpointManager+SCXcodeMinimap.h"
+#import "IDEFileBreakpoint.h"
+#import "DVTTextDocumentLocation.h"
 
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
-const CGFloat kHighlightColorAlphaLevel = 0.3f;
 const CGFloat kDurationBetweenInvalidations = 0.5f;
 
 static NSString * const kXcodeSyntaxCommentNodeName = @"xcode.syntax.comment";
@@ -37,7 +40,10 @@ static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocu
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
-@interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate>
+static NSString * const kBreakpointRangeKey = @"kBreakpointRangeKey";
+static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
+
+@interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate, IDEBreakpointManagerDelegate>
 
 @property (nonatomic, strong) IDESourceCodeEditor *editor;
 @property (nonatomic, strong) NSScrollView *editorScrollView;
@@ -52,8 +58,12 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 @property (nonatomic, strong) NSColor *commentColor;
 @property (nonatomic, strong) NSColor *preprocessorColor;
+@property (nonatomic, strong) NSColor *enabledBreakpointColor;
+@property (nonatomic, strong) NSColor *disabledBreakpointColor;
 
 @property (nonatomic, strong) DVTFontAndColorTheme *theme;
+
+@property (nonatomic, strong) NSMutableArray *breakpointDictionaries;
 
 @end
 
@@ -69,12 +79,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	if (self = [super initWithFrame:frame])
 	{
 		self.editor = editor;
-		
 		self.editorScrollView = editor.scrollView;
 		
 		self.editorTextView = editor.textView;
 		[self.editorTextView.foldingManager setDelegate:self];
-		
+
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
 		
@@ -103,11 +112,24 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		
 		[self updateTheme];
 		
-		[self.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue]];
+		
+		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpoints] boolValue];
+		if(shouldHighlightBreakpoints) {
+			IDEBreakpointManager *breakpointManager = [self.editor _breakpointManager];
+			[breakpointManager setDelegate:self];
+			[self updateBreakpoints];
+		}
+		
+		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue];
+		[self.editorScrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
 		
 		__weak typeof(self) weakSelf = self;
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplay] boolValue]];
+		}];
+		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf updateBreakpoints];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -175,7 +197,21 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		
 		return @{NSForegroundColorAttributeName : self.theme.sourcePlainTextColor};
 	}
-
+	
+	// Set background colors for breakpoints
+	if(self.breakpointDictionaries.count) {
+		for(NSDictionary *breakpointDictionary in self.breakpointDictionaries) {
+			NSRange range = [breakpointDictionary[kBreakpointRangeKey] rangeValue];
+			BOOL enabled = [breakpointDictionary[kBreakpointEnabledKey] boolValue];
+			
+			if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
+				*effectiveCharRange = range;
+				return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor,
+						 NSBackgroundColorAttributeName : (enabled ? self.enabledBreakpointColor : self.disabledBreakpointColor)};
+			}
+		}
+	}
+	
 	// Set background colors for comments and preprocessor directives
 	short nodeType = [(DVTTextStorage *)[self.textView textStorage] nodeTypeAtCharacterIndex:charIndex
 																			  effectiveRange:effectiveCharRange
@@ -229,6 +265,56 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	[self.textView.foldingManager unfoldRange:range];
 	
 	[self invalidateLayoutForVisibleMinimapRange];
+}
+
+#pragma makr - IDEBreakpointManagerDelegate
+
+- (void)breakpointManagerDidAddBreakpoint:(IDEBreakpointManager *)breakpointManager
+{
+	[self updateBreakpoints];
+}
+
+- (void)breakpointManagerDidRemoveBreakpoint:(IDEBreakpointManager *)breakpointManager
+{
+	[self updateBreakpoints];
+}
+
+- (void)breakpointManagerDidChangeBreakpoint:(IDEBreakpointManager *)breakpointManager
+{
+	[self updateBreakpoints];
+}
+
+- (void)updateBreakpoints
+{
+	BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpoints] boolValue];
+	if(!shouldHighlightBreakpoints) {
+		self.breakpointDictionaries = nil;
+		return;
+	}
+	
+	self.breakpointDictionaries = [NSMutableArray array];
+	
+	IDEBreakpointManager *breakpointManager = [self.editor _breakpointManager];
+	
+	for (NSUInteger index = 0, lineNumber = 1; index < self.textView.string.length; lineNumber++) {
+		
+		NSRange lineRange = [self.textView.string lineRangeForRange:NSMakeRange(index, 0)];
+		
+		for(IDEBreakpoint *breakpoint in breakpointManager.breakpoints) {
+			if([breakpoint isKindOfClass:[IDEFileBreakpoint class]]) {
+				IDEFileBreakpoint *fileBreakpoint = (IDEFileBreakpoint *)breakpoint;
+				
+				if([fileBreakpoint.documentURL isEqualTo:self.editor.document.fileURL] && fileBreakpoint.location.startingLineNumber == lineNumber) {
+					[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange],
+															 kBreakpointEnabledKey : @(fileBreakpoint.shouldBeEnabled)}];
+				}
+			}
+		}
+		
+		index = NSMaxRange(lineRange);
+	}
+	
+	[self invalidateDisplayForVisibleMinimapRange];
 }
 
 #pragma mark - Navigation
@@ -315,23 +401,25 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	NSColor *selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [backgroundColor redComponent])
 														green:(1.0f - [backgroundColor greenComponent])
 														 blue:(1.0f - [backgroundColor blueComponent])
-														alpha:kHighlightColorAlphaLevel];
+														alpha:0.2f];
+	[self.selectionView setSelectionColor:selectionColor];
 	
 	DVTPointerArray *colors = [self.theme syntaxColorsByNodeType];
 	self.commentColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
 	self.commentColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
 												  green:self.commentColor.greenComponent
 												   blue:self.commentColor.blueComponent
-												  alpha:kHighlightColorAlphaLevel];
+												  alpha:0.3f];
 	
 	
 	self.preprocessorColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
 	self.preprocessorColor = [NSColor colorWithCalibratedRed:self.preprocessorColor.redComponent
 													   green:self.preprocessorColor.greenComponent
 														blue:self.preprocessorColor.blueComponent
-													   alpha:kHighlightColorAlphaLevel];
+													   alpha:0.3f];
 	
-	[self.selectionView setSelectionColor:selectionColor];
+	self.enabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:177.0f/255.0f alpha:1.0f];
+	self.disabledBreakpointColor = [NSColor colorWithRed:181.0f/255.0f green:201.0f/255.0f blue:224.0f/255.0f alpha:1.0f];
 }
 
 #pragma mark - Autoresizing
