@@ -22,6 +22,8 @@
 #import "DVTFontAndColorTheme.h"
 #import "DVTPreferenceSetManager.h"
 
+#import "DVTFoldingManager.h"
+
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
 const CGFloat kHighlightColorAlphaLevel = 0.3f;
 const CGFloat kDurationBetweenInvalidations = 0.5f;
@@ -35,7 +37,7 @@ static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocu
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
-@interface SCXcodeMinimapView () <NSLayoutManagerDelegate>
+@interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate>
 
 @property (nonatomic, strong) IDESourceCodeEditor *editor;
 @property (nonatomic, strong) NSScrollView *editorScrollView;
@@ -67,8 +69,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	if (self = [super initWithFrame:frame])
 	{
 		self.editor = editor;
+		
 		self.editorScrollView = editor.scrollView;
+		
 		self.editorTextView = editor.textView;
+		[self.editorTextView.foldingManager setDelegate:self];
 		
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
@@ -106,11 +111,11 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf invalidateVisibleMinimapRange];
+			[weakSelf invalidateDisplayForVisibleMinimapRange];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightPreprocessorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf invalidateVisibleMinimapRange];
+			[weakSelf invalidateDisplayForVisibleMinimapRange];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -165,8 +170,8 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	
 	// Delay invalidation for performance reasons and attempt a full range invalidation later
 	if(!self.shouldAllowFullSyntaxHighlight) {
-		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateVisibleMinimapRange) object:nil];
-		[self performSelector:@selector(invalidateVisibleMinimapRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
+		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleMinimapRange) object:nil];
+		[self performSelector:@selector(invalidateDisplayForVisibleMinimapRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 		
 		return @{NSForegroundColorAttributeName : self.theme.sourcePlainTextColor};
 	}
@@ -201,16 +206,29 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	return @{NSForegroundColorAttributeName : color};
 }
 
-- (void)invalidateVisibleMinimapRange
-{
-	self.shouldAllowFullSyntaxHighlight = YES;
-	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
-	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
-}
-
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinishedFlag
 {
 	self.shouldAllowFullSyntaxHighlight = NO;
+}
+
+#pragma mark - DVTFoldingManagerDelegate
+
+- (void)foldingManager:(DVTFoldingManager *)foldingManager didFoldRange:(NSRange)range
+{
+	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didFoldRange:range];
+	
+	[self.textView.foldingManager foldRange:range];
+	
+	[self invalidateLayoutForVisibleMinimapRange];
+}
+
+- (void)foldingManager:(DVTFoldingManager *)foldingManager didUnfoldRange:(NSRange)range
+{
+	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didUnfoldRange:range];
+	
+	[self.textView.foldingManager unfoldRange:range];
+	
+	[self invalidateLayoutForVisibleMinimapRange];
 }
 
 #pragma mark - Navigation
@@ -326,18 +344,17 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 
 #pragma mark - Helpers
 
-- (void)performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay cancelPreviousRequest:(BOOL)cancel {
-	if (cancel) {
-		[NSObject cancelPreviousPerformRequestsWithTarget:self];
-	}
-	
-	[self performSelector:@selector(delayedAddOperation:)
-			   withObject:[NSBlockOperation blockOperationWithBlock:block]
-			   afterDelay:delay];
+- (void)invalidateDisplayForVisibleMinimapRange
+{
+	self.shouldAllowFullSyntaxHighlight = YES;
+	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
+	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
 }
 
-- (void)delayedAddOperation:(NSOperation *)operation {
-	[[NSOperationQueue currentQueue] addOperation:operation];
+- (void)invalidateLayoutForVisibleMinimapRange
+{
+	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
+	[self.textView.layoutManager invalidateLayoutForCharacterRange:visibleMinimapRange actualCharacterRange:nil];
 }
 
 @end
