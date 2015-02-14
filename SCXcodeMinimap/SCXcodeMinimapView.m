@@ -142,10 +142,7 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 	
 	if(visible) {
 		[self updateOffset];
-		
 		[self.textView.layoutManager setDelegate:self];
-	} else {
-		[self.textView.layoutManager setDelegate:nil];
 	}
 }
 
@@ -161,40 +158,41 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 		return nil;
 	}
 	
-	// Delay invalidation for performance reasons.
+	// Delay invalidation for performance reasons and attempt a full range invalidation later
 	if(!self.shouldAllowFullSyntaxHighlight) {
+		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateVisibleMinimapRange) object:nil];
+		[self performSelector:@selector(invalidateVisibleMinimapRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 		
-		// Attempt a full range invalidation after
-		__weak typeof(self) weakSelf = self;
-		void(^invalidationBlock)() = ^{
-			weakSelf.shouldAllowFullSyntaxHighlight = YES;
-			NSRange visibleMinimapRange = [weakSelf.textView visibleCharacterRange];
-			[weakSelf.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
-		};
-		
-		[self performBlock:invalidationBlock afterDelay:kDurationBetweenInvalidations cancelPreviousRequest:YES];
-		
-		return @{NSForegroundColorAttributeName : [self.theme sourcePlainTextColor]};
+		return @{NSForegroundColorAttributeName : self.theme.sourcePlainTextColor};
 	}
+
+	// Set background colors for comments and preprocessor directives
+	short nodeType = [(DVTTextStorage *)[self.textView textStorage] nodeTypeAtCharacterIndex:charIndex
+																			  effectiveRange:effectiveCharRange
+																					 context:self.editorTextView.syntaxColoringContext];
 	
-	// Rely on the colorAtCharacterIndex: method to update the effective range
-	NSColor *color = [(DVTTextStorage *)[self.editorTextView textStorage] colorAtCharacterIndex:charIndex effectiveRange:effectiveCharRange context:nil];
-	
-	// Background color for comments and preprocessor directives. Could query for nodeTypeAtCharacterIndex: but it's too slow.
-	DVTPointerArray *editorColors = [[DVTFontAndColorTheme currentTheme] syntaxColorsByNodeType];
-	if([color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]]] ||
-	   [color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName]]] ||
-	   [color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName]]])
+	if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
+	   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
+	   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
 	{
-		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.commentColor};
-	} else if([color isEqual:[editorColors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]]]) {
-		return @{NSForegroundColorAttributeName : [self.theme sourceTextBackgroundColor], NSBackgroundColorAttributeName : self.preprocessorColor};
+		return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.commentColor};
+	} else if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
+		return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.preprocessorColor};
 	}
 	
-	DVTPointerArray *minimapColors = [self.theme syntaxColorsByNodeType];
-	color = [minimapColors pointerAtIndex:[editorColors indexOfPointerIdenticalTo:color]];
+	NSColor *color = [self.theme.syntaxColorsByNodeType pointerAtIndex:nodeType];
+	if(color == nil) {
+		color = self.theme.sourcePlainTextColor;
+	}
 	
 	return @{NSForegroundColorAttributeName : color};
+}
+
+- (void)invalidateVisibleMinimapRange
+{
+	self.shouldAllowFullSyntaxHighlight = YES;
+	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
+	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
 }
 
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinishedFlag

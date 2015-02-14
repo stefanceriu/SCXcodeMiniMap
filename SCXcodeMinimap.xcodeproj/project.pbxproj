@@ -21,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDESourceCodeDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		18269AD51A8F2F4300953B3D /* DVTFoldingManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTFoldingManager.h; sourceTree = "<group>"; };
 		184C11711A740F8A002A7C65 /* DVTCompletingTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DVTCompletingTextView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTFontAndColorTheme.h; sourceTree = "<group>"; };
 		184C11731A740F8A002A7C65 /* DVTInvalidation-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTInvalidation-Protocol.h"; sourceTree = "<group>"; };
@@ -85,11 +86,13 @@
 			children = (
 				184C11711A740F8A002A7C65 /* DVTCompletingTextView.h */,
 				18C8F0331A7ECB1300C7A76F /* DVTFoldingLayoutManager.h */,
+				18269AD51A8F2F4300953B3D /* DVTFoldingManager.h */,
 				184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */,
 				184C11731A740F8A002A7C65 /* DVTInvalidation-Protocol.h */,
 				18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */,
 				184C11741A740F8A002A7C65 /* DVTPointerArray.h */,
 				184C11751A740F8A002A7C65 /* DVTPreferenceSet-Protocol.h */,
+				18B3CEE51A8AA52A00A0873D /* DVTPreferenceSetManager.h */,
 				184C11761A740F8A002A7C65 /* DVTSourceLanguageSourceModelService.h */,
 				184C11771A740F8A002A7C65 /* DVTSourceModel.h */,
 				184C11781A740F8A002A7C65 /* DVTSourceModelItem.h */,
@@ -104,7 +107,6 @@
 				184C117E1A740F8A002A7C65 /* IDESourceCodeEditor.h */,
 				184C117F1A740F8A002A7C65 /* IDESourceCodeEditorContainerView.h */,
 				184C11801A740F8A002A7C65 /* IDEViewController.h */,
-				18B3CEE51A8AA52A00A0873D /* DVTPreferenceSetManager.h */,
 			);
 			path = "Xcode Headers";
 			sourceTree = "<group>";
@@ -148,10 +150,10 @@
 			children = (
 				18FE09C7170764E400118FEB /* SCXcodeMinimap.h */,
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
-				184C11811A740F97002A7C65 /* SCXcodeMinimapSelectionView.h */,
-				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
 				184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */,
 				184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */,
+				184C11811A740F97002A7C65 /* SCXcodeMinimapSelectionView.h */,
+				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 				184C11701A740F8A002A7C65 /* Xcode Headers */,
 			);
