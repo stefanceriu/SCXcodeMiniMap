@@ -43,6 +43,28 @@ static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @
 static NSString * const kBreakpointRangeKey = @"kBreakpointRangeKey";
 static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
+
+@interface SCXcodeMinimapTheme : NSObject
+
+@property (nonatomic, strong) NSColor *backgroundColor;
+@property (nonatomic, strong) NSColor *selectionColor;
+
+@property (nonatomic, strong) NSColor *sourcePlainTextColor;
+@property (nonatomic, strong) NSColor *sourceTextBackgroundColor;
+@property (nonatomic, strong) NSColor *commentBackgroundColor;
+@property (nonatomic, strong) NSColor *preprocessorBackgroundColor;
+@property (nonatomic, strong) NSColor *enabledBreakpointColor;
+@property (nonatomic, strong) NSColor *disabledBreakpointColor;
+
+@property (nonatomic, strong) DVTFontAndColorTheme *dvtTheme;
+
+@end
+
+@implementation SCXcodeMinimapTheme
+
+@end
+
+
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate, IDEBreakpointManagerDelegate>
 
 @property (nonatomic, strong) IDESourceCodeEditor *editor;
@@ -54,15 +76,10 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 @property (nonatomic, strong) SCXcodeMinimapSelectionView *selectionView;
 @property (nonatomic, strong) IDESourceCodeDocument *document;
 
+@property (nonatomic, strong) SCXcodeMinimapTheme *minimapTheme;
+@property (nonatomic, strong) SCXcodeMinimapTheme *editorTheme;
+
 @property (nonatomic, assign) BOOL shouldAllowFullSyntaxHighlight;
-
-@property (nonatomic, strong) NSColor *commentColor;
-@property (nonatomic, strong) NSColor *preprocessorColor;
-@property (nonatomic, strong) NSColor *enabledBreakpointColor;
-@property (nonatomic, strong) NSColor *disabledBreakpointColor;
-
-@property (nonatomic, strong) DVTFontAndColorTheme *theme;
-
 @property (nonatomic, strong) NSMutableArray *breakpointDictionaries;
 
 @end
@@ -113,19 +130,19 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		[self updateTheme];
 		
 		
-		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpoints] boolValue];
+		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
 		if(shouldHighlightBreakpoints) {
 			IDEBreakpointManager *breakpointManager = [self.editor _breakpointManager];
 			[breakpointManager setDelegate:self];
 			[self updateBreakpoints];
 		}
 		
-		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue];
+		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
 		[self.editorScrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
 		
 		__weak typeof(self) weakSelf = self;
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplay] boolValue]];
+			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -140,8 +157,20 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			[weakSelf invalidateDisplayForVisibleMinimapRange];
 		}];
 		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightEditorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			
+			BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
+			if(editorHighlightingEnabled) {
+				[weakSelf.editorTextView.layoutManager setDelegate:weakSelf];
+			} else {
+				[weakSelf.editorTextView.layoutManager setDelegate:(id<NSLayoutManagerDelegate>)weakSelf.editorTextView];
+			}
+			
+			[weakSelf invalidateDisplayForVisibleEditorRange];
+		}];
+		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScroller] boolValue]];
+			[weakSelf.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue]];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -175,6 +204,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	if(visible) {
 		[self updateOffset];
 		[self.textView.layoutManager setDelegate:self];
+		
+		BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
+		if(editorHighlightingEnabled) {
+			[self.editorTextView.layoutManager setDelegate:self];
+		}
 	}
 }
 
@@ -190,12 +224,14 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		return nil;
 	}
 	
+	SCXcodeMinimapTheme *theme = ([layoutManager isEqualTo:self.textView.layoutManager] ? self.minimapTheme : self.editorTheme);
+	
 	// Delay invalidation for performance reasons and attempt a full range invalidation later
-	if(!self.shouldAllowFullSyntaxHighlight) {
+	if(!self.shouldAllowFullSyntaxHighlight && ![layoutManager isEqual:self.editorTextView.layoutManager]) {
 		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleMinimapRange) object:nil];
 		[self performSelector:@selector(invalidateDisplayForVisibleMinimapRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 		
-		return @{NSForegroundColorAttributeName : self.theme.sourcePlainTextColor};
+		return @{NSForegroundColorAttributeName : theme.sourcePlainTextColor};
 	}
 	
 	// Set background colors for breakpoints
@@ -206,8 +242,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			
 			if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
 				*effectiveCharRange = range;
-				return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor,
-						 NSBackgroundColorAttributeName : (enabled ? self.enabledBreakpointColor : self.disabledBreakpointColor)};
+				return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor,
+						 NSBackgroundColorAttributeName : (enabled ? theme.enabledBreakpointColor : theme.disabledBreakpointColor)};
 			}
 		}
 	}
@@ -217,29 +253,29 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 																			  effectiveRange:effectiveCharRange
 																					 context:self.editorTextView.syntaxColoringContext];
 	
-	BOOL shouldHighlightComments = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightComments] boolValue];
+	BOOL shouldHighlightComments = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightCommentsKey] boolValue];
 	if(shouldHighlightComments) {
 		if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName] ||
 		   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocNodeName] ||
 		   nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentDocKeywordNodeName])
 		{
-			return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.commentColor};
+			return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : theme.commentBackgroundColor};
 		}
 	}
 	
-	BOOL shouldHighlightPreprocessor = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightPreprocessor] boolValue];
+	BOOL shouldHighlightPreprocessor = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightPreprocessorKey] boolValue];
 	if(shouldHighlightPreprocessor) {
 		if(nodeType == [DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]) {
-			return @{NSForegroundColorAttributeName : self.theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : self.preprocessorColor};
+			return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor, NSBackgroundColorAttributeName : theme.preprocessorBackgroundColor};
 		}
 	}
 	
-	NSColor *color = [self.theme.syntaxColorsByNodeType pointerAtIndex:nodeType];
-	if(color == nil) {
-		color = self.theme.sourcePlainTextColor;
+	NSColor *foregroundColor = [[((DVTFontAndColorTheme *)theme.dvtTheme) syntaxColorsByNodeType] pointerAtIndex:nodeType];
+	if(foregroundColor == nil) {
+		foregroundColor = theme.sourcePlainTextColor;
 	}
 	
-	return @{NSForegroundColorAttributeName : color};
+	return @{NSForegroundColorAttributeName : foregroundColor};
 }
 
 - (void)layoutManager:(NSLayoutManager *)layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *)textContainer atEnd:(BOOL)layoutFinishedFlag
@@ -286,7 +322,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)updateBreakpoints
 {
-	BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpoints] boolValue];
+	BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
 	if(!shouldHighlightBreakpoints) {
 		self.breakpointDictionaries = nil;
 		return;
@@ -379,47 +415,63 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)updateTheme
 {
+	self.editorTheme = [self minimapThemeWithTheme:[DVTFontAndColorTheme currentTheme]];
+
+	
 	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
 	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
 	
-	NSString *themeName = [[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapTheme];
+	NSString *themeName = [[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapThemeKey];
 	NSUInteger themeIndex = [preferenceSet indexesOfObjectsPassingTest:^BOOL(DVTFontAndColorTheme *theme, NSUInteger idx, BOOL *stop) {
 		return [theme.localizedName isEqualTo:themeName];
 	}].lastIndex;
 	
 	if(themeIndex == NSNotFound) {
-		self.theme = [DVTFontAndColorTheme currentTheme];
+		self.minimapTheme = self.editorTheme;
 	} else {
-		self.theme = preferenceSet[themeIndex];
+		self.minimapTheme = [self minimapThemeWithTheme:preferenceSet[themeIndex]];
 	}
 	
-	NSColor *backgroundColor = [self.theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
+	[self.scrollView setBackgroundColor:self.minimapTheme.backgroundColor];
+	[self.textView setBackgroundColor:self.minimapTheme.backgroundColor];
 	
-	[self.scrollView setBackgroundColor:backgroundColor];
-	[self.textView setBackgroundColor:backgroundColor];
+	[self.selectionView setSelectionColor:self.minimapTheme.selectionColor];
+}
+
+- (SCXcodeMinimapTheme *)minimapThemeWithTheme:(DVTFontAndColorTheme *)theme
+{
+	SCXcodeMinimapTheme *minimapTheme = [[SCXcodeMinimapTheme alloc] init];
 	
-	NSColor *selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [backgroundColor redComponent])
-														green:(1.0f - [backgroundColor greenComponent])
-														 blue:(1.0f - [backgroundColor blueComponent])
-														alpha:0.2f];
-	[self.selectionView setSelectionColor:selectionColor];
+	minimapTheme.backgroundColor = [theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
 	
-	DVTPointerArray *colors = [self.theme syntaxColorsByNodeType];
-	self.commentColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
-	self.commentColor = [NSColor colorWithCalibratedRed:self.commentColor.redComponent
-												  green:self.commentColor.greenComponent
-												   blue:self.commentColor.blueComponent
-												  alpha:0.3f];
+	minimapTheme.selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [minimapTheme.backgroundColor redComponent])
+															green:(1.0f - [minimapTheme.backgroundColor greenComponent])
+															 blue:(1.0f - [minimapTheme.backgroundColor blueComponent])
+															alpha:0.2f];
 	
 	
-	self.preprocessorColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
-	self.preprocessorColor = [NSColor colorWithCalibratedRed:self.preprocessorColor.redComponent
-													   green:self.preprocessorColor.greenComponent
-														blue:self.preprocessorColor.blueComponent
-													   alpha:0.3f];
+	DVTPointerArray *colors = [theme syntaxColorsByNodeType];
+	minimapTheme.commentBackgroundColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
+	minimapTheme.commentBackgroundColor = [NSColor colorWithCalibratedRed:minimapTheme.commentBackgroundColor.redComponent
+																	green:minimapTheme.commentBackgroundColor.greenComponent
+																	 blue:minimapTheme.commentBackgroundColor.blueComponent
+																	alpha:0.3f];
 	
-	self.enabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:177.0f/255.0f alpha:1.0f];
-	self.disabledBreakpointColor = [NSColor colorWithRed:181.0f/255.0f green:201.0f/255.0f blue:224.0f/255.0f alpha:1.0f];
+	
+	minimapTheme.preprocessorBackgroundColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
+	minimapTheme.preprocessorBackgroundColor = [NSColor colorWithCalibratedRed:minimapTheme.preprocessorBackgroundColor.redComponent
+																		 green:minimapTheme.preprocessorBackgroundColor.greenComponent
+																		  blue:minimapTheme.preprocessorBackgroundColor.blueComponent
+																		 alpha:0.3f];
+	
+	minimapTheme.enabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:1.0f];
+	minimapTheme.disabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:0.5f];
+	
+	minimapTheme.sourcePlainTextColor = theme.sourcePlainTextColor;
+	minimapTheme.sourceTextBackgroundColor = theme.sourceTextBackgroundColor;
+	minimapTheme.dvtTheme = theme;
+	
+	return minimapTheme;
 }
 
 #pragma mark - Autoresizing
@@ -443,6 +495,12 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 {
 	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
 	[self.textView.layoutManager invalidateLayoutForCharacterRange:visibleMinimapRange actualCharacterRange:nil];
+}
+
+- (void)invalidateDisplayForVisibleEditorRange
+{
+	NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
+	[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:visibleEditorRange];
 }
 
 @end
