@@ -228,6 +228,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	// Delay invalidation for performance reasons and attempt a full range invalidation later
 	if(!self.shouldAllowFullSyntaxHighlight && ![layoutManager isEqual:self.editorTextView.layoutManager]) {
+		
 		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleMinimapRange) object:nil];
 		[self performSelector:@selector(invalidateDisplayForVisibleMinimapRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 		
@@ -303,7 +304,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	[self invalidateLayoutForVisibleMinimapRange];
 }
 
-#pragma makr - IDEBreakpointManagerDelegate
+#pragma mark - IDEBreakpointManagerDelegate
 
 - (void)breakpointManagerDidAddBreakpoint:(IDEBreakpointManager *)breakpointManager
 {
@@ -342,7 +343,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 				
 				if([fileBreakpoint.documentURL isEqualTo:self.editor.document.fileURL] && fileBreakpoint.location.startingLineNumber == lineNumber) {
 					[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange],
-															 kBreakpointEnabledKey : @(fileBreakpoint.shouldBeEnabled)}];
+															 kBreakpointEnabledKey : @(fileBreakpoint.shouldBeEnabled && breakpointManager.breakpointsActivated)}];
 				}
 			}
 		}
@@ -351,6 +352,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	}
 	
 	[self invalidateDisplayForVisibleMinimapRange];
+	
+	BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
+	if(editorHighlightingEnabled) {
+		[self invalidateDisplayForVisibleEditorRange];
+	}
 }
 
 #pragma mark - Navigation
@@ -417,7 +423,6 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 {
 	self.editorTheme = [self minimapThemeWithTheme:[DVTFontAndColorTheme currentTheme]];
 
-	
 	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
 	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
 	
@@ -487,6 +492,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 - (void)invalidateDisplayForVisibleMinimapRange
 {
 	self.shouldAllowFullSyntaxHighlight = YES;
+	
 	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
 	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
 }

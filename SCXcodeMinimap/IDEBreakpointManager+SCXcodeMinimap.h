@@ -8,11 +8,23 @@
 
 #import "IDEBreakpointManager.h"
 
+typedef void (^SCKVONotificationBlock)(id object, NSDictionary *change);
+
+@interface SCKVOController : NSObject
+
+- (void)observeObject:(id)object forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(SCKVONotificationBlock)block;
+- (void)unobserveObject:(id)object forKeyPath:(NSString *)keyPath;
+- (void)unobserveObject:(id)object;
+- (void)unobserveAll;
+
+@end
+
 @protocol IDEBreakpointManagerDelegate;
 
 @interface IDEBreakpointManager (SCXcodeMinimap)
 
 @property (nonatomic, weak) id<IDEBreakpointManagerDelegate> delegate;
+@property (nonatomic, strong) SCKVOController *kvoController;
 
 @end
 
