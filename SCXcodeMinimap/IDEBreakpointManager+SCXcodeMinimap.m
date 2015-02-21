@@ -56,6 +56,7 @@ static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swiz
 			if([breakpoint isKindOfClass:[IDEFileBreakpoint class]]) {
 				[self _observeBreakpoint:breakpoint];
 			}
+			
 		}
 	}
 	
