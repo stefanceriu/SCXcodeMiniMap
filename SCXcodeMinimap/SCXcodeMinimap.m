@@ -112,18 +112,30 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		[showHideMinimapItem setTarget:self];
 		[minimapMenu addItem:showHideMinimapItem];
 		
-		NSMenuItem *minimapSizeItem = [[NSMenuItem alloc] init];
-		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(0, 0, 150, 30)];
-		[sizeSlider setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
+		[minimapMenu addItem:[NSMenuItem separatorItem]];
+		
+		NSView *sizeView = [[NSView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 200.0f, 20.0f)];
+		[sizeView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
+		
+		NSTextField *sizeViewTitleLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(18.0f, 0.0f, 50.0f, 20.0f)];
+		[sizeViewTitleLabel setStringValue:@"Size"];
+		[sizeViewTitleLabel setFont:[NSFont systemFontOfSize:14]];
+		[sizeViewTitleLabel setBezeled:NO];
+		[sizeViewTitleLabel setDrawsBackground:NO];
+		[sizeViewTitleLabel setEditable:NO];
+		[sizeViewTitleLabel setSelectable:NO];
+		[sizeView addSubview:sizeViewTitleLabel];
+		
+		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(60.0f, 0.0f, 136.0f, 20.0f)];
 		[sizeSlider setMaxValue:0.35f];
 		[sizeSlider setMinValue:0.05f];
 		[sizeSlider setTarget:self];
 		[sizeSlider setAction:@selector(onSizeSliderValueChanged:)];
+		[sizeSlider setDoubleValue:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue]];
+		[sizeView addSubview:sizeSlider];
 		
-		CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
-		[sizeSlider setDoubleValue:zoomLevel];
-		
-		[minimapSizeItem setView:sizeSlider];
+		NSMenuItem *minimapSizeItem = [[NSMenuItem alloc] init];
+		[minimapSizeItem setView:sizeView];
 		[minimapMenu addItem:minimapSizeItem];
 		
 		BOOL shouldDisplayMinimap = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue];

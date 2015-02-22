@@ -125,7 +125,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		[self.scrollView setDocumentView:self.textView];
 		
 		self.selectionView = [[SCXcodeMinimapSelectionView alloc] init];
-		[self.textView addSubview:_selectionView];
+		[self.textView addSubview:self.selectionView];
 		
 		[self updateTheme];
 		
@@ -483,7 +483,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
 	
 	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
-	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth + 10.0f;
+	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth;
 	self.editor.scrollView.frame = editorScrollViewFrame;
 	
 	[self setFrame:NSMakeRect(CGRectGetMaxX(editorScrollViewFrame), 0, minimapWidth, CGRectGetHeight(self.editor.containerView.bounds))];
@@ -491,8 +491,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	CGRect frame = self.textView.bounds;
 	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
 	[self.textView setFrame:frame];
-	
-	CGFloat actualZoomLevel =  CGRectGetWidth(self.bounds) / CGRectGetWidth(self.editor.scrollView.bounds);
+
+	CGFloat actualZoomLevel =  CGRectGetWidth(self.bounds) / CGRectGetWidth(self.editor.textView.bounds);
 	[self.scrollView setMagnification:actualZoomLevel];
 }
 
