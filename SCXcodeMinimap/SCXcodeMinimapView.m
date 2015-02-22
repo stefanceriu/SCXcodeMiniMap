@@ -214,11 +214,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	if(visible) {
 		[self updateOffset];
 		[self.textView.layoutManager setDelegate:self];
-		
-		BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
-		if(editorHighlightingEnabled) {
-			[self.editorTextView.layoutManager setDelegate:self];
-		}
+	}
+	
+	BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
+	if(editorHighlightingEnabled) {
+		[self.editorTextView.layoutManager setDelegate:self];
 	}
 }
 
@@ -230,7 +230,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			   atCharacterIndex:(NSUInteger)charIndex
 				 effectiveRange:(NSRangePointer)effectiveCharRange
 {
-	if(!toScreen || self.hidden) {
+	if(!toScreen) {
+		return nil;
+	}
+	
+	if(self.hidden && [layoutManager isEqual:self.textView.layoutManager]) {
 		return nil;
 	}
 	

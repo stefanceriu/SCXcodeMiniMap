@@ -1,26 +1,34 @@
-# SCXcodeMiniMap
+# SCXcodeMinimap v2.0
+SCXcodeMiniMap is a Xcode plugin that adds a source editor Minimap to Xcode.
 
-SCXcodeMiniMap is a plugin that adds a source editor MiniMap to Xcode.
+Version 2.0 has been rewritten from the ground up to address performance issues (delays on large source files - 1000+ lines) and for creating a better base to build upon. As such, the following new features are now supported:
 
-![SCXcodeMiniMap](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/SCXcodeMiniMapv1.3.png)
+#### New Features
+- Faster syntax highlighting
+- Shows code foldings
+- Comment and preprocessor directive highlighting
+- Breakpoint highlighting
+- All highlighting options are also available for the main Xcode editor
+- Custom themes
+- All options are accessible from the View/Minimap menu item
 
-## Features
-- It works with an unlimited number of opened editors, including the assistant and version editors
-- The minimap and its selection view scroll seamlessly with the editor and provide a nice way of figuring out the current position in the document
-- Full syntax highlighting
-- It blends with the currently selected theme 
-- View menu item for showing/hiding it (Ctrl+Shift+M)
-- Size configurable via the kDefaultZoomLevel parameter (defaults to 10% out of the editor's size)
+#### Screenshots
+Without editor highlighting |  With editor highlighting
+:--------------------------:|:--------------------------:
+![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-01.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-03.png)  |
+![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-02.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-04.png)  |
 
-## Installation
-- Build the project and restart Xcode or
+#### Installation
+- Through [Alcatraz](https://github.com/supermarin/Alcatraz)
+
+- Download the sources, build the project and restart Xcode
 
 - Download SCXcodeMinimap.xcplugin.zip from the releases tab, unzip and move it to the  Xcode plugins folder ~/Library/Application Support/Developer/Shared/Xcode/Plug-ins/SCXcodeMinimap.xcplugin
 
 - If you encounter any issues you can uninstall it by removing the ~/Library/Application Support/Developer/Shared/Xcode/Plug-ins/SCXcodeMinimap.xcplugin folder
  
-## License
+#### License
 SCXcodeMiniMap is released under the GNU GENERAL PUBLIC LICENSE (see the LICENSE file)
 
-## Contact
+#### Contact
 Any suggestions or improvements are more than welcome. Feel free to contact me at [stefan.ceriu@yahoo.com](mailto:stefan.ceriu@yahoo.com) or [@stefanceriu](https://twitter.com/stefanceriu).
