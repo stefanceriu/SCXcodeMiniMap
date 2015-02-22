@@ -68,9 +68,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate, DBGBreakpointAnnotationProviderDelegate>
 
-@property (nonatomic, strong) IDESourceCodeEditor *editor;
-@property (nonatomic, strong) NSScrollView *editorScrollView;
-@property (nonatomic, strong) DVTSourceTextView *editorTextView;
+@property (nonatomic, weak) IDESourceCodeEditor *editor;
+@property (nonatomic, assign) DVTSourceTextView *editorTextView;
 
 @property (nonatomic, strong) NSScrollView *scrollView;
 @property (nonatomic, strong) DVTSourceTextView *textView;
@@ -92,46 +91,43 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[self.textView.textStorage removeLayoutManager:self.textView.layoutManager];
 }
 
-- (instancetype)initWithFrame:(NSRect)frame editor:(IDESourceCodeEditor *)editor
+- (instancetype)initWithEditor:(IDESourceCodeEditor *)editor
 {
-	if (self = [super initWithFrame:frame])
+	if (self = [super init])
 	{
 		self.editor = editor;
-		self.editorScrollView = editor.scrollView;
 		
 		self.editorTextView = editor.textView;
 		[self.editorTextView.foldingManager setDelegate:self];
 
 		[self setWantsLayer:YES];
-		[self setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
+		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
 		self.scrollView = [[NSScrollView alloc] initWithFrame:self.bounds];
-		[self.scrollView setAutoresizingMask:NSViewMinXMargin | NSViewHeightSizable];
+		[self.scrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		[self.scrollView setDrawsBackground:NO];
+		[self.scrollView setMinMagnification:0.0f];
+		[self.scrollView setMaxMagnification:1.0f];
+		[self.scrollView setAllowsMagnification:NO];
 		
 		[self.scrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
 		[self.scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
 		[self addSubview:self.scrollView];
 		
-		self.textView = [[DVTSourceTextView alloc] initWithFrame:self.editorTextView.bounds];
+		self.textView = [[DVTSourceTextView alloc] init];
 		[self.textView setTextStorage:self.editorTextView.textStorage];
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
 		
 		[self.scrollView setDocumentView:self.textView];
 		
-		[self.scrollView setAllowsMagnification:YES];
-		[self.scrollView setMinMagnification:kDefaultZoomLevel];
-		[self.scrollView setMaxMagnification:kDefaultZoomLevel];
-		[self.scrollView setMagnification:kDefaultZoomLevel];
-		
 		self.selectionView = [[SCXcodeMinimapSelectionView alloc] init];
 		[self.textView addSubview:_selectionView];
 		
 		[self updateTheme];
-		
 		
 		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
 		if(shouldHighlightBreakpoints) {
@@ -148,11 +144,18 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		}
 		
 		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
-		[self.editorScrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
+		[self.editor.scrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
+		
+		// Notifications
 		
 		__weak typeof(self) weakSelf = self;
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+		}];
+		
+		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf updateSize];
+			[weakSelf invalidateDisplayForVisibleRange];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -180,7 +183,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf.editorScrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue]];
+			[weakSelf.editor.scrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue]];
 		}];
 		
 		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -201,20 +204,21 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	return self;
 }
 
+- (void)viewDidMoveToWindow
+{
+	[self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+}
+
 #pragma mark - Show/Hide
 
 - (void)setVisible:(BOOL)visible
 {
-	self.hidden = !visible;
+	self.hidden  = !visible;
 	
-	NSRect editorTextViewFrame = self.editorScrollView.frame;
-	editorTextViewFrame.size.width = self.editorScrollView.superview.frame.size.width - (visible ? self.bounds.size.width : 0.0f);
-	self.editorScrollView.frame = editorTextViewFrame;
+	[self updateSize];
+	[self updateOffset];
 	
-	if(visible) {
-		[self updateOffset];
-		[self.textView.layoutManager setDelegate:self];
-	}
+	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];
 	
 	BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
 	if(editorHighlightingEnabled) {
@@ -361,10 +365,10 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
 	CGFloat minimapTextHeight = CGRectGetHeight([self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer]);
 	
-	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editorScrollView.bounds);
+	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editor.scrollView.bounds);
 	CGFloat adjustedMinimapContentHeight = minimapTextHeight - (CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification));
 	
-	NSRect selectionViewFrame = NSMakeRect(0, 0, self.bounds.size.width * (1 / self.scrollView.magnification), self.editorScrollView.visibleRect.size.height);
+	NSRect selectionViewFrame = NSMakeRect(0, 0, self.bounds.size.width * (1 / self.scrollView.magnification), self.editor.scrollView.visibleRect.size.height);
 	
 	if(adjustedEditorContentHeight == 0.0f) {
 		[self.selectionView setFrame:selectionViewFrame];
@@ -372,13 +376,13 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	}
 	
 	CGFloat ratio = (adjustedMinimapContentHeight / adjustedEditorContentHeight) * (1 / self.scrollView.magnification);
-	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editorScrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
+	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editor.scrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
 	
 	[self.scrollView.documentView scrollPoint:offset];
 	
 	
 	ratio = (minimapTextHeight - self.selectionView.bounds.size.height) / adjustedEditorContentHeight;
-	selectionViewFrame.origin.y = self.editorScrollView.contentView.bounds.origin.y * ratio;
+	selectionViewFrame.origin.y = self.editor.scrollView.contentView.bounds.origin.y * ratio;
 	
 	[self.selectionView setFrame:selectionViewFrame];
 }
@@ -470,11 +474,36 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	return minimapTheme;
 }
 
-#pragma mark - Autoresizing
+#pragma mark - Sizing
+
+- (void)updateSize
+{
+	CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
+	
+	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
+	
+	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
+	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth + 10.0f;
+	self.editor.scrollView.frame = editorScrollViewFrame;
+	
+	[self setFrame:NSMakeRect(CGRectGetMaxX(editorScrollViewFrame), 0, minimapWidth, CGRectGetHeight(self.editor.containerView.bounds))];
+	
+	CGRect frame = self.textView.bounds;
+	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
+	[self.textView setFrame:frame];
+	
+	CGFloat actualZoomLevel =  CGRectGetWidth(self.bounds) / CGRectGetWidth(self.editor.scrollView.bounds);
+	[self.scrollView setMagnification:actualZoomLevel];
+}
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
 	[super resizeWithOldSuperviewSize:oldSize];
+	
+	CGRect frame = self.textView.bounds;
+	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
+	[self.textView setFrame:frame];
+	
 	[self updateOffset];
 }
 

@@ -12,8 +12,6 @@
 
 @interface SCXcodeMinimapView : NSView
 
-- (instancetype)initWithFrame:(NSRect)frame editor:(IDESourceCodeEditor *)editor;
-
-- (void)setVisible:(BOOL)visible;
+- (instancetype)initWithEditor:(IDESourceCodeEditor *)editor;
 
 @end

@@ -8,7 +8,6 @@
 
 #import "SCXcodeMinimap.h"
 #import "SCXcodeMinimapView.h"
-#import <objc/runtime.h>
 
 #import "IDESourceCodeEditor.h"
 #import "DVTSourceTextView.h"
@@ -16,12 +15,13 @@
 #import "DVTPreferenceSetManager.h"
 #import "DVTFontAndColorTheme.h"
 
-const CGFloat kDefaultZoomLevel = 0.1f;
-
 NSString *const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
 
 NSString *const SCXcodeMinimapShouldDisplayChangeNotification = @"SCXcodeMinimapShouldDisplayChangeNotification";
 NSString *const SCXcodeMinimapShouldDisplayKey = @"SCXcodeMinimapShouldDisplayKey";
+
+NSString *const SCXcodeMinimapZoomLevelChangeNotification = @"SCXcodeMinimapZoomLevelChangeNotification";
+NSString *const SCXcodeMinimapZoomLevelKey = @"SCXcodeMinimapZoomLevelKey";
 
 NSString *const SCXcodeMinimapHighlightBreakpointsChangeNotification = @"SCXcodeMinimapHighlightBreakpointsChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey = @"SCXcodeMinimapShouldHighlightBreakpointsKey";
@@ -81,7 +81,8 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 
 - (void)registerUserDefaults
 {
-	NSDictionary *userDefaults = @{SCXcodeMinimapShouldDisplayKey               : @(YES),
+	NSDictionary *userDefaults = @{SCXcodeMinimapZoomLevelKey                   : @(0.1f),
+								   SCXcodeMinimapShouldDisplayKey               : @(YES),
 								   SCXcodeMinimapShouldHighlightBreakpointsKey  : @(YES),
 								   SCXcodeMinimapShouldHighlightCommentsKey     : @(YES),
 								   SCXcodeMinimapShouldHighlightPreprocessorKey : @(YES)};
@@ -110,6 +111,20 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		[showHideMinimapItem setKeyEquivalentModifierMask:NSControlKeyMask | NSShiftKeyMask];
 		[showHideMinimapItem setTarget:self];
 		[minimapMenu addItem:showHideMinimapItem];
+		
+		NSMenuItem *minimapSizeItem = [[NSMenuItem alloc] init];
+		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(0, 0, 150, 30)];
+		[sizeSlider setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
+		[sizeSlider setMaxValue:0.35f];
+		[sizeSlider setMinValue:0.05f];
+		[sizeSlider setTarget:self];
+		[sizeSlider setAction:@selector(onSizeSliderValueChanged:)];
+		
+		CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
+		[sizeSlider setDoubleValue:zoomLevel];
+		
+		[minimapSizeItem setView:sizeSlider];
+		[minimapMenu addItem:minimapSizeItem];
 		
 		BOOL shouldDisplayMinimap = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue];
 		[showHideMinimapItem setTitle:(shouldDisplayMinimap ? kHideMinimapMenuItemTitle : kShowMinimapMenuItemTitle)];
@@ -294,6 +309,17 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapThemeChangeNotification object:nil];
 }
 
+- (void)onSizeSliderValueChanged:(NSSlider *)sender
+{
+	NSEvent *event = [[NSApplication sharedApplication] currentEvent];
+	if(event.type != NSLeftMouseUp) {
+		return;
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:@(sender.doubleValue) forKey:SCXcodeMinimapZoomLevelKey];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapZoomLevelChangeNotification object:nil];
+}
+
 #pragma mark - Xcode Notification
 
 - (void)onDidFinishSetup:(NSNotification*)sender
@@ -304,15 +330,12 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	}
 	
 	IDESourceCodeEditor *editor = (IDESourceCodeEditor *)[sender object];
-	[editor.textView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewWidthSizable | NSViewHeightSizable];
+	[editor.textView setAutoresizingMask:NSViewMaxXMargin | NSViewMaxYMargin | NSViewWidthSizable | NSViewHeightSizable];
+	[editor.scrollView setAutoresizingMask:NSViewMaxXMargin | NSViewMaxYMargin | NSViewWidthSizable | NSViewHeightSizable];
+	[editor.containerView setAutoresizingMask:NSViewMaxXMargin | NSViewMaxYMargin | NSViewWidthSizable | NSViewHeightSizable];
 	
-	CGFloat width = editor.textView.bounds.size.width * kDefaultZoomLevel;
-	NSRect miniMapScrollViewFrame = NSMakeRect(editor.containerView.bounds.size.width - width, 0, width, editor.scrollView.bounds.size.height);
-	
-	SCXcodeMinimapView *miniMapView = [[SCXcodeMinimapView alloc] initWithFrame:miniMapScrollViewFrame editor:editor];
-	[editor.containerView addSubview:miniMapView];
-	
-	[miniMapView setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+	SCXcodeMinimapView *minimapView = [[SCXcodeMinimapView alloc] initWithEditor:editor];
+	[editor.containerView addSubview:minimapView];
 }
 
 @end

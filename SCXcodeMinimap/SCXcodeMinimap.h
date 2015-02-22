@@ -8,10 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-const CGFloat kDefaultZoomLevel;
-
 extern NSString *const SCXcodeMinimapShouldDisplayChangeNotification;
 extern NSString *const SCXcodeMinimapShouldDisplayKey;
+
+extern NSString *const SCXcodeMinimapZoomLevelChangeNotification;
+extern NSString *const SCXcodeMinimapZoomLevelKey;
 
 extern NSString *const SCXcodeMinimapHighlightBreakpointsChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey;
