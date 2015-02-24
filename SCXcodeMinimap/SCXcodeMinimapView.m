@@ -27,6 +27,7 @@
 
 #import "DVTAnnotationManager.h"
 #import "DBGBreakpointAnnotationProvider+SCXcodeMinimap.h"
+#import "DBGBreakpointAnnotation+SCXcodeMinimap.h"
 #import "DBGBreakpointAnnotation.h"
 
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
@@ -80,6 +81,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 @property (nonatomic, strong) SCXcodeMinimapTheme *editorTheme;
 
 @property (nonatomic, assign) BOOL shouldAllowFullSyntaxHighlight;
+
+@property (nonatomic, assign) BOOL shouldUpdateBreakpoints;
 @property (nonatomic, strong) NSMutableArray *breakpointDictionaries;
 
 @property (nonatomic, weak) DBGBreakpointAnnotationProvider *breakpointAnnotationProvider;
@@ -92,6 +95,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[self.textView.textStorage removeLayoutManager:self.textView.layoutManager];
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
 }
 
 - (instancetype)initWithEditor:(IDESourceCodeEditor *)editor
@@ -135,11 +139,12 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
 				if([providerDictionary[@"annotationProviderObject"] isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
 					self.breakpointAnnotationProvider = providerDictionary[@"annotationProviderObject"];
-					[self.breakpointAnnotationProvider setDelegate:self];
+					[self.breakpointAnnotationProvider setMinimapDelegate:self];
 					break;
 				}
 			}
 			
+			self.shouldUpdateBreakpoints = YES;
 			[self invalidateDisplayForVisibleRange];
 		}
 		
@@ -258,11 +263,12 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		if(self.breakpointDictionaries.count) {
 			for(NSDictionary *breakpointDictionary in self.breakpointDictionaries) {
 				NSRange range = [breakpointDictionary[kBreakpointRangeKey] rangeValue];
+				BOOL enabled = [breakpointDictionary[kBreakpointEnabledKey] boolValue];
 				
 				if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
 					*effectiveCharRange = range;
 					return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor,
-							 NSBackgroundColorAttributeName : theme.enabledBreakpointColor};
+							 NSBackgroundColorAttributeName : (enabled ? theme.enabledBreakpointColor : theme.disabledBreakpointColor)};
 				}
 			}
 		}
@@ -327,7 +333,10 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)breakpointAnnotationProviderDidChangeBreakpoints:(DBGBreakpointAnnotationProvider *)annotationProvider
 {
-	[self invalidateDisplayForVisibleRange];
+	self.shouldUpdateBreakpoints = YES;
+	
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
+	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 }
 
 - (void)updateBreakpoints
@@ -346,12 +355,14 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		
 		for(DBGBreakpointAnnotation *breakpointAnnotation in self.breakpointAnnotationProvider.annotations) {
 			if(breakpointAnnotation.paragraphRange.location == lineNumber) {
-				[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange]}];
+				[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange], kBreakpointEnabledKey : @(breakpointAnnotation.enabled)}];
 			}
 		}
 		
 		index = NSMaxRange(lineRange);
 	}
+	
+	self.shouldUpdateBreakpoints = NO;
 }
 
 #pragma mark - Navigation
@@ -511,9 +522,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)invalidateDisplayForVisibleRange
 {
-	self.shouldAllowFullSyntaxHighlight = YES;
+	if(self.shouldUpdateBreakpoints) {
+		[self updateBreakpoints];
+	}
 	
-	[self updateBreakpoints];
+	self.shouldAllowFullSyntaxHighlight = YES;
 	
 	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
 	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];

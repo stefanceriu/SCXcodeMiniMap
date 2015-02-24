@@ -8,7 +8,8 @@
 
 #import "DBGBreakpointAnnotationProvider+SCXcodeMinimap.h"
 #import <objc/runtime.h>
-#import "DBGBreakpointAnnotation.h"
+
+#import "DBGBreakpointAnnotation+SCXcodeMinimap.h"
 
 @implementation DBGBreakpointAnnotationProvider (SCXcodeMinimap)
 
@@ -29,33 +30,61 @@ static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swiz
 	sc_swizzleInstanceMethod(self, @selector(didMoveAnnotation:), @selector(sc_didMoveAnnotation:));
 }
 
-- (void)setDelegate:(id<DBGBreakpointAnnotationProviderDelegate>)delegate
+- (void)setMinimapDelegate:(id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
 {
-	objc_setAssociatedObject(self, @selector(delegate), delegate, OBJC_ASSOCIATION_ASSIGN);
+	for(DBGBreakpointAnnotation *annotation in self.annotations) {
+		[annotation setMinimapDelegate:(id<DBGBreakpointAnnotationDelegate>)self];
+	}
+	
+	objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
 }
 
-- (id<DBGBreakpointAnnotationProviderDelegate>)delegate
+- (id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
 {
-	return objc_getAssociatedObject(self, @selector(delegate));
+	return objc_getAssociatedObject(self, @selector(minimapDelegate));
 }
 
 - (void)sc_addAnnotationForFileBreakpoint:(id)arg1
 {
 	[self sc_addAnnotationForFileBreakpoint:arg1];
 	
-	[self.delegate breakpointAnnotationProviderDidChangeBreakpoints:self];
-}
-
-- (void)sc_removeAnnotation:(id)arg1
-{
-	[self sc_removeAnnotation:arg1];
+	for(DBGBreakpointAnnotation *annotation in self.annotations) {
+		if([annotation.representedObject isEqual:arg1]) {
+			[annotation setMinimapDelegate:(id<DBGBreakpointAnnotationDelegate>)self];
+		}
+	}
 	
-	[self.delegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	if([self.minimapDelegate respondsToSelector:@selector(breakpointAnnotationProviderDidChangeBreakpoints:)]) {
+		[self.minimapDelegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	}
 }
 
-- (void)sc_didMoveAnnotation:(id)arg1
+- (void)sc_removeAnnotation:(DBGBreakpointAnnotation *)annotation
 {
-	[self.delegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	[annotation setMinimapDelegate:nil];
+	[self sc_removeAnnotation:annotation];
+	
+	if([self.minimapDelegate respondsToSelector:@selector(breakpointAnnotationProviderDidChangeBreakpoints:)]) {
+		[self.minimapDelegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	}
+}
+
+- (void)sc_didMoveAnnotation:(DBGBreakpointAnnotation *)annotation
+{
+	[self sc_didMoveAnnotation:annotation];
+	
+	if([self.minimapDelegate respondsToSelector:@selector(breakpointAnnotationProviderDidChangeBreakpoints:)]) {
+		[self.minimapDelegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	}
+}
+
+#pragma mark - DBGBreakpointAnnotationDelegate
+
+- (void)breakpointAnnotationDidChangeState:(DBGBreakpointAnnotation *)annotation
+{
+	if([self.minimapDelegate respondsToSelector:@selector(breakpointAnnotationProviderDidChangeBreakpoints:)]) {
+		[self.minimapDelegate breakpointAnnotationProviderDidChangeBreakpoints:self];
+	}
 }
 
 @end

@@ -12,7 +12,7 @@
 
 @interface DBGBreakpointAnnotationProvider (SCXcodeMinimap)
 
-@property (nonatomic, weak) id<DBGBreakpointAnnotationProviderDelegate> delegate;
+@property (nonatomic, weak) id<DBGBreakpointAnnotationProviderDelegate> minimapDelegate;
 
 @end
 
