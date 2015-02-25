@@ -70,7 +70,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 @interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate, DBGBreakpointAnnotationProviderDelegate>
 
 @property (nonatomic, weak) IDESourceCodeEditor *editor;
-@property (nonatomic, assign) DVTSourceTextView *editorTextView;
+@property (nonatomic, strong) DVTSourceTextView *editorTextView;
 
 @property (nonatomic, strong) NSScrollView *scrollView;
 @property (nonatomic, strong) DVTSourceTextView *textView;
@@ -87,15 +87,20 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 @property (nonatomic, weak) DBGBreakpointAnnotationProvider *breakpointAnnotationProvider;
 
+@property (nonatomic, strong) NSMutableArray *notificationObservers;
+
 @end
 
 @implementation SCXcodeMinimapView
 
 - (void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+{	
+	for(id observer in self.notificationObservers) {
+		[[NSNotificationCenter defaultCenter] removeObserver:observer];
+	}
+	
 	[self.textView.textStorage removeLayoutManager:self.textView.layoutManager];
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
+	[self.breakpointAnnotationProvider setMinimapDelegate:nil];
 }
 
 - (instancetype)initWithEditor:(IDESourceCodeEditor *)editor
@@ -133,49 +138,54 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		
 		[self updateTheme];
 		
+		
+		for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
+			if([providerDictionary[@"annotationProviderObject"] isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
+				self.breakpointAnnotationProvider = providerDictionary[@"annotationProviderObject"];
+				[self.breakpointAnnotationProvider setMinimapDelegate:self];
+				break;
+			}
+		}
+		
 		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
 		if(shouldHighlightBreakpoints) {
-
-			for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
-				if([providerDictionary[@"annotationProviderObject"] isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
-					self.breakpointAnnotationProvider = providerDictionary[@"annotationProviderObject"];
-					[self.breakpointAnnotationProvider setMinimapDelegate:self];
-					break;
-				}
-			}
-			
 			self.shouldUpdateBreakpoints = YES;
 			[self invalidateDisplayForVisibleRange];
 		}
 		
+		
 		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
 		[self.editor.scrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
 		
+		
 		// Notifications
 		
-		__weak typeof(self) weakSelf = self;
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
-		}];
+		self.notificationObservers = [NSMutableArray array];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		__weak typeof(self) weakSelf = self;
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+		}]];
+		
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf updateSize];
 			[weakSelf invalidateDisplayForVisibleRange];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			weakSelf.shouldUpdateBreakpoints = YES;
 			[weakSelf invalidateDisplayForVisibleRange];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf invalidateDisplayForVisibleRange];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightPreprocessorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightPreprocessorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf invalidateDisplayForVisibleRange];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightEditorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightEditorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			
 			BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
 			if(editorHighlightingEnabled) {
@@ -185,25 +195,25 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			}
 			
 			[weakSelf invalidateDisplayForVisibleRange];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf.editor.scrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue]];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf updateTheme];
-		}];
-				
-		[[NSNotificationCenter defaultCenter] addObserverForName:DVTFontAndColorSourceTextSettingsChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf updateTheme];
-		}];
+		}]];
 		
-		[[NSNotificationCenter defaultCenter] addObserverForName:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:DVTFontAndColorSourceTextSettingsChangedNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf updateTheme];
+		}]];
+		
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:IDESourceCodeEditorTextViewBoundsDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			if([note.object isEqual:weakSelf.editor]) {
 				[weakSelf updateOffset];
 			}
-		}];
+		}]];
 	}
 	
 	return self;
@@ -355,7 +365,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		
 		for(DBGBreakpointAnnotation *breakpointAnnotation in self.breakpointAnnotationProvider.annotations) {
 			if(breakpointAnnotation.paragraphRange.location == lineNumber) {
-				[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange], kBreakpointEnabledKey : @(breakpointAnnotation.enabled)}];
+				[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange],
+														 kBreakpointEnabledKey : @(breakpointAnnotation.enabled)}];
 			}
 		}
 		

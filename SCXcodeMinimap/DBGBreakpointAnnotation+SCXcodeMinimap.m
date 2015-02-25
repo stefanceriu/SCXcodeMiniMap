@@ -12,6 +12,7 @@
 #import "IDEFileBreakpoint.h"
 
 @implementation DBGBreakpointAnnotation (SCXcodeMinimap)
+@dynamic minimapDelegate;
 
 static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swizzledSelector) {
 	Method originalMethod = class_getInstanceMethod(class, originalSelector);
