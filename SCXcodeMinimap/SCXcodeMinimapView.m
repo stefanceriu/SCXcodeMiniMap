@@ -221,6 +221,10 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)viewDidMoveToWindow
 {
+	if(self.window == nil) {
+		return;
+	}
+	
 	[self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
 }
 
@@ -231,7 +235,6 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	self.hidden  = !visible;
 	
 	[self updateSize];
-	[self updateOffset];
 	
 	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];
 	
@@ -516,11 +519,15 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 	CGFloat actualZoomLevel =  CGRectGetWidth(self.bounds) / CGRectGetWidth(self.editor.textView.bounds);
 	[self.scrollView setMagnification:actualZoomLevel];
+	
+	[self updateOffset];
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
 	[super resizeWithOldSuperviewSize:oldSize];
+	
+	self.shouldAllowFullSyntaxHighlight = NO;
 	
 	CGRect frame = self.textView.bounds;
 	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
