@@ -12,7 +12,6 @@
 		184C118F1A741136002A7C65 /* DVTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184C118E1A741136002A7C65 /* DVTFoundation.framework */; };
 		1876135F1A77A74300974BE1 /* IDEKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1876135E1A77A74300974BE1 /* IDEKit.framework */; };
 		1883080A1A7411830005DF40 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 188308091A7411830005DF40 /* DVTKit.framework */; };
-		1883080C1A7411930005DF40 /* IDESourceEditor.ideplugin in Resources */ = {isa = PBXBuildFile; fileRef = 1883080B1A7411930005DF40 /* IDESourceEditor.ideplugin */; };
 		188308101A7411A70005DF40 /* IDESourceEditor in Frameworks */ = {isa = PBXBuildFile; fileRef = 1883080F1A7411A70005DF40 /* IDESourceEditor */; };
 		188FCC8A1A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */; };
 		18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */; };
@@ -49,13 +48,12 @@
 		184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapSelectionView.m; sourceTree = "<group>"; };
 		184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapView.h; sourceTree = "<group>"; };
 		184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SCXcodeMinimapView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		184C118E1A741136002A7C65 /* DVTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTFoundation.framework; path = ../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTFoundation.framework; sourceTree = "<group>"; };
+		184C118E1A741136002A7C65 /* DVTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTFoundation.framework; path = /Applications/Xcode.app/Contents/SharedFrameworks/DVTFoundation.framework; sourceTree = "<group>"; };
 		1876135D1A77A69F00974BE1 /* IDEEditorDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDEEditorDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		1876135E1A77A74300974BE1 /* IDEKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEKit.framework; path = ../../../../../Applications/Xcode.app/Contents/Frameworks/IDEKit.framework; sourceTree = "<group>"; };
+		1876135E1A77A74300974BE1 /* IDEKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEKit.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEKit.framework; sourceTree = "<group>"; };
 		187EEF6A1A8F78C400E4EF39 /* IDEFileBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEFileBreakpoint.h; sourceTree = "<group>"; };
-		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = ../../../../../Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
-		1883080B1A7411930005DF40 /* IDESourceEditor.ideplugin */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = IDESourceEditor.ideplugin; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin; sourceTree = "<group>"; };
-		1883080F1A7411A70005DF40 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = "<group>"; };
+		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = /Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
+		1883080F1A7411A70005DF40 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = /Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = "<group>"; };
 		188D38761A98B26E005C7F85 /* DBGBreakpointAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBGBreakpointAnnotation.h; sourceTree = "<group>"; };
 		188D38771A98B3AC005C7F85 /* DVTTextAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTTextAnnotation.h; sourceTree = "<group>"; };
 		188D38781A98B3D8005C7F85 /* DVTAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotation.h; sourceTree = "<group>"; };
@@ -68,9 +66,9 @@
 		18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTLayoutManager.h; sourceTree = "<group>"; };
 		18C999FC1A98AF370008AF54 /* DBGBreakpointAnnotationProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBGBreakpointAnnotationProvider.h; sourceTree = "<group>"; };
 		18C999FD1A98AF580008AF54 /* DVTAnnotationProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationProvider.h; sourceTree = "<group>"; };
-		18C999FE1A98B04C0008AF54 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = ../../../../../Applications/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = "<group>"; };
+		18C999FE1A98B04C0008AF54 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = /Applications/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = "<group>"; };
 		18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBreakpoint.h; sourceTree = "<group>"; };
-		18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = ../../../../../Applications/Xcode.app/Contents/Frameworks/IDEFoundation.framework; sourceTree = "<group>"; };
+		18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEFoundation.framework; sourceTree = "<group>"; };
 		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FE09B51707639E00118FEB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		18FE09B81707639E00118FEB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -173,7 +171,6 @@
 				18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */,
 				1876135E1A77A74300974BE1 /* IDEKit.framework */,
 				1883080F1A7411A70005DF40 /* IDESourceEditor */,
-				1883080B1A7411930005DF40 /* IDESourceEditor.ideplugin */,
 				8742532217307161001C947C /* QuartzCore.framework */,
 			);
 			name = Frameworks;
@@ -258,7 +255,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1883080C1A7411930005DF40 /* IDESourceEditor.ideplugin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
