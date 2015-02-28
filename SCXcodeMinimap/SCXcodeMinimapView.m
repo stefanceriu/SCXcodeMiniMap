@@ -239,7 +239,9 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	[self updateSize];
 	
-	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];
+	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];	
+	[self.textView.layoutManager setBackgroundLayoutEnabled:YES];
+	[self.textView.layoutManager setAllowsNonContiguousLayout:YES];
 	
 	BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
 	if(editorHighlightingEnabled) {
@@ -444,11 +446,17 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	NSRect neededRect = [self.editorTextView.layoutManager boundingRectForGlyphRange:activeRange inTextContainer:self.editorTextView.textContainer];
 	neededRect.origin.y = MAX(0, neededRect.origin.y - CGRectGetHeight(self.editor.containerView.bounds) / 2);
 	
-	[NSAnimationContext beginGrouping];
-	[[NSAnimationContext currentContext] setDuration:0.25f];
-	[self.editor.scrollView.contentView.animator setBoundsOrigin:CGPointMake(0, neededRect.origin.y)];
-	[self.editor.scrollView reflectScrolledClipView:self.editor.scrollView.contentView];
-	[NSAnimationContext endGrouping];
+	BOOL shouldAnimateContentOffset = (theEvent.type != NSLeftMouseDragged);
+	
+	if(shouldAnimateContentOffset) {
+		[NSAnimationContext beginGrouping];
+		[[NSAnimationContext currentContext] setDuration:0.25f];
+		[self.editor.scrollView.contentView.animator setBoundsOrigin:CGPointMake(0, neededRect.origin.y)];
+		[self.editor.scrollView reflectScrolledClipView:self.editor.scrollView.contentView];
+		[NSAnimationContext endGrouping];
+	} else {
+		[self.editor.scrollView.contentView setBoundsOrigin:CGPointMake(0, neededRect.origin.y)];
+	}
 }
 
 #pragma mark - Theme
