@@ -434,7 +434,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 {
 	NSPoint point = [self.textView convertPoint:theEvent.locationInWindow fromView:nil];
 	NSUInteger characterIndex = [self.textView characterIndexForInsertionAtPoint:point];
-	[self.editorTextView scrollRangeToVisible:NSMakeRange(characterIndex, 0) animate:YES];
+	NSRange lineRange = [self.textView.string lineRangeForRange:NSMakeRange(characterIndex, 0)];
+	[self.editorTextView scrollRangeToVisible:lineRange animate:YES];
 }
 
 #pragma mark - Theme
