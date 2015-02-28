@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */; };
 		184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */; };
 		184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */; };
 		184C118F1A741136002A7C65 /* DVTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184C118E1A741136002A7C65 /* DVTFoundation.framework */; };
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		180F0C651A98AE1500E97254 /* DVTAnnotationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationManager.h; sourceTree = "<group>"; };
 		1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDESourceCodeDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		1819E4271AA1FB5900C344F2 /* SCXcodeMinimapScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapScrollView.h; sourceTree = "<group>"; };
+		1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapScrollView.m; sourceTree = "<group>"; };
 		18269AD51A8F2F4300953B3D /* DVTFoldingManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTFoldingManager.h; sourceTree = "<group>"; };
 		184407641A8F7B1900C530CF /* DVTTextDocumentLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTTextDocumentLocation.h; sourceTree = "<group>"; };
 		184407651A8F7B3E00C530CF /* DVTDocumentLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTDocumentLocation.h; sourceTree = "<group>"; };
@@ -183,6 +186,8 @@
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
 				184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */,
 				184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */,
+				1819E4271AA1FB5900C344F2 /* SCXcodeMinimapScrollView.h */,
+				1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */,
 				184C11811A740F97002A7C65 /* SCXcodeMinimapSelectionView.h */,
 				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
 				18C2EA5A1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.h */,
@@ -270,6 +275,7 @@
 				184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */,
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
+				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

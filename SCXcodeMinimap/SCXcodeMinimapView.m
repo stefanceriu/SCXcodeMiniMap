@@ -8,6 +8,7 @@
 
 #import "SCXcodeMinimapView.h"
 #import "SCXcodeMinimap.h"
+#import "SCXcodeMinimapScrollView.h"
 #import "SCXcodeMinimapSelectionView.h"
 
 #import "IDESourceCodeEditor.h"
@@ -72,7 +73,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 @property (nonatomic, weak) IDESourceCodeEditor *editor;
 @property (nonatomic, strong) DVTSourceTextView *editorTextView;
 
-@property (nonatomic, strong) NSScrollView *scrollView;
+@property (nonatomic, strong) SCXcodeMinimapScrollView *scrollView;
 @property (nonatomic, strong) DVTSourceTextView *textView;
 @property (nonatomic, strong) SCXcodeMinimapSelectionView *selectionView;
 @property (nonatomic, strong) IDESourceCodeDocument *document;
@@ -115,13 +116,15 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
-		self.scrollView = [[NSScrollView alloc] initWithFrame:self.bounds];
+		self.scrollView = [[SCXcodeMinimapScrollView alloc] initWithFrame:self.bounds];
 		[self.scrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		[self.scrollView setDrawsBackground:NO];
 		[self.scrollView setMinMagnification:0.0f];
 		[self.scrollView setMaxMagnification:1.0f];
 		[self.scrollView setAllowsMagnification:NO];
 		
+		[self.scrollView setHasHorizontalScroller:NO];
+		[self.scrollView setHasVerticalScroller:NO];
 		[self.scrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
 		[self.scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
 		[self addSubview:self.scrollView];
@@ -393,7 +396,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editor.scrollView.bounds);
 	CGFloat adjustedMinimapContentHeight = minimapTextHeight - (CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification));
 	
-	NSRect selectionViewFrame = NSMakeRect(0, 0, self.bounds.size.width * (1 / self.scrollView.magnification), self.editor.scrollView.visibleRect.size.height);
+	NSRect selectionViewFrame = NSMakeRect(0, 0, self.textView.bounds.size.width * (1 / self.scrollView.magnification), self.editor.scrollView.visibleRect.size.height);
 	
 	if(adjustedEditorContentHeight == 0.0f) {
 		[self.selectionView setFrame:selectionViewFrame];
@@ -401,7 +404,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	}
 	
 	CGFloat ratio = (adjustedMinimapContentHeight / adjustedEditorContentHeight) * (1 / self.scrollView.magnification);
-	CGPoint offset = NSMakePoint(0, MAX(0, floorf(self.editor.scrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
+	CGPoint offset = NSMakePoint(self.editor.scrollView.contentView.bounds.origin.x,
+								 MAX(0, floorf(self.editor.scrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
 	
 	[self.scrollView.documentView scrollPoint:offset];
 	
@@ -435,7 +439,16 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	NSPoint point = [self.textView convertPoint:theEvent.locationInWindow fromView:nil];
 	NSUInteger characterIndex = [self.textView characterIndexForInsertionAtPoint:point];
 	NSRange lineRange = [self.textView.string lineRangeForRange:NSMakeRange(characterIndex, 0)];
-	[self.editorTextView scrollRangeToVisible:lineRange animate:YES];
+	NSRange activeRange = [self.textView.layoutManager glyphRangeForCharacterRange:lineRange actualCharacterRange:NULL];
+	
+	NSRect neededRect = [self.editorTextView.layoutManager boundingRectForGlyphRange:activeRange inTextContainer:self.editorTextView.textContainer];
+	neededRect.origin.y = MAX(0, neededRect.origin.y - CGRectGetHeight(self.editor.containerView.bounds) / 2);
+	
+	[NSAnimationContext beginGrouping];
+	[[NSAnimationContext currentContext] setDuration:0.25f];
+	[self.editor.scrollView.contentView.animator setBoundsOrigin:CGPointMake(0, neededRect.origin.y)];
+	[self.editor.scrollView reflectScrolledClipView:self.editor.scrollView.contentView];
+	[NSAnimationContext endGrouping];
 }
 
 #pragma mark - Theme
