@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1809FF8F1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */; };
 		1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */; };
 		184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */; };
 		184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */; };
@@ -24,6 +25,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScroller+SCXcodeMinimap.h"; sourceTree = "<group>"; };
+		1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScroller+SCXcodeMinimap.m"; sourceTree = "<group>"; };
 		180F0C651A98AE1500E97254 /* DVTAnnotationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationManager.h; sourceTree = "<group>"; };
 		1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDESourceCodeDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		1819E4271AA1FB5900C344F2 /* SCXcodeMinimapScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapScrollView.h; sourceTree = "<group>"; };
@@ -194,6 +197,8 @@
 				18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */,
 				188FCC881A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.h */,
 				188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */,
+				1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */,
+				1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 				184C11701A740F8A002A7C65 /* Xcode Headers */,
 			);
@@ -276,6 +281,7 @@
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
 				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,
+				1809FF8F1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

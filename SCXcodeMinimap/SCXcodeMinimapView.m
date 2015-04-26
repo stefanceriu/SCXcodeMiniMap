@@ -31,6 +31,8 @@
 #import "DBGBreakpointAnnotation+SCXcodeMinimap.h"
 #import "DBGBreakpointAnnotation.h"
 
+#import "NSScroller+SCXcodeMinimap.h"
+
 const CGFloat kBackgroundColorShadowLevel = 0.1f;
 const CGFloat kDurationBetweenInvalidations = 0.5f;
 
@@ -156,10 +158,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 			[self invalidateDisplayForVisibleRange];
 		}
 		
-		
-		BOOL shouldHideEditorVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
-		[self.editor.scrollView setHasVerticalScroller:!shouldHideEditorVerticalScroller];
-		
+		BOOL shouldHideVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
+		[self.editor.scrollView.verticalScroller setForcedHidden:shouldHideVerticalScroller];
 		
 		// Notifications
 		
@@ -201,7 +201,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf.editor.scrollView setHasVerticalScroller:![[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue]];
+			BOOL shouldHideVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
+			[weakSelf.editor.scrollView.verticalScroller setForcedHidden:shouldHideVerticalScroller];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
