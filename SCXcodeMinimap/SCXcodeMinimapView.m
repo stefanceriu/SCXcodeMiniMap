@@ -116,7 +116,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
-		self.scrollView = [[SCXcodeMinimapScrollView alloc] initWithFrame:self.bounds];
+		self.scrollView = [[SCXcodeMinimapScrollView alloc] initWithFrame:self.bounds editorScrollView:self.editor.scrollView];
 		[self.scrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		[self.scrollView setDrawsBackground:NO];
 		[self.scrollView setMinMagnification:0.0f];

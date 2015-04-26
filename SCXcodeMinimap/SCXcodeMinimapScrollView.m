@@ -8,11 +8,27 @@
 
 #import "SCXcodeMinimapScrollView.h"
 
+@interface SCXcodeMinimapScrollView ()
+
+@property (nonatomic, strong) NSScrollView *editorScrollView;
+
+@end
+
 @implementation SCXcodeMinimapScrollView
+
+- (instancetype)initWithFrame:(CGRect)frame
+			 editorScrollView:(NSScrollView *)scrollView
+{
+	if(self = [super initWithFrame:frame]) {
+		_editorScrollView = scrollView;
+	}
+	
+	return self;
+}
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-	// Disable the scroll wheel on top of the minimap
+	[self.editorScrollView scrollWheel:theEvent];
 }
 
 @end

@@ -10,4 +10,7 @@
 
 @interface SCXcodeMinimapScrollView : NSScrollView
 
+- (instancetype)initWithFrame:(CGRect)frame
+			 editorScrollView:(NSScrollView *)scrollView;
+
 @end
