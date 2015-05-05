@@ -393,11 +393,11 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		return;
 	}
 	
-	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
-	CGFloat minimapTextHeight = CGRectGetHeight([self.textView.layoutManager usedRectForTextContainer:self.textView.textContainer]);
+	[self.editorTextView.layoutManager ensureLayoutForTextContainer:self.editorTextView.textContainer];
 	
+	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
 	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editor.scrollView.bounds);
-	CGFloat adjustedMinimapContentHeight = minimapTextHeight - (CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification));
+	CGFloat adjustedMinimapContentHeight = editorTextHeight - (CGRectGetHeight(self.scrollView.bounds) * (1 / self.scrollView.magnification));
 	
 	NSRect selectionViewFrame = NSMakeRect(0, 0, self.textView.bounds.size.width * (1 / self.scrollView.magnification), self.editor.scrollView.visibleRect.size.height);
 	
@@ -413,7 +413,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	[self.scrollView.documentView scrollPoint:offset];
 	
 	
-	ratio = (minimapTextHeight - self.selectionView.bounds.size.height) / adjustedEditorContentHeight;
+	ratio = (editorTextHeight - self.selectionView.bounds.size.height) / adjustedEditorContentHeight;
 	selectionViewFrame.origin.y = self.editor.scrollView.contentView.bounds.origin.y * ratio;
 	
 	[self.selectionView setFrame:selectionViewFrame];
