@@ -113,7 +113,6 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		self.editor = editor;
 		
 		self.editorTextView = editor.textView;
-		[self.editorTextView.foldingManager setDelegate:self];
 
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
@@ -132,7 +131,15 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		[self addSubview:self.scrollView];
 		
 		self.textView = [[DVTSourceTextView alloc] init];
-		[self.textView setTextStorage:self.editorTextView.textStorage];
+		
+		// The editor's layout manager needs to be the last one, otherwise live issues don't work
+		NSTextStorage *storage = self.editorTextView.textStorage;
+		[storage removeLayoutManager:self.editorTextView.layoutManager];
+		[storage addLayoutManager:self.textView.layoutManager];
+		[storage addLayoutManager:self.editorTextView.layoutManager];
+		
+		[self.editorTextView.foldingManager setDelegate:self];
+		
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
 		
@@ -336,7 +343,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	[self.textView.foldingManager foldRange:range];
 	
-	[self invalidateLayoutForVisibleMinimapRange];
+	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
+	[self updateOffset];
 }
 
 - (void)foldingManager:(DVTFoldingManager *)foldingManager didUnfoldRange:(NSRange)range
@@ -345,7 +353,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	[self.textView.foldingManager unfoldRange:range];
 	
-	[self invalidateLayoutForVisibleMinimapRange];
+	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
+	[self updateOffset];
 }
 
 #pragma mark - DBGBreakpointAnnotationProviderDelegate
@@ -574,12 +583,6 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
 	[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:visibleEditorRange];
-}
-
-- (void)invalidateLayoutForVisibleMinimapRange
-{
-	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
-	[self.textView.layoutManager invalidateLayoutForCharacterRange:visibleMinimapRange actualCharacterRange:nil];
 }
 
 @end
