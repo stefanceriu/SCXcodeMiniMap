@@ -76,7 +76,10 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	if (self = [super init]) {
 		
 		[self registerUserDefaults];
-		[self createMenuItem];
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[self createMenuItem];
+		});
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishSetup:) name:IDESourceCodeEditorDidFinishSetupNotification object:nil];
 	}
