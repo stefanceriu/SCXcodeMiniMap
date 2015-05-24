@@ -132,7 +132,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		// The editor's layout manager needs to be the last one, otherwise live issues don't work
 		NSTextStorage *storage = self.editorTextView.textStorage;
 		[storage removeLayoutManager:self.editorTextView.layoutManager];
-		[storage addLayoutManager:self.textView.layoutManager];
+		[self.textView setTextStorage:storage];
 		[storage addLayoutManager:self.editorTextView.layoutManager];
 		
 		[self.editorTextView.foldingManager setDelegate:self];
