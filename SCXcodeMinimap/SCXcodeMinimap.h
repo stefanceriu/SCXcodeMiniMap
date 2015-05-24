@@ -17,6 +17,9 @@ extern NSString *const SCXcodeMinimapZoomLevelKey;
 extern NSString *const SCXcodeMinimapHighlightBreakpointsChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey;
 
+extern NSString *const SCXcodeMinimapHighlightIssuesChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHighlightIssuesKey;
+
 extern NSString *const SCXcodeMinimapHighlightCommentsChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightCommentsKey;
 

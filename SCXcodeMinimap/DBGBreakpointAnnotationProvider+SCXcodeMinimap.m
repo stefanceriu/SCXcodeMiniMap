@@ -31,6 +31,11 @@ static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swiz
 	sc_swizzleInstanceMethod(self, @selector(didMoveAnnotation:), @selector(sc_didMoveAnnotation:));
 }
 
+- (id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
+{	
+	return objc_getAssociatedObject(self, @selector(minimapDelegate));
+}
+
 - (void)setMinimapDelegate:(id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
 {
 	for(DBGBreakpointAnnotation *annotation in self.annotations) {
@@ -38,11 +43,6 @@ static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swiz
 	}
 	
 	objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
-}
-
-- (id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
-{
-	return objc_getAssociatedObject(self, @selector(minimapDelegate));
 }
 
 - (void)sc_addAnnotationForFileBreakpoint:(id)arg1

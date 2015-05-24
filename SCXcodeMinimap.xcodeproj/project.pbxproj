@@ -15,10 +15,12 @@
 		1876135F1A77A74300974BE1 /* IDEKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1876135E1A77A74300974BE1 /* IDEKit.framework */; };
 		1883080A1A7411830005DF40 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 188308091A7411830005DF40 /* DVTKit.framework */; };
 		188308101A7411A70005DF40 /* IDESourceEditor in Frameworks */ = {isa = PBXBuildFile; fileRef = 1883080F1A7411A70005DF40 /* IDESourceEditor */; };
+		1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = 1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */; };
 		188FCC8A1A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */; };
 		18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */; };
 		18C999FF1A98B04C0008AF54 /* DebuggerUI in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C999FE1A98B04C0008AF54 /* DebuggerUI */; };
 		18D6AD111A8F727B0082CB3F /* IDEFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */; };
+		18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */; };
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
 		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
@@ -28,6 +30,7 @@
 		1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScroller+SCXcodeMinimap.h"; sourceTree = "<group>"; };
 		1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScroller+SCXcodeMinimap.m"; sourceTree = "<group>"; };
 		180F0C651A98AE1500E97254 /* DVTAnnotationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationManager.h; sourceTree = "<group>"; };
+		180F24D61B119866009ACE49 /* IDEIssueAnnotationProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEIssueAnnotationProvider.h; sourceTree = "<group>"; };
 		1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDESourceCodeDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		1819E4271AA1FB5900C344F2 /* SCXcodeMinimapScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapScrollView.h; sourceTree = "<group>"; };
 		1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapScrollView.m; sourceTree = "<group>"; };
@@ -60,6 +63,8 @@
 		187EEF6A1A8F78C400E4EF39 /* IDEFileBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEFileBreakpoint.h; sourceTree = "<group>"; };
 		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = /Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
 		1883080F1A7411A70005DF40 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = /Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = "<group>"; };
+		1889464B1B11DDEE0036175B /* SCXcodeMinimapTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapTheme.h; sourceTree = "<group>"; };
+		1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapTheme.m; sourceTree = "<group>"; };
 		188D38761A98B26E005C7F85 /* DBGBreakpointAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBGBreakpointAnnotation.h; sourceTree = "<group>"; };
 		188D38771A98B3AC005C7F85 /* DVTTextAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTTextAnnotation.h; sourceTree = "<group>"; };
 		188D38781A98B3D8005C7F85 /* DVTAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotation.h; sourceTree = "<group>"; };
@@ -75,6 +80,12 @@
 		18C999FE1A98B04C0008AF54 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = /Applications/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = "<group>"; };
 		18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBreakpoint.h; sourceTree = "<group>"; };
 		18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEFoundation.framework; sourceTree = "<group>"; };
+		18E577F61B119BF200421483 /* IDEBuildIssueAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueAnnotation.h; sourceTree = "<group>"; };
+		18E577F71B119C1000421483 /* IDEBuildIssueWarningAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueWarningAnnotation.h; sourceTree = "<group>"; };
+		18E577F81B119C3F00421483 /* IDEBuildIssueErrorAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueErrorAnnotation.h; sourceTree = "<group>"; };
+		18E577F91B119C7200421483 /* DVTMessageBubbleAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTMessageBubbleAnnotation.h; sourceTree = "<group>"; };
+		18E577FA1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IDEIssueAnnotationProvider+SCXcodeMinimap.h"; sourceTree = "<group>"; };
+		18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IDEIssueAnnotationProvider+SCXcodeMinimap.m"; sourceTree = "<group>"; };
 		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FE09B51707639E00118FEB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		18FE09B81707639E00118FEB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -122,6 +133,7 @@
 				184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */,
 				184C11731A740F8A002A7C65 /* DVTInvalidation-Protocol.h */,
 				18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */,
+				18E577F91B119C7200421483 /* DVTMessageBubbleAnnotation.h */,
 				184C11741A740F8A002A7C65 /* DVTPointerArray.h */,
 				184C11751A740F8A002A7C65 /* DVTPreferenceSet-Protocol.h */,
 				18B3CEE51A8AA52A00A0873D /* DVTPreferenceSetManager.h */,
@@ -134,15 +146,19 @@
 				184407641A8F7B1900C530CF /* DVTTextDocumentLocation.h */,
 				184C117B1A740F8A002A7C65 /* DVTTextStorage.h */,
 				184C117C1A740F8A002A7C65 /* DVTViewController.h */,
+				18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */,
+				18E577F61B119BF200421483 /* IDEBuildIssueAnnotation.h */,
+				18E577F81B119C3F00421483 /* IDEBuildIssueErrorAnnotation.h */,
+				18E577F71B119C1000421483 /* IDEBuildIssueWarningAnnotation.h */,
 				184C117D1A740F8A002A7C65 /* IDEEditor.h */,
 				1876135D1A77A69F00974BE1 /* IDEEditorDocument.h */,
 				187EEF6A1A8F78C400E4EF39 /* IDEFileBreakpoint.h */,
 				18FEFA8C1A782D8600DC98C5 /* IDEFileTextSettings.h */,
+				180F24D61B119866009ACE49 /* IDEIssueAnnotationProvider.h */,
 				1812C3911A77A7CF00E2CFB3 /* IDESourceCodeDocument.h */,
 				184C117E1A740F8A002A7C65 /* IDESourceCodeEditor.h */,
 				184C117F1A740F8A002A7C65 /* IDESourceCodeEditorContainerView.h */,
 				184C11801A740F8A002A7C65 /* IDEViewController.h */,
-				18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */,
 			);
 			path = "Xcode Headers";
 			sourceTree = "<group>";
@@ -193,10 +209,14 @@
 				1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */,
 				184C11811A740F97002A7C65 /* SCXcodeMinimapSelectionView.h */,
 				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
+				1889464B1B11DDEE0036175B /* SCXcodeMinimapTheme.h */,
+				1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */,
 				18C2EA5A1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.h */,
 				18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */,
 				188FCC881A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.h */,
 				188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */,
+				18E577FA1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.h */,
+				18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */,
 				1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */,
 				1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
@@ -280,7 +300,9 @@
 				184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */,
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
+				1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */,
 				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,
+				18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */,
 				1809FF8F1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

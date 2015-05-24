@@ -21,7 +21,7 @@
 #import "DVTSourceTextView.h"
 #import "DVTSourceNodeTypes.h"
 
-#import "DVTFontAndColorTheme.h"
+#import "SCXcodeMinimapTheme.h"
 #import "DVTPreferenceSetManager.h"
 
 #import "DVTFoldingManager.h"
@@ -31,9 +31,19 @@
 #import "DBGBreakpointAnnotation+SCXcodeMinimap.h"
 #import "DBGBreakpointAnnotation.h"
 
+#import "IDEIssueAnnotationProvider+SCXcodeMinimap.h"
+#import "IDEBuildIssueErrorAnnotation.h"
+#import "IDEBuildIssueWarningAnnotation.h"
+
 #import "NSScroller+SCXcodeMinimap.h"
 
-const CGFloat kBackgroundColorShadowLevel = 0.1f;
+typedef NS_ENUM(NSUInteger, SCXcodeMinimapAnnotationType) {
+	SCXcodeMinimapAnnotationTypeUndefined,
+	SCXcodeMinimapBuildIssueTypeWarning,
+	SCXcodeMinimapBuildIssueTypeError,
+	SCXcodeMinimapAnnotationTypeBreakpoint
+};
+
 const CGFloat kDurationBetweenInvalidations = 0.5f;
 
 static NSString * const kXcodeSyntaxCommentNodeName = @"xcode.syntax.comment";
@@ -45,32 +55,15 @@ static NSString * const IDEEditorDocumentDidChangeNotification = @"IDEEditorDocu
 static NSString * const IDESourceCodeEditorTextViewBoundsDidChangeNotification = @"IDESourceCodeEditorTextViewBoundsDidChangeNotification";
 static NSString * const DVTFontAndColorSourceTextSettingsChangedNotification = @"DVTFontAndColorSourceTextSettingsChangedNotification";
 
-static NSString * const kBreakpointRangeKey = @"kBreakpointRangeKey";
-static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
+static NSString * const kAnnotationRangeKey = @"kAnnotationRangeKey";
+static NSString * const kAnnotationEnabledKey = @"kAnnotationEnabledKey";
+static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 
-@interface SCXcodeMinimapTheme : NSObject
-
-@property (nonatomic, strong) NSColor *backgroundColor;
-@property (nonatomic, strong) NSColor *selectionColor;
-
-@property (nonatomic, strong) NSColor *sourcePlainTextColor;
-@property (nonatomic, strong) NSColor *sourceTextBackgroundColor;
-@property (nonatomic, strong) NSColor *commentBackgroundColor;
-@property (nonatomic, strong) NSColor *preprocessorBackgroundColor;
-@property (nonatomic, strong) NSColor *enabledBreakpointColor;
-@property (nonatomic, strong) NSColor *disabledBreakpointColor;
-
-@property (nonatomic, strong) DVTFontAndColorTheme *dvtTheme;
-
-@end
-
-@implementation SCXcodeMinimapTheme
-
-@end
-
-
-@interface SCXcodeMinimapView () <NSLayoutManagerDelegate, DVTFoldingManagerDelegate, DBGBreakpointAnnotationProviderDelegate>
+@interface SCXcodeMinimapView () < NSLayoutManagerDelegate,
+                                   DVTFoldingManagerDelegate,
+                                   DBGBreakpointAnnotationProviderDelegate,
+                                   IDEIssueAnnotationProviderDelegate >
 
 @property (nonatomic, weak) IDESourceCodeEditor *editor;
 @property (nonatomic, strong) DVTSourceTextView *editorTextView;
@@ -85,10 +78,13 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 @property (nonatomic, assign) BOOL shouldAllowFullSyntaxHighlight;
 
-@property (nonatomic, assign) BOOL shouldUpdateBreakpoints;
-@property (nonatomic, strong) NSMutableArray *breakpointDictionaries;
-
 @property (nonatomic, weak) DBGBreakpointAnnotationProvider *breakpointAnnotationProvider;
+@property (nonatomic, strong) NSMutableArray *breakpointsDictionaries;
+
+@property (nonatomic, weak) IDEIssueAnnotationProvider *issueAnnotationProvider;
+@property (nonatomic, strong) NSMutableArray *issuesDictionaries;
+
+@property (nonatomic, assign) BOOL shouldInvalidateAnnotations;
 
 @property (nonatomic, strong) NSMutableArray *notificationObservers;
 
@@ -104,12 +100,13 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	[self.textView.textStorage removeLayoutManager:self.textView.layoutManager];
 	[self.breakpointAnnotationProvider setMinimapDelegate:nil];
+	[self.issueAnnotationProvider setMinimapDelegate:nil];
 }
 
 - (instancetype)initWithEditor:(IDESourceCodeEditor *)editor
 {
-	if (self = [super init])
-	{
+	if (self = [super init]) {
+		
 		self.editor = editor;
 		
 		self.editorTextView = editor.textView;
@@ -152,16 +149,27 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		
 		
 		for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
-			if([providerDictionary[@"annotationProviderObject"] isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
-				self.breakpointAnnotationProvider = providerDictionary[@"annotationProviderObject"];
+			
+			id annotationProvider = providerDictionary[@"annotationProviderObject"];
+			
+			if([annotationProvider isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
+				self.breakpointAnnotationProvider = annotationProvider;
 				[self.breakpointAnnotationProvider setMinimapDelegate:self];
-				break;
+			} else if([annotationProvider isKindOfClass:[IDEIssueAnnotationProvider class]]) {
+				self.issueAnnotationProvider = annotationProvider;
+				[self.issueAnnotationProvider setMinimapDelegate:self];
 			}
 		}
 		
 		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
 		if(shouldHighlightBreakpoints) {
-			self.shouldUpdateBreakpoints = YES;
+			self.shouldInvalidateAnnotations = YES;
+			[self invalidateDisplayForVisibleRange];
+		}
+		
+		BOOL shouldHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
+		if(shouldHighlightIssues) {
+			self.shouldInvalidateAnnotations = YES;
 			[self invalidateDisplayForVisibleRange];
 		}
 		
@@ -183,7 +191,12 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			weakSelf.shouldUpdateBreakpoints = YES;
+			weakSelf.shouldInvalidateAnnotations = YES;
+			[weakSelf invalidateDisplayForVisibleRange];
+		}]];
+		
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightIssuesChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			weakSelf.shouldInvalidateAnnotations = YES;
 			[weakSelf invalidateDisplayForVisibleRange];
 		}]];
 		
@@ -286,15 +299,36 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	
 	if(self.shouldAllowFullSyntaxHighlight) {
 		// Set background colors for breakpoints
-		if(self.breakpointDictionaries.count) {
-			for(NSDictionary *breakpointDictionary in self.breakpointDictionaries) {
-				NSRange range = [breakpointDictionary[kBreakpointRangeKey] rangeValue];
-				BOOL enabled = [breakpointDictionary[kBreakpointEnabledKey] boolValue];
+		if(self.breakpointsDictionaries.count) {
+			for(NSDictionary *breakpointDictionary in self.breakpointsDictionaries) {
+				NSRange range = [breakpointDictionary[kAnnotationRangeKey] rangeValue];
+				BOOL enabled = [breakpointDictionary[kAnnotationEnabledKey] boolValue];
 				
 				if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
 					*effectiveCharRange = range;
 					return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor,
 							 NSBackgroundColorAttributeName : (enabled ? theme.enabledBreakpointColor : theme.disabledBreakpointColor)};
+				}
+			}
+		}
+		
+		// Set background colors for issues
+		if(self.issuesDictionaries.count) {
+			for(NSDictionary *issueDictionary in self.issuesDictionaries) {
+				NSRange range = [issueDictionary[kAnnotationRangeKey] rangeValue];
+				SCXcodeMinimapAnnotationType annotationType = [issueDictionary[kAnnotationTypeKey] unsignedIntegerValue];
+				
+				NSColor *backgroundColor = [NSColor greenColor];
+				if(annotationType == SCXcodeMinimapBuildIssueTypeError) {
+					backgroundColor = self.minimapTheme.buildIssueErrorBackgroundColor;
+				} else if(annotationType == SCXcodeMinimapBuildIssueTypeWarning) {
+					backgroundColor = self.minimapTheme.buildIssueWarningBackgroundColor;
+				}
+				
+				if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
+					*effectiveCharRange = range;
+					return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor,
+							 NSBackgroundColorAttributeName : backgroundColor};
 				}
 			}
 		}
@@ -361,37 +395,67 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)breakpointAnnotationProviderDidChangeBreakpoints:(DBGBreakpointAnnotationProvider *)annotationProvider
 {
-	self.shouldUpdateBreakpoints = YES;
+	self.shouldInvalidateAnnotations = YES;
 	
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
 	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
 }
 
-- (void)updateBreakpoints
+#pragma mark - IDEIssueAnnotationProviderDelegate
+
+- (void)issueAnnotationProviderDidChangeIssues:(IDEIssueAnnotationProvider *)annotationProvider
 {
-	BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
-	if(!shouldHighlightBreakpoints) {
-		self.breakpointDictionaries = nil;
-		return;
-	}
+	self.shouldInvalidateAnnotations = YES;
 	
-	self.breakpointDictionaries = [NSMutableArray array];
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
+	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
+}
+
+#pragma mark - Annotations
+
+- (void)updateAnnotations
+{
+	BOOL canHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
+	BOOL canHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
+	
+	self.breakpointsDictionaries = [NSMutableArray array];
+	self.issuesDictionaries = [NSMutableArray array];
 	
 	for (NSUInteger index = 0, lineNumber = 0; index < self.textView.string.length; lineNumber++) {
 		
 		NSRange lineRange = [self.textView.string lineRangeForRange:NSMakeRange(index, 0)];
 		
-		for(DBGBreakpointAnnotation *breakpointAnnotation in self.breakpointAnnotationProvider.annotations) {
-			if(breakpointAnnotation.paragraphRange.location == lineNumber) {
-				[self.breakpointDictionaries addObject:@{kBreakpointRangeKey : [NSValue valueWithRange:lineRange],
-														 kBreakpointEnabledKey : @(breakpointAnnotation.enabled)}];
+		if(canHighlightBreakpoints) {
+			for(DBGBreakpointAnnotation *breakpointAnnotation in self.breakpointAnnotationProvider.annotations) {
+				if(breakpointAnnotation.paragraphRange.location == lineNumber) {
+					[self.breakpointsDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
+															  kAnnotationEnabledKey : @(breakpointAnnotation.enabled)}];
+				}
+			}
+		}
+		
+		if(canHighlightIssues) {
+			for(IDEBuildIssueAnnotation *issueAnnotation in self.issueAnnotationProvider.annotations) {
+				if(issueAnnotation.paragraphRange.location == lineNumber) {
+					
+					SCXcodeMinimapAnnotationType annotationType = SCXcodeMinimapAnnotationTypeUndefined;
+					
+					if([issueAnnotation isKindOfClass:[IDEBuildIssueWarningAnnotation class]]) {
+						annotationType = SCXcodeMinimapBuildIssueTypeWarning;
+					} else if([issueAnnotation isKindOfClass:[IDEBuildIssueErrorAnnotation class]]) {
+						annotationType = SCXcodeMinimapBuildIssueTypeError;
+					}
+					
+					[self.issuesDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
+														 kAnnotationTypeKey : @(annotationType)}];
+				}
 			}
 		}
 		
 		index = NSMaxRange(lineRange);
 	}
 	
-	self.shouldUpdateBreakpoints = NO;
+	self.shouldInvalidateAnnotations = NO;
 }
 
 #pragma mark - Navigation
@@ -473,7 +537,7 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)updateTheme
 {
-	self.editorTheme = [self minimapThemeWithTheme:[DVTFontAndColorTheme currentTheme]];
+	self.editorTheme = [SCXcodeMinimapTheme minimapThemeWithTheme:[DVTFontAndColorTheme currentTheme]];
 
 	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
 	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
@@ -486,49 +550,13 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 	if(themeIndex == NSNotFound) {
 		self.minimapTheme = self.editorTheme;
 	} else {
-		self.minimapTheme = [self minimapThemeWithTheme:preferenceSet[themeIndex]];
+		self.minimapTheme = [SCXcodeMinimapTheme minimapThemeWithTheme:preferenceSet[themeIndex]];
 	}
 	
 	[self.scrollView setBackgroundColor:self.minimapTheme.backgroundColor];
 	[self.textView setBackgroundColor:self.minimapTheme.backgroundColor];
 	
 	[self.selectionView setSelectionColor:self.minimapTheme.selectionColor];
-}
-
-- (SCXcodeMinimapTheme *)minimapThemeWithTheme:(DVTFontAndColorTheme *)theme
-{
-	SCXcodeMinimapTheme *minimapTheme = [[SCXcodeMinimapTheme alloc] init];
-	
-	minimapTheme.backgroundColor = [theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
-	
-	minimapTheme.selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [minimapTheme.backgroundColor redComponent])
-															green:(1.0f - [minimapTheme.backgroundColor greenComponent])
-															 blue:(1.0f - [minimapTheme.backgroundColor blueComponent])
-															alpha:0.2f];
-	
-	
-	DVTPointerArray *colors = [theme syntaxColorsByNodeType];
-	minimapTheme.commentBackgroundColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
-	minimapTheme.commentBackgroundColor = [NSColor colorWithCalibratedRed:minimapTheme.commentBackgroundColor.redComponent
-																	green:minimapTheme.commentBackgroundColor.greenComponent
-																	 blue:minimapTheme.commentBackgroundColor.blueComponent
-																	alpha:0.3f];
-	
-	
-	minimapTheme.preprocessorBackgroundColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxPreprocessorNodeName]];
-	minimapTheme.preprocessorBackgroundColor = [NSColor colorWithCalibratedRed:minimapTheme.preprocessorBackgroundColor.redComponent
-																		 green:minimapTheme.preprocessorBackgroundColor.greenComponent
-																		  blue:minimapTheme.preprocessorBackgroundColor.blueComponent
-																		 alpha:0.3f];
-	
-	minimapTheme.enabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:1.0f];
-	minimapTheme.disabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:0.5f];
-	
-	minimapTheme.sourcePlainTextColor = theme.sourcePlainTextColor;
-	minimapTheme.sourceTextBackgroundColor = theme.sourceTextBackgroundColor;
-	minimapTheme.dvtTheme = theme;
-	
-	return minimapTheme;
 }
 
 #pragma mark - Sizing
@@ -572,8 +600,8 @@ static NSString * const kBreakpointEnabledKey = @"kBreakpointEnabledKey";
 
 - (void)invalidateDisplayForVisibleRange
 {
-	if(self.shouldUpdateBreakpoints) {
-		[self updateBreakpoints];
+	if(self.shouldInvalidateAnnotations) {
+		[self updateAnnotations];
 	}
 	
 	self.shouldAllowFullSyntaxHighlight = YES;
