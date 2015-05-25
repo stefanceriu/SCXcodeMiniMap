@@ -495,6 +495,10 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	if(canHighlightSelectedSymbol) {
 		DVTLayoutManager *layoutManager = (DVTLayoutManager *)self.editorTextView.layoutManager;
+		if(![layoutManager respondsToSelector:@selector(autoHighlightTokenRanges)]) {
+			return;
+		}
+		
 		[layoutManager.autoHighlightTokenRanges enumerateObjectsUsingBlock:^(NSValue *rangeValue, NSUInteger idx, BOOL *stop) {
 			[self.highlightedSymbolDictionaries addObject:@{kAnnotationRangeKey : rangeValue,
 															kAnnotationTypeKey : @(SCXcodeMinimapAnnotationTypeHighlightToken)}];
