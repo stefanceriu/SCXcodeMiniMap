@@ -15,7 +15,7 @@
 #import "IDEEditorDocument.h"
 
 #import "DVTTextStorage.h"
-#import "DVTLayoutManager.h"
+#import "DVTLayoutManager+SCXcodeMinimap.h"
 
 #import "DVTPointerArray.h"
 #import "DVTSourceTextView.h"
@@ -39,9 +39,10 @@
 
 typedef NS_ENUM(NSUInteger, SCXcodeMinimapAnnotationType) {
 	SCXcodeMinimapAnnotationTypeUndefined,
-	SCXcodeMinimapBuildIssueTypeWarning,
-	SCXcodeMinimapBuildIssueTypeError,
-	SCXcodeMinimapAnnotationTypeBreakpoint
+	SCXcodeMinimapAnnotationTypeTypeWarning,
+	SCXcodeMinimapAnnotationTypeTypeError,
+	SCXcodeMinimapAnnotationTypeBreakpoint,
+	SCXcodeMinimapAnnotationTypeHighlightToken,
 };
 
 const CGFloat kDurationBetweenInvalidations = 0.5f;
@@ -63,7 +64,8 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 @interface SCXcodeMinimapView () < NSLayoutManagerDelegate,
                                    DVTFoldingManagerDelegate,
                                    DBGBreakpointAnnotationProviderDelegate,
-                                   IDEIssueAnnotationProviderDelegate >
+                                   IDEIssueAnnotationProviderDelegate,
+                                   DVTLayoutManagerMinimapDelegate >
 
 @property (nonatomic, weak) IDESourceCodeEditor *editor;
 @property (nonatomic, strong) DVTSourceTextView *editorTextView;
@@ -79,12 +81,13 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 @property (nonatomic, assign) BOOL shouldAllowFullSyntaxHighlight;
 
 @property (nonatomic, weak) DBGBreakpointAnnotationProvider *breakpointAnnotationProvider;
-@property (nonatomic, strong) NSMutableArray *breakpointsDictionaries;
-
 @property (nonatomic, weak) IDEIssueAnnotationProvider *issueAnnotationProvider;
-@property (nonatomic, strong) NSMutableArray *issuesDictionaries;
 
-@property (nonatomic, assign) BOOL shouldInvalidateAnnotations;
+@property (nonatomic, assign) BOOL shouldUpdateBreakpointsAndIssues;
+
+@property (nonatomic, strong) NSMutableArray *breakpointsDictionaries;
+@property (nonatomic, strong) NSMutableArray *issuesDictionaries;
+@property (nonatomic, strong) NSMutableArray *highlightedSymbolDictionaries;
 
 @property (nonatomic, strong) NSMutableArray *notificationObservers;
 
@@ -151,7 +154,6 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
 			
 			id annotationProvider = providerDictionary[@"annotationProviderObject"];
-			
 			if([annotationProvider isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
 				self.breakpointAnnotationProvider = annotationProvider;
 				[self.breakpointAnnotationProvider setMinimapDelegate:self];
@@ -162,15 +164,14 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		}
 		
 		BOOL shouldHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
-		if(shouldHighlightBreakpoints) {
-			self.shouldInvalidateAnnotations = YES;
-			[self invalidateDisplayForVisibleRange];
+		BOOL shouldHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
+		if(shouldHighlightBreakpoints || shouldHighlightIssues) {
+			[self invalidateBreakpointsAndIssues];
 		}
 		
-		BOOL shouldHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
-		if(shouldHighlightIssues) {
-			self.shouldInvalidateAnnotations = YES;
-			[self invalidateDisplayForVisibleRange];
+		BOOL shouldHighlightSelectedSymbol = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
+		if(shouldHighlightSelectedSymbol) {
+			[self invalidateHighligtedSymbols];
 		}
 		
 		BOOL shouldHideVerticalScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
@@ -187,25 +188,27 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf updateSize];
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf delayedInvalidateDisplayForVisibleRange];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			weakSelf.shouldInvalidateAnnotations = YES;
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf invalidateBreakpointsAndIssues];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightIssuesChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			weakSelf.shouldInvalidateAnnotations = YES;
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf invalidateBreakpointsAndIssues];
+		}]];
+		
+		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightSelectedSymbolChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+			[weakSelf invalidateHighligtedSymbols];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightCommentsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf delayedInvalidateDisplayForVisibleRange];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightPreprocessorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf delayedInvalidateDisplayForVisibleRange];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightEditorChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -217,7 +220,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 				[weakSelf.editorTextView.layoutManager setDelegate:(id<NSLayoutManagerDelegate>)weakSelf.editorTextView];
 			}
 			
-			[weakSelf invalidateDisplayForVisibleRange];
+			[weakSelf delayedInvalidateDisplayForVisibleRange];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -264,9 +267,12 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	[self.textView.layoutManager setBackgroundLayoutEnabled:YES];
 	[self.textView.layoutManager setAllowsNonContiguousLayout:YES];
 	
+	DVTLayoutManager *editorLayoutManager = (DVTLayoutManager *)self.editorTextView.layoutManager;
+	[editorLayoutManager setMinimapDelegate:self];
+	
 	BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
 	if(editorHighlightingEnabled) {
-		[self.editorTextView.layoutManager setDelegate:self];
+		[editorLayoutManager setDelegate:self];
 	}
 }
 
@@ -290,15 +296,24 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	// Delay invalidation for performance reasons and attempt a full range invalidation later
 	if(!self.shouldAllowFullSyntaxHighlight && [layoutManager isEqual:self.textView.layoutManager]) {
-		
-		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
-		[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
-		
+		[self delayedInvalidateDisplayForVisibleRange];
 		return @{NSForegroundColorAttributeName : theme.sourcePlainTextColor};
 	}
-	
+
 	if(self.shouldAllowFullSyntaxHighlight) {
-		// Set background colors for breakpoints
+		
+		if(self.highlightedSymbolDictionaries.count) {
+			for(NSDictionary *highlightSymbolDictionary in self.highlightedSymbolDictionaries) {
+				NSRange range = [highlightSymbolDictionary[kAnnotationRangeKey] rangeValue];
+				
+				if(NSIntersectionRange(range, NSMakeRange(charIndex, 1)).length) {
+					*effectiveCharRange = range;
+					return @{NSForegroundColorAttributeName : theme.sourceTextBackgroundColor,
+							 NSBackgroundColorAttributeName : theme.highlightedSymbolBackgroundColor};
+				}
+			}
+		}
+		
 		if(self.breakpointsDictionaries.count) {
 			for(NSDictionary *breakpointDictionary in self.breakpointsDictionaries) {
 				NSRange range = [breakpointDictionary[kAnnotationRangeKey] rangeValue];
@@ -312,16 +327,15 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 			}
 		}
 		
-		// Set background colors for issues
 		if(self.issuesDictionaries.count) {
 			for(NSDictionary *issueDictionary in self.issuesDictionaries) {
 				NSRange range = [issueDictionary[kAnnotationRangeKey] rangeValue];
 				SCXcodeMinimapAnnotationType annotationType = [issueDictionary[kAnnotationTypeKey] unsignedIntegerValue];
 				
 				NSColor *backgroundColor = [NSColor greenColor];
-				if(annotationType == SCXcodeMinimapBuildIssueTypeError) {
+				if(annotationType == SCXcodeMinimapAnnotationTypeTypeError) {
 					backgroundColor = self.minimapTheme.buildIssueErrorBackgroundColor;
-				} else if(annotationType == SCXcodeMinimapBuildIssueTypeWarning) {
+				} else if(annotationType == SCXcodeMinimapAnnotationTypeTypeWarning) {
 					backgroundColor = self.minimapTheme.buildIssueWarningBackgroundColor;
 				}
 				
@@ -395,67 +409,97 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)breakpointAnnotationProviderDidChangeBreakpoints:(DBGBreakpointAnnotationProvider *)annotationProvider
 {
-	self.shouldInvalidateAnnotations = YES;
-	
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
-	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
+	[self invalidateBreakpointsAndIssues];
 }
 
 #pragma mark - IDEIssueAnnotationProviderDelegate
 
 - (void)issueAnnotationProviderDidChangeIssues:(IDEIssueAnnotationProvider *)annotationProvider
 {
-	self.shouldInvalidateAnnotations = YES;
-	
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
-	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
+	[self invalidateBreakpointsAndIssues];
+}
+
+#pragma mark - DVTLayoutManagerMinimapDelegate
+
+- (void)layoutManagerDidRequestSelectedSymbolInstancesHighlight:(DVTLayoutManager *)layoutManager
+{
+	[self invalidateHighligtedSymbols];
 }
 
 #pragma mark - Annotations
 
-- (void)updateAnnotations
+- (void)updateBreakpointsAndIssuesWithCompletion:(void(^)())completion
 {
-	BOOL canHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
-	BOOL canHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
-	
 	self.breakpointsDictionaries = [NSMutableArray array];
 	self.issuesDictionaries = [NSMutableArray array];
 	
-	for (NSUInteger index = 0, lineNumber = 0; index < self.textView.string.length; lineNumber++) {
-		
-		NSRange lineRange = [self.textView.string lineRangeForRange:NSMakeRange(index, 0)];
-		
-		if(canHighlightBreakpoints) {
-			for(DBGBreakpointAnnotation *breakpointAnnotation in self.breakpointAnnotationProvider.annotations) {
-				if(breakpointAnnotation.paragraphRange.location == lineNumber) {
-					[self.breakpointsDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
-															  kAnnotationEnabledKey : @(breakpointAnnotation.enabled)}];
-				}
-			}
+	BOOL canHighlightBreakpoints = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightBreakpointsKey] boolValue];
+	BOOL canHighlightIssues = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
+	
+	if(!canHighlightBreakpoints && !canHighlightIssues) {
+		if(completion) {
+			completion();
 		}
-		
-		if(canHighlightIssues) {
-			for(IDEBuildIssueAnnotation *issueAnnotation in self.issueAnnotationProvider.annotations) {
-				if(issueAnnotation.paragraphRange.location == lineNumber) {
-					
-					SCXcodeMinimapAnnotationType annotationType = SCXcodeMinimapAnnotationTypeUndefined;
-					
-					if([issueAnnotation isKindOfClass:[IDEBuildIssueWarningAnnotation class]]) {
-						annotationType = SCXcodeMinimapBuildIssueTypeWarning;
-					} else if([issueAnnotation isKindOfClass:[IDEBuildIssueErrorAnnotation class]]) {
-						annotationType = SCXcodeMinimapBuildIssueTypeError;
-					}
-					
-					[self.issuesDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
-														 kAnnotationTypeKey : @(annotationType)}];
-				}
-			}
-		}
-		
-		index = NSMaxRange(lineRange);
+		return;
 	}
 	
-	self.shouldInvalidateAnnotations = NO;
+	__weak typeof(self) weakSelf = self;
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+		for (NSUInteger index = 0, lineNumber = 0; index < self.textView.string.length; lineNumber++) {
+			
+			NSRange lineRange = [weakSelf.textView.string lineRangeForRange:NSMakeRange(index, 0)];
+			
+			if(canHighlightBreakpoints) {
+				for(DBGBreakpointAnnotation *breakpointAnnotation in weakSelf.breakpointAnnotationProvider.annotations) {
+					if(breakpointAnnotation.paragraphRange.location == lineNumber) {
+						[weakSelf.breakpointsDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
+																  kAnnotationEnabledKey : @(breakpointAnnotation.enabled),
+																  kAnnotationTypeKey : @(SCXcodeMinimapAnnotationTypeBreakpoint)}];
+					}
+				}
+			}
+			
+			if(canHighlightIssues) {
+				for(IDEBuildIssueAnnotation *issueAnnotation in weakSelf.issueAnnotationProvider.annotations) {
+					if(issueAnnotation.paragraphRange.location == lineNumber) {
+						
+						SCXcodeMinimapAnnotationType annotationType = SCXcodeMinimapAnnotationTypeUndefined;
+						if([issueAnnotation isKindOfClass:[IDEBuildIssueErrorAnnotation class]]) {
+							annotationType = SCXcodeMinimapAnnotationTypeTypeError;
+						} else if([issueAnnotation isKindOfClass:[IDEBuildIssueWarningAnnotation class]]) {
+							annotationType = SCXcodeMinimapAnnotationTypeTypeWarning;
+						}
+						
+						[weakSelf.issuesDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
+															 kAnnotationTypeKey : @(annotationType)}];
+					}
+				}
+			}
+			
+			index = NSMaxRange(lineRange);
+		}
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if(completion) {
+				completion();
+			}
+		});
+	});
+}
+
+- (void)updateHighlightedSymbols
+{
+	BOOL canHighlightSelectedSymbol = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightSelectedSymbolKey] boolValue];
+	
+	self.highlightedSymbolDictionaries = [NSMutableArray array];
+	
+	if(canHighlightSelectedSymbol) {
+		DVTLayoutManager *layoutManager = (DVTLayoutManager *)self.editorTextView.layoutManager;
+		[layoutManager.autoHighlightTokenRanges enumerateObjectsUsingBlock:^(NSValue *rangeValue, NSUInteger idx, BOOL *stop) {
+			[self.highlightedSymbolDictionaries addObject:@{kAnnotationRangeKey : rangeValue,
+															kAnnotationTypeKey : @(SCXcodeMinimapAnnotationTypeHighlightToken)}];
+		}];
+	}
 }
 
 #pragma mark - Navigation
@@ -598,19 +642,44 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 #pragma mark - Helpers
 
+- (void)invalidateBreakpointsAndIssues
+{
+	self.shouldUpdateBreakpointsAndIssues = YES;
+	[self delayedInvalidateDisplayForVisibleRange];
+}
+
+- (void)invalidateHighligtedSymbols
+{
+	[self updateHighlightedSymbols];
+	[self delayedInvalidateDisplayForVisibleRange];
+}
+
+- (void)delayedInvalidateDisplayForVisibleRange
+{
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(invalidateDisplayForVisibleRange) object:nil];
+	[self performSelector:@selector(invalidateDisplayForVisibleRange) withObject:nil afterDelay:kDurationBetweenInvalidations];
+}
+
 - (void)invalidateDisplayForVisibleRange
 {
-	if(self.shouldInvalidateAnnotations) {
-		[self updateAnnotations];
+	void (^performVisibleRangeInvalidation)() = ^{
+		self.shouldAllowFullSyntaxHighlight = YES;
+		
+		NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
+		[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
+		
+		NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
+		[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:visibleEditorRange];
+	};
+	
+	if(self.shouldUpdateBreakpointsAndIssues) {
+		self.shouldUpdateBreakpointsAndIssues = NO;
+		[self updateBreakpointsAndIssuesWithCompletion:^{
+			performVisibleRangeInvalidation();
+		}];
+	} else {
+		performVisibleRangeInvalidation();
 	}
-	
-	self.shouldAllowFullSyntaxHighlight = YES;
-	
-	NSRange visibleMinimapRange = [self.textView visibleCharacterRange];
-	[self.textView.layoutManager invalidateDisplayForCharacterRange:visibleMinimapRange];
-	
-	NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
-	[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:visibleEditorRange];
 }
 
 @end

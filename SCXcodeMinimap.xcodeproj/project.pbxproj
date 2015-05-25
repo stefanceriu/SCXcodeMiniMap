@@ -21,6 +21,8 @@
 		18C999FF1A98B04C0008AF54 /* DebuggerUI in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C999FE1A98B04C0008AF54 /* DebuggerUI */; };
 		18D6AD111A8F727B0082CB3F /* IDEFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */; };
 		18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */; };
+		18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */; };
+		18ECB8111B1322A300EE4D82 /* SCXcodeMinimapCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */; };
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
 		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
@@ -86,6 +88,10 @@
 		18E577F91B119C7200421483 /* DVTMessageBubbleAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTMessageBubbleAnnotation.h; sourceTree = "<group>"; };
 		18E577FA1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IDEIssueAnnotationProvider+SCXcodeMinimap.h"; sourceTree = "<group>"; };
 		18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IDEIssueAnnotationProvider+SCXcodeMinimap.m"; sourceTree = "<group>"; };
+		18ECB80C1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTLayoutManager+SCXcodeMinimap.h"; sourceTree = "<group>"; };
+		18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DVTLayoutManager+SCXcodeMinimap.m"; sourceTree = "<group>"; };
+		18ECB80F1B1322A300EE4D82 /* SCXcodeMinimapCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapCommon.h; sourceTree = "<group>"; };
+		18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapCommon.m; sourceTree = "<group>"; };
 		18FE09B21707639E00118FEB /* SCXcodeMinimap.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SCXcodeMinimap.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FE09B51707639E00118FEB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		18FE09B81707639E00118FEB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -215,10 +221,14 @@
 				18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */,
 				188FCC881A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.h */,
 				188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */,
+				18ECB80C1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.h */,
+				18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */,
 				18E577FA1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.h */,
 				18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */,
 				1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */,
 				1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */,
+				18ECB80F1B1322A300EE4D82 /* SCXcodeMinimapCommon.h */,
+				18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 				184C11701A740F8A002A7C65 /* Xcode Headers */,
 			);
@@ -297,10 +307,12 @@
 			files = (
 				188FCC8A1A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m in Sources */,
 				18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */,
+				18ECB8111B1322A300EE4D82 /* SCXcodeMinimapCommon.m in Sources */,
 				184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */,
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
 				1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */,
+				18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */,
 				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,
 				18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */,
 				1809FF8F1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m in Sources */,

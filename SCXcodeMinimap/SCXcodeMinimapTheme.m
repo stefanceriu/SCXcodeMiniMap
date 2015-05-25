@@ -46,8 +46,9 @@ static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.prepro
 	minimapTheme.enabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:1.0f];
 	minimapTheme.disabledBreakpointColor = [NSColor colorWithRed:65.0f/255.0f green:113.0f/255.0f blue:200.0f/255.0f alpha:0.5f];
 	
-	minimapTheme.buildIssueWarningBackgroundColor = [NSColor colorWithRed:255/255.0f green:255/255.0f blue:0/255.0f alpha:0.75f];
-	minimapTheme.buildIssueErrorBackgroundColor = [NSColor colorWithRed:255/255.0f green:0/255.0f blue:0/255.0f alpha:0.75f];
+	minimapTheme.buildIssueWarningBackgroundColor = [NSColor colorWithRed:1.0f green:1.0f blue:0.0f alpha:0.75f];
+	minimapTheme.buildIssueErrorBackgroundColor = [NSColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f];
+	minimapTheme.highlightedSymbolBackgroundColor = [NSColor colorWithRed:0.0f green:1.0f blue:0.0f alpha:0.75f];
 	
 	minimapTheme.sourcePlainTextColor = theme.sourcePlainTextColor;
 	minimapTheme.sourceTextBackgroundColor = theme.sourceTextBackgroundColor;

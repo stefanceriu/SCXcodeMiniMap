@@ -29,6 +29,9 @@ NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey = @"SCXcodeMinimapSh
 NSString *const SCXcodeMinimapHighlightIssuesChangeNotification = @"SCXcodeMinimapHighlightIssuesChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightIssuesKey = @"SCXcodeMinimapShouldHighlightIssuesKey";
 
+NSString *const SCXcodeMinimapHighlightSelectedSymbolChangeNotification = @"SCXcodeMinimapHighlightSelectedSymbolChangeNotification";
+NSString *const SCXcodeMinimapShouldHighlightSelectedSymbolKey = @"SCXcodeMinimapShouldHighlightSelectedSymbolKey";
+
 NSString *const SCXcodeMinimapHighlightCommentsChangeNotification = @"SCXcodeMinimapHighlightCommentsChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightCommentsKey  = @"SCXcodeMinimapShouldHighlightCommentsKey";
 
@@ -52,6 +55,7 @@ NSString *const kHideMinimapMenuItemTitle = @"Hide Minimap";
 
 NSString *const kHighlightBreakpointsMenuItemTitle = @"Highlight breakpoints";
 NSString *const kHighlightIssuesMenuItemTitle = @"Highlight issues";
+NSString *const kHighlightSelectedSymbolMenuItemTitle = @"Highlight selected symbol";
 NSString *const kHighlightCommentsMenuItemTitle = @"Highlight comments";
 NSString *const kHighlightPreprocessorMenuItemTitle = @"Highlight preprocessor";
 NSString *const kHighlightEditorMenuItemTitle = @"Highlight main editor";
@@ -88,12 +92,13 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 
 - (void)registerUserDefaults
 {
-	NSDictionary *userDefaults = @{SCXcodeMinimapZoomLevelKey                   : @(0.1f),
-								   SCXcodeMinimapShouldDisplayKey               : @(YES),
-								   SCXcodeMinimapShouldHighlightBreakpointsKey  : @(YES),
-								   SCXcodeMinimapShouldHighlightIssuesKey       : @(YES),
-								   SCXcodeMinimapShouldHighlightCommentsKey     : @(YES),
-								   SCXcodeMinimapShouldHighlightPreprocessorKey : @(YES)};
+	NSDictionary *userDefaults = @{SCXcodeMinimapZoomLevelKey                     : @(0.1f),
+								   SCXcodeMinimapShouldDisplayKey                 : @(YES),
+								   SCXcodeMinimapShouldHighlightBreakpointsKey    : @(YES),
+								   SCXcodeMinimapShouldHighlightIssuesKey         : @(YES),
+								   SCXcodeMinimapShouldHighlightSelectedSymbolKey : @(YES),
+								   SCXcodeMinimapShouldHighlightCommentsKey       : @(YES),
+								   SCXcodeMinimapShouldHighlightPreprocessorKey   : @(YES)};
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:userDefaults];
 }
@@ -169,6 +174,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		
 		BOOL issueHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightIssuesKey] boolValue];
 		[highlightIssuesMenuItem setState:(issueHighlightingEnabled ? NSOnState : NSOffState)];
+		
+		
+		NSMenuItem *highlightSelectedSymbolMenuItem = [[NSMenuItem alloc] initWithTitle:kHighlightSelectedSymbolMenuItemTitle
+																				 action:@selector(toggleSelectedSymbolHighlighting:) keyEquivalent:@""];
+		[highlightSelectedSymbolMenuItem setTarget:self];
+		[minimapMenu addItem:highlightSelectedSymbolMenuItem];
+		
+		BOOL selectedSymbolHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightSelectedSymbolKey] boolValue];
+		[highlightSelectedSymbolMenuItem setState:(selectedSymbolHighlightingEnabled ? NSOnState : NSOffState)];
 		
 		
 		NSMenuItem *highlightCommentsMenuItem = [[NSMenuItem alloc] initWithTitle:kHighlightCommentsMenuItemTitle
@@ -285,6 +299,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[sender setState:(issueHighlightingEnabled ? NSOffState : NSOnState)];
 	[[NSUserDefaults standardUserDefaults] setObject:@(!issueHighlightingEnabled) forKey:SCXcodeMinimapShouldHighlightIssuesKey];
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapHighlightIssuesChangeNotification object:nil];
+}
+
+- (void)toggleSelectedSymbolHighlighting:(NSMenuItem *)sender
+{
+	BOOL selectedSymbolHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightSelectedSymbolKey] boolValue];
+	
+	[sender setState:(selectedSymbolHighlightingEnabled ? NSOffState : NSOnState)];
+	[[NSUserDefaults standardUserDefaults] setObject:@(!selectedSymbolHighlightingEnabled) forKey:SCXcodeMinimapShouldHighlightSelectedSymbolKey];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapHighlightSelectedSymbolChangeNotification object:nil];
 }
 
 - (void)toggleCommentsHighlighting:(NSMenuItem *)sender

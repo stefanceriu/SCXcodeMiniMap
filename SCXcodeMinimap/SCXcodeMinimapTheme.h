@@ -25,6 +25,8 @@
 @property (nonatomic, strong) NSColor *buildIssueWarningBackgroundColor;
 @property (nonatomic, strong) NSColor *buildIssueErrorBackgroundColor;
 
+@property (nonatomic, strong) NSColor *highlightedSymbolBackgroundColor;
+
 @property (nonatomic, strong) DVTFontAndColorTheme *dvtTheme;
 
 @end

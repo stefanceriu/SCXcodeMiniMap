@@ -7,7 +7,7 @@
 //
 
 #import "IDEIssueAnnotationProvider+SCXcodeMinimap.h"
-#import <objc/runtime.h>
+#import "SCXcodeMinimapCommon.h"
 
 static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotationProviderIssuesObservingContext;
 
@@ -19,16 +19,6 @@ static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotat
 
 @implementation IDEIssueAnnotationProvider (SCXcodeMinimap)
 @dynamic minimapDelegate;
-
-static void sc_swizzleInstanceMethod(Class class, SEL originalSelector, SEL swizzledSelector) {
-	Method originalMethod = class_getInstanceMethod(class, originalSelector);
-	Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-	if (class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))) {
-		class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
-	} else {
-		method_exchangeImplementations(originalMethod, swizzledMethod);
-	}
-}
 
 + (void)load
 {

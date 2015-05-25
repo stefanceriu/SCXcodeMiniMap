@@ -20,6 +20,9 @@ extern NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey;
 extern NSString *const SCXcodeMinimapHighlightIssuesChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightIssuesKey;
 
+extern NSString *const SCXcodeMinimapHighlightSelectedSymbolChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHighlightSelectedSymbolKey;
+
 extern NSString *const SCXcodeMinimapHighlightCommentsChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightCommentsKey;
 
