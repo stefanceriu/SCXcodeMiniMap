@@ -635,6 +635,10 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 {
 	[super resizeWithOldSuperviewSize:oldSize];
 	
+	if(self.editorTextView.textStorage.editedMask) {
+		return;
+	}
+	
 	self.shouldAllowFullSyntaxHighlight = NO;
 	
 	CGRect frame = self.textView.bounds;
