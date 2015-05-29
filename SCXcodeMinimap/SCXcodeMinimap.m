@@ -53,6 +53,8 @@ NSString *const kMinimapMenuItemTitle = @"Minimap";
 NSString *const kShowMinimapMenuItemTitle = @"Show Minimap";
 NSString *const kHideMinimapMenuItemTitle = @"Hide Minimap";
 
+NSString *const kSizeMenuItemTitle = @"Size";
+
 NSString *const kHighlightBreakpointsMenuItemTitle = @"Highlight breakpoints";
 NSString *const kHighlightIssuesMenuItemTitle = @"Highlight issues";
 NSString *const kHighlightSelectedSymbolMenuItemTitle = @"Highlight selected symbol";
@@ -131,7 +133,7 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		[sizeView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
 		
 		NSTextField *sizeViewTitleLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(18.0f, 0.0f, 50.0f, 20.0f)];
-		[sizeViewTitleLabel setStringValue:@"Size"];
+		[sizeViewTitleLabel setStringValue:kSizeMenuItemTitle];
 		[sizeViewTitleLabel setFont:[NSFont systemFontOfSize:14]];
 		[sizeViewTitleLabel setBezeled:NO];
 		[sizeViewTitleLabel setDrawsBackground:NO];

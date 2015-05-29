@@ -529,15 +529,14 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		return;
 	}
 	
+	CGFloat editorYOffset = CGRectGetMinY(self.editor.scrollView.contentView.bounds) + ABS(CGRectGetMinY(self.editorTextView.frame));
+	
 	CGFloat ratio = (adjustedMinimapContentHeight / adjustedEditorContentHeight) * (1 / self.scrollView.magnification);
-	CGPoint offset = NSMakePoint(self.editor.scrollView.contentView.bounds.origin.x,
-								 MAX(0, floorf(self.editor.scrollView.contentView.bounds.origin.y * ratio * self.scrollView.magnification)));
-	
-	[self.scrollView.documentView scrollPoint:offset];
-	
+	[self.scrollView.documentView scrollPoint:NSMakePoint(self.editor.scrollView.contentView.bounds.origin.x,
+														  MAX(0, floorf(editorYOffset * ratio * self.scrollView.magnification)))];
 	
 	ratio = (editorTextHeight - self.selectionView.bounds.size.height) / adjustedEditorContentHeight;
-	selectionViewFrame.origin.y = self.editor.scrollView.contentView.bounds.origin.y * ratio;
+	selectionViewFrame.origin.y = editorYOffset * ratio;
 	
 	[self.selectionView setFrame:selectionViewFrame];
 }
@@ -569,6 +568,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	NSRect neededRect = [self.editorTextView.layoutManager boundingRectForGlyphRange:activeRange inTextContainer:self.editorTextView.textContainer];
 	neededRect.origin.y = MAX(0, neededRect.origin.y - CGRectGetHeight(self.editor.containerView.bounds) / 2);
+	neededRect.origin.y += CGRectGetMinY(self.editorTextView.frame);
 	
 	BOOL shouldAnimateContentOffset = (theEvent.type != NSLeftMouseDragged);
 	
