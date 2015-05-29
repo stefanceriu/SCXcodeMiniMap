@@ -616,7 +616,6 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
 
 	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
-    NSLog(@"zoomLevel: %f, minimapWidth: %f", zoomLevel, minimapWidth);
 
 	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
 	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth;
