@@ -21,7 +21,7 @@
 }
 
 - (id<DBGBreakpointAnnotationProviderDelegate>)minimapDelegate
-{	
+{
 	return objc_getAssociatedObject(self, @selector(minimapDelegate));
 }
 

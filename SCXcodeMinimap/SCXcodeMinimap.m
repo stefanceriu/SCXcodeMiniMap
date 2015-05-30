@@ -129,10 +129,10 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		
 		[minimapMenu addItem:[NSMenuItem separatorItem]];
 		
-		NSView *sizeView = [[NSView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 200.0f, 20.0f)];
+		NSView *sizeView = [[NSView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 225.0f, 20.0f)];
 		[sizeView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
 		
-		NSTextField *sizeViewTitleLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(18.0f, 0.0f, 50.0f, 20.0f)];
+		NSTextField *sizeViewTitleLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(20.0f, 0.0f, 50.0f, 20.0f)];
 		[sizeViewTitleLabel setStringValue:kSizeMenuItemTitle];
 		[sizeViewTitleLabel setFont:[NSFont systemFontOfSize:14]];
 		[sizeViewTitleLabel setBezeled:NO];
@@ -141,7 +141,7 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		[sizeViewTitleLabel setSelectable:NO];
 		[sizeView addSubview:sizeViewTitleLabel];
 		
-		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(60.0f, 0.0f, 136.0f, 20.0f)];
+		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(60.0f, 0.0f, 156.0f, 20.0f)];
 		[sizeSlider setMaxValue:0.35f];
 		[sizeSlider setMinValue:0.05f];
 		[sizeSlider setTarget:self];

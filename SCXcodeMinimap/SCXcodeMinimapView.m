@@ -96,7 +96,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 @implementation SCXcodeMinimapView
 
 - (void)dealloc
-{	
+{
 	for(id observer in self.notificationObservers) {
 		[[NSNotificationCenter defaultCenter] removeObserver:observer];
 	}
@@ -113,7 +113,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		self.editor = editor;
 		
 		self.editorTextView = editor.textView;
-
+		
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
@@ -251,10 +251,10 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	if(self.window == nil) {
 		return;
 	}
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
-    });
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+	});
 }
 
 #pragma mark - Show/Hide
@@ -265,7 +265,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	[self updateSize];
 	
-	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];	
+	[self.textView.layoutManager setDelegate:(self.hidden ? nil : self)];
 	[self.textView.layoutManager setBackgroundLayoutEnabled:YES];
 	[self.textView.layoutManager setAllowsNonContiguousLayout:YES];
 	
@@ -301,7 +301,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self delayedInvalidateDisplayForVisibleRange];
 		return @{NSForegroundColorAttributeName : theme.sourcePlainTextColor};
 	}
-
+	
 	if(self.shouldAllowFullSyntaxHighlight) {
 		
 		if(self.highlightedSymbolDictionaries.count) {
@@ -455,8 +455,8 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 				for(DBGBreakpointAnnotation *breakpointAnnotation in weakSelf.breakpointAnnotationProvider.annotations) {
 					if(breakpointAnnotation.paragraphRange.location == lineNumber) {
 						[weakSelf.breakpointsDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
-																  kAnnotationEnabledKey : @(breakpointAnnotation.enabled),
-																  kAnnotationTypeKey : @(SCXcodeMinimapAnnotationTypeBreakpoint)}];
+																	  kAnnotationEnabledKey : @(breakpointAnnotation.enabled),
+																	  kAnnotationTypeKey : @(SCXcodeMinimapAnnotationTypeBreakpoint)}];
 					}
 				}
 			}
@@ -473,7 +473,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 						}
 						
 						[weakSelf.issuesDictionaries addObject:@{kAnnotationRangeKey : [NSValue valueWithRange:lineRange],
-															 kAnnotationTypeKey : @(annotationType)}];
+																 kAnnotationTypeKey : @(annotationType)}];
 					}
 				}
 			}
@@ -588,7 +588,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 - (void)updateTheme
 {
 	self.editorTheme = [SCXcodeMinimapTheme minimapThemeWithTheme:[DVTFontAndColorTheme currentTheme]];
-
+	
 	DVTPreferenceSetManager *preferenceSetManager = [DVTFontAndColorTheme preferenceSetsManager];
 	NSArray *preferenceSet = [preferenceSetManager availablePreferenceSets];
 	
@@ -614,9 +614,9 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 - (void)updateSize
 {
 	CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
-
+	
 	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
-
+	
 	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
 	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth;
 	self.editor.scrollView.frame = editorScrollViewFrame;
@@ -626,7 +626,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	CGRect frame = self.textView.bounds;
 	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
 	[self.textView setFrame:frame];
-
+	
 	CGFloat actualZoomLevel =  CGRectGetWidth(self.bounds) / CGRectGetWidth(self.editor.textView.bounds);
 	[self.scrollView setMagnification:actualZoomLevel];
 	

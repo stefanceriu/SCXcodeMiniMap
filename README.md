@@ -1,22 +1,27 @@
-# SCXcodeMinimap v2.0
+# SCXcodeMinimap v2.2
 SCXcodeMiniMap is a Xcode plugin that adds a source editor Minimap to Xcode.
 
-Version 2.0 has been rewritten from the ground up to address performance issues (delays on large source files - 1000+ lines) and for creating a better base to build upon. As such, the following new features are now supported:
+#### Features
 
-#### New Features
-- Faster syntax highlighting
-- Shows code foldings
-- Comment and preprocessor directive highlighting
-- Breakpoint highlighting
-- All highlighting options are also available for the main Xcode editor
+- Custom size
 - Custom themes
-- All options are accessible from the View/Minimap menu item
+- Can hide the main editor scroller
+- Show code foldings
+- Highlights comments and preprocessor directives
+- Highlights breakpoints
+- Highlights build errors and warnings
+- Hihglights Xcode's "instances of selected symbol" (Preferences/Text Editing)
+- All these highlighting options are also available for the main editor
+
+All options are configurable through the View/Minimap menu item
 
 #### Screenshots
 Without editor highlighting |  With editor highlighting
 :--------------------------:|:--------------------------:
-![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-01.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-03.png)  |
-![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-02.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/SCXcodeMiniMap/v2.0/SCXcodeMinimap%20v2.0-04.png)  |
+![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-01.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-03.png)  |
+![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-02.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-04.png)  |
+
+![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/selectedSymbolInstancesHighlighting.gif)
 
 #### Installation
 - Through [Alcatraz](https://github.com/supermarin/Alcatraz)
