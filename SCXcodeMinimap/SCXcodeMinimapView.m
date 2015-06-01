@@ -185,12 +185,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
 		}]];
-		
-		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf updateSize];
-			[weakSelf delayedInvalidateDisplayForVisibleRange];
-		}]];
-		
+				
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapHighlightBreakpointsChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
 			[weakSelf invalidateBreakpointsAndIssues];
 		}]];
@@ -246,15 +241,12 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	return self;
 }
 
-- (void)viewDidMoveToWindow
+- (void)setFrameSize:(NSSize)newSize
 {
-	if(self.window == nil) {
-		return;
-	}
-	
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
-	});
+    [super setFrameSize:newSize];
+    
+    [self setVisible:newSize.width > 0];
+    [self delayedInvalidateDisplayForVisibleRange];
 }
 
 #pragma mark - Show/Hide
@@ -613,17 +605,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)updateSize
 {
-	CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
-	
-	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
-	
-	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
-	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth;
-	self.editor.scrollView.frame = editorScrollViewFrame;
-	
-	[self setFrame:NSMakeRect(CGRectGetMaxX(editorScrollViewFrame), 0, minimapWidth, CGRectGetHeight(self.editor.containerView.bounds))];
-	
-	CGRect frame = self.textView.bounds;
+    CGRect frame = self.textView.bounds;
 	frame.size.width = CGRectGetWidth(self.editorTextView.bounds);
 	[self.textView setFrame:frame];
 	

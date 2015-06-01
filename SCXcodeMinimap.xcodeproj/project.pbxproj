@@ -26,6 +26,7 @@
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
 		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
+		AC193BC91B1BAAFA00A69593 /* SCXcodeMinimapSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = AC193BC81B1BAAFA00A69593 /* SCXcodeMinimapSplitView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -103,6 +104,8 @@
 		18FE09C8170764E400118FEB /* SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimap.m; sourceTree = "<group>"; };
 		18FEFA8C1A782D8600DC98C5 /* IDEFileTextSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEFileTextSettings.h; sourceTree = "<group>"; };
 		8742532217307161001C947C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		AC193BC71B1BAAFA00A69593 /* SCXcodeMinimapSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapSplitView.h; sourceTree = "<group>"; };
+		AC193BC81B1BAAFA00A69593 /* SCXcodeMinimapSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapSplitView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +210,8 @@
 		18FE09BB1707639E00118FEB /* SCXcodeMinimap */ = {
 			isa = PBXGroup;
 			children = (
+				AC193BC71B1BAAFA00A69593 /* SCXcodeMinimapSplitView.h */,
+				AC193BC81B1BAAFA00A69593 /* SCXcodeMinimapSplitView.m */,
 				18FE09C7170764E400118FEB /* SCXcodeMinimap.h */,
 				18FE09C8170764E400118FEB /* SCXcodeMinimap.m */,
 				184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */,
@@ -312,6 +317,7 @@
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
 				1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */,
+				AC193BC91B1BAAFA00A69593 /* SCXcodeMinimapSplitView.m in Sources */,
 				18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */,
 				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,
 				18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */,

@@ -15,13 +15,12 @@
 #import "DVTPreferenceSetManager.h"
 #import "DVTFontAndColorTheme.h"
 
+#import "SCXcodeMinimapSplitView.h"
+
 NSString *const IDESourceCodeEditorDidFinishSetupNotification = @"IDESourceCodeEditorDidFinishSetup";
 
 NSString *const SCXcodeMinimapShouldDisplayChangeNotification = @"SCXcodeMinimapShouldDisplayChangeNotification";
 NSString *const SCXcodeMinimapShouldDisplayKey = @"SCXcodeMinimapShouldDisplayKey";
-
-NSString *const SCXcodeMinimapZoomLevelChangeNotification = @"SCXcodeMinimapZoomLevelChangeNotification";
-NSString *const SCXcodeMinimapZoomLevelKey = @"SCXcodeMinimapZoomLevelKey";
 
 NSString *const SCXcodeMinimapHighlightBreakpointsChangeNotification = @"SCXcodeMinimapHighlightBreakpointsChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightBreakpointsKey = @"SCXcodeMinimapShouldHighlightBreakpointsKey";
@@ -66,6 +65,12 @@ NSString *const kHideEditorScrollerMenuItemTitle = @"Hide editor scroller";
 NSString *const kThemeMenuItemTitle = @"Theme";
 NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 
+@interface SCXcodeMinimap() <SCXcodeMinimapSplitViewCollapseProtocol>
+
+@property (strong, nonatomic) NSMenuItem *showHideMinimapItem;
+
+@end
+
 @implementation SCXcodeMinimap
 
 + (void)pluginDidLoad:(NSBundle *)plugin
@@ -94,8 +99,7 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 
 - (void)registerUserDefaults
 {
-	NSDictionary *userDefaults = @{SCXcodeMinimapZoomLevelKey                     : @(0.1f),
-								   SCXcodeMinimapShouldDisplayKey                 : @(YES),
+	NSDictionary *userDefaults = @{SCXcodeMinimapShouldDisplayKey                 : @(YES),
 								   SCXcodeMinimapShouldHighlightBreakpointsKey    : @(YES),
 								   SCXcodeMinimapShouldHighlightIssuesKey         : @(YES),
 								   SCXcodeMinimapShouldHighlightSelectedSymbolKey : @(YES),
@@ -129,33 +133,11 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		
 		[minimapMenu addItem:[NSMenuItem separatorItem]];
 		
-		NSView *sizeView = [[NSView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 225.0f, 20.0f)];
-		[sizeView setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
-		
-		NSTextField *sizeViewTitleLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(20.0f, 0.0f, 50.0f, 20.0f)];
-		[sizeViewTitleLabel setStringValue:kSizeMenuItemTitle];
-		[sizeViewTitleLabel setFont:[NSFont systemFontOfSize:14]];
-		[sizeViewTitleLabel setBezeled:NO];
-		[sizeViewTitleLabel setDrawsBackground:NO];
-		[sizeViewTitleLabel setEditable:NO];
-		[sizeViewTitleLabel setSelectable:NO];
-		[sizeView addSubview:sizeViewTitleLabel];
-		
-		NSSlider *sizeSlider = [[NSSlider alloc] initWithFrame:CGRectMake(60.0f, 0.0f, 156.0f, 20.0f)];
-		[sizeSlider setMaxValue:0.35f];
-		[sizeSlider setMinValue:0.05f];
-		[sizeSlider setTarget:self];
-		[sizeSlider setAction:@selector(onSizeSliderValueChanged:)];
-		[sizeSlider setDoubleValue:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue]];
-		[sizeView addSubview:sizeSlider];
-		
-		NSMenuItem *minimapSizeItem = [[NSMenuItem alloc] init];
-		[minimapSizeItem setView:sizeView];
-		[minimapMenu addItem:minimapSizeItem];
-		
 		BOOL shouldDisplayMinimap = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue];
 		[showHideMinimapItem setTitle:(shouldDisplayMinimap ? kHideMinimapMenuItemTitle : kShowMinimapMenuItemTitle)];
 		
+        self.showHideMinimapItem = showHideMinimapItem;
+        
 		[minimapMenu addItem:[NSMenuItem separatorItem]];
 	}
 	
@@ -372,17 +354,6 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapThemeChangeNotification object:nil];
 }
 
-- (void)onSizeSliderValueChanged:(NSSlider *)sender
-{
-	NSEvent *event = [[NSApplication sharedApplication] currentEvent];
-	if(event.type != NSLeftMouseUp) {
-		return;
-	}
-	
-	[[NSUserDefaults standardUserDefaults] setObject:@(sender.doubleValue) forKey:SCXcodeMinimapZoomLevelKey];
-	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapZoomLevelChangeNotification object:nil];
-}
-
 #pragma mark - Xcode Notification
 
 - (void)onDidFinishSetup:(NSNotification*)sender
@@ -397,8 +368,34 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[editor.scrollView setAutoresizingMask:NSViewMaxXMargin | NSViewMaxYMargin | NSViewWidthSizable | NSViewHeightSizable];
 	[editor.containerView setAutoresizingMask:NSViewMaxXMargin | NSViewMaxYMargin | NSViewWidthSizable | NSViewHeightSizable];
 	
+    
+    DVTSourceTextView *sourceTextScrollView = [[editor.containerView subviews] lastObject];
+    
+    SCXcodeMinimapSplitView *splitView = [[SCXcodeMinimapSplitView alloc] initWithFrame:editor.view.bounds];
+    splitView.vertical = YES;
+    splitView.dividerStyle = NSSplitViewDividerStyleThin;
+    splitView.collapseDelegate = self;
+    
+    [splitView setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
+    [splitView addSubview:sourceTextScrollView];
+
+    
 	SCXcodeMinimapView *minimapView = [[SCXcodeMinimapView alloc] initWithEditor:editor];
-	[editor.containerView addSubview:minimapView];
+    [splitView addSubview:minimapView];
+    
+    [editor.containerView addSubview:splitView];
+}
+
+#pragma mark - SCXcodeMinimapSplitViewCollapseProtocol
+
+- (void)minimapSplitViewDidCollapse
+{
+    [self toggleMinimap:self.showHideMinimapItem];
+}
+
+- (void)minimapSplitViewDidExpand
+{
+    [self toggleMinimap:self.showHideMinimapItem];
 }
 
 @end
