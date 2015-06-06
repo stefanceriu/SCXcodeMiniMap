@@ -23,6 +23,9 @@ extern NSString *const SCXcodeMinimapShouldHighlightIssuesKey;
 extern NSString *const SCXcodeMinimapHighlightSelectedSymbolChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightSelectedSymbolKey;
 
+extern NSString *const SCXcodeMinimapHighlightSearchResultsChangeNotification;
+extern NSString *const SCXcodeMinimapShouldHighlightSearchResultsKey;
+
 extern NSString *const SCXcodeMinimapHighlightCommentsChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHighlightCommentsKey;
 
@@ -34,6 +37,9 @@ extern NSString *const SCXcodeMinimapShouldHighlightEditorKey;
 
 extern NSString *const SCXcodeMinimapHideEditorScrollerChangeNotification;
 extern NSString *const SCXcodeMinimapShouldHideEditorScrollerKey;
+
+extern NSString *const SCXcodeMinimapAutohideChangeNotification;
+extern NSString *const SCXcodeMinimapShouldAutohideKey;
 
 extern NSString *const SCXcodeMinimapThemeChangeNotification;
 extern NSString *const SCXcodeMinimapThemeKey;

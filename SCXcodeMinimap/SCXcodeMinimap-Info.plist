@@ -38,10 +38,12 @@
 		<string>E969541F-E6F9-4D25-8158-72DC3545A6C6</string>
 		<string>8DC44374-2B35-4C57-A6FE-2AD66A36AAD9</string>
 	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2013 Stefan Ceriu. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
-	<string></string>
+	<string>SCXcodeMinimap</string>
 	<key>XC4Compatible</key>
 	<true/>
 	<key>XCGCReady</key>

@@ -27,6 +27,9 @@
 
 @property (nonatomic, strong) NSColor *highlightedSymbolBackgroundColor;
 
+@property (nonatomic, strong) NSColor *searchResultForegroundColor;
+@property (nonatomic, strong) NSColor *searchResultBackgroundColor;
+
 @property (nonatomic, strong) DVTFontAndColorTheme *dvtTheme;
 
 @end

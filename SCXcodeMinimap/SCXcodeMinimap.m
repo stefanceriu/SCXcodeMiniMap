@@ -32,6 +32,9 @@ NSString *const SCXcodeMinimapShouldHighlightIssuesKey = @"SCXcodeMinimapShouldH
 NSString *const SCXcodeMinimapHighlightSelectedSymbolChangeNotification = @"SCXcodeMinimapHighlightSelectedSymbolChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightSelectedSymbolKey = @"SCXcodeMinimapShouldHighlightSelectedSymbolKey";
 
+NSString *const SCXcodeMinimapHighlightSearchResultsChangeNotification = @"SCXcodeMinimapHighlightSearchResultsChangeNotification";
+NSString *const SCXcodeMinimapShouldHighlightSearchResultsKey = @"SCXcodeMinimapShouldHighlightSearchResultsKey";
+
 NSString *const SCXcodeMinimapHighlightCommentsChangeNotification = @"SCXcodeMinimapHighlightCommentsChangeNotification";
 NSString *const SCXcodeMinimapShouldHighlightCommentsKey  = @"SCXcodeMinimapShouldHighlightCommentsKey";
 
@@ -43,6 +46,9 @@ NSString *const SCXcodeMinimapShouldHighlightEditorKey = @"SCXcodeMinimapShouldH
 
 NSString *const SCXcodeMinimapHideEditorScrollerChangeNotification = @"SCXcodeMinimapHideEditorScrollerChangeNotification";
 NSString *const SCXcodeMinimapShouldHideEditorScrollerKey  = @"SCXcodeMinimapShouldHideEditorScrollerKey";
+
+NSString *const SCXcodeMinimapAutohideChangeNotification = @"SCXcodeMinimapAutohideChangeNotification";
+NSString *const SCXcodeMinimapShouldAutohideKey = @"SCXcodeMinimapShouldAutohideKey";
 
 NSString *const SCXcodeMinimapThemeChangeNotification = @"SCXcodeMinimapThemeChangeNotification";
 NSString *const SCXcodeMinimapThemeKey  = @"SCXcodeMinimapThemeKey";
@@ -58,10 +64,12 @@ NSString *const kSizeMenuItemTitle = @"Size";
 NSString *const kHighlightBreakpointsMenuItemTitle = @"Highlight breakpoints";
 NSString *const kHighlightIssuesMenuItemTitle = @"Highlight issues";
 NSString *const kHighlightSelectedSymbolMenuItemTitle = @"Highlight selected symbol";
+NSString *const kHighlightSearchResultsMenuItemTitle = @"Highlight search results";
 NSString *const kHighlightCommentsMenuItemTitle = @"Highlight comments";
 NSString *const kHighlightPreprocessorMenuItemTitle = @"Highlight preprocessor";
 NSString *const kHighlightEditorMenuItemTitle = @"Highlight main editor";
 NSString *const kHideEditorScrollerMenuItemTitle = @"Hide editor scroller";
+NSString *const kAutohideMenuItemTitle = @"Autohide";
 
 NSString *const kThemeMenuItemTitle = @"Theme";
 NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
@@ -99,6 +107,7 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 								   SCXcodeMinimapShouldHighlightBreakpointsKey    : @(YES),
 								   SCXcodeMinimapShouldHighlightIssuesKey         : @(YES),
 								   SCXcodeMinimapShouldHighlightSelectedSymbolKey : @(YES),
+								   SCXcodeMinimapShouldHighlightSearchResultsKey  : @(YES),
 								   SCXcodeMinimapShouldHighlightCommentsKey       : @(YES),
 								   SCXcodeMinimapShouldHighlightPreprocessorKey   : @(YES)};
 	
@@ -187,6 +196,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		[highlightSelectedSymbolMenuItem setState:(selectedSymbolHighlightingEnabled ? NSOnState : NSOffState)];
 		
 		
+		NSMenuItem *highlightSearchResultsMenuItem = [[NSMenuItem alloc] initWithTitle:kHighlightSearchResultsMenuItemTitle
+																				action:@selector(toggleSearchResultsHighlighting:) keyEquivalent:@""];
+		[highlightSearchResultsMenuItem setTarget:self];
+		[minimapMenu addItem:highlightSearchResultsMenuItem];
+		
+		BOOL searchResultsHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightSearchResultsKey] boolValue];
+		[highlightSearchResultsMenuItem setState:(searchResultsHighlightingEnabled ? NSOnState : NSOffState)];
+		
+		
 		NSMenuItem *highlightCommentsMenuItem = [[NSMenuItem alloc] initWithTitle:kHighlightCommentsMenuItemTitle
 																		   action:@selector(toggleCommentsHighlighting:) keyEquivalent:@""];
 		[highlightCommentsMenuItem setTarget:self];
@@ -221,6 +239,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 		
 		BOOL shouldHideEditorScroller = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHideEditorScrollerKey] boolValue];
 		[hideEditorScrollerMenuItem setState:(shouldHideEditorScroller ? NSOnState : NSOffState)];
+		
+		
+		NSMenuItem *autohideMenuItem = [[NSMenuItem alloc] initWithTitle:kAutohideMenuItemTitle
+																  action:@selector(toggleAutohide:) keyEquivalent:@""];
+		[autohideMenuItem setTarget:self];
+		[minimapMenu addItem:autohideMenuItem];
+		
+		BOOL shouldAutohide = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldAutohideKey] boolValue];
+		[autohideMenuItem setState:(shouldAutohide ? NSOnState : NSOffState)];
 		
 		
 		[minimapMenu addItem:[NSMenuItem separatorItem]];
@@ -312,6 +339,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapHighlightSelectedSymbolChangeNotification object:nil];
 }
 
+- (void)toggleSearchResultsHighlighting:(NSMenuItem *)sender
+{
+	BOOL searchResultsHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightSearchResultsKey] boolValue];
+	
+	[sender setState:(searchResultsHighlightingEnabled ? NSOffState : NSOnState)];
+	[[NSUserDefaults standardUserDefaults] setObject:@(!searchResultsHighlightingEnabled) forKey:SCXcodeMinimapShouldHighlightSearchResultsKey];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapHighlightSearchResultsChangeNotification object:nil];
+}
+
 - (void)toggleCommentsHighlighting:(NSMenuItem *)sender
 {
 	BOOL commentsHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightCommentsKey] boolValue];
@@ -346,6 +382,15 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 	[sender setState:(shouldHideEditorScroller ? NSOffState : NSOnState)];
 	[[NSUserDefaults standardUserDefaults] setObject:@(!shouldHideEditorScroller) forKey:SCXcodeMinimapShouldHideEditorScrollerKey];
 	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapHideEditorScrollerChangeNotification object:nil];
+}
+
+- (void)toggleAutohide:(NSMenuItem *)sender
+{
+	BOOL shouldAutohide = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldAutohideKey] boolValue];
+	
+	[sender setState:(shouldAutohide ? NSOffState : NSOnState)];
+	[[NSUserDefaults standardUserDefaults] setObject:@(!shouldAutohide) forKey:SCXcodeMinimapShouldAutohideKey];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SCXcodeMinimapAutohideChangeNotification object:nil];
 }
 
 - (void)setMinimapTheme:(NSMenuItem *)sender

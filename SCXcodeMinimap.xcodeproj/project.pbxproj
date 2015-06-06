@@ -20,6 +20,7 @@
 		18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */; };
 		18C999FF1A98B04C0008AF54 /* DebuggerUI in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C999FE1A98B04C0008AF54 /* DebuggerUI */; };
 		18D6AD111A8F727B0082CB3F /* IDEFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */; };
+		18DE25ED1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18DE25EC1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m */; };
 		18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */; };
 		18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */; };
 		18ECB8111B1322A300EE4D82 /* SCXcodeMinimapCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */; };
@@ -82,6 +83,9 @@
 		18C999FE1A98B04C0008AF54 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = /Applications/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = "<group>"; };
 		18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBreakpoint.h; sourceTree = "<group>"; };
 		18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEFoundation.framework; sourceTree = "<group>"; };
+		18DE25EB1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IDESourceCodeEditor+SCXcodeMinimap.h"; sourceTree = "<group>"; };
+		18DE25EC1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IDESourceCodeEditor+SCXcodeMinimap.m"; sourceTree = "<group>"; };
+		18DE6AFB1B203D070042615D /* DVTFindResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTFindResult.h; sourceTree = "<group>"; };
 		18E577F61B119BF200421483 /* IDEBuildIssueAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueAnnotation.h; sourceTree = "<group>"; };
 		18E577F71B119C1000421483 /* IDEBuildIssueWarningAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueWarningAnnotation.h; sourceTree = "<group>"; };
 		18E577F81B119C3F00421483 /* IDEBuildIssueErrorAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBuildIssueErrorAnnotation.h; sourceTree = "<group>"; };
@@ -134,6 +138,7 @@
 				18C999FD1A98AF580008AF54 /* DVTAnnotationProvider.h */,
 				184C11711A740F8A002A7C65 /* DVTCompletingTextView.h */,
 				184407651A8F7B3E00C530CF /* DVTDocumentLocation.h */,
+				18DE6AFB1B203D070042615D /* DVTFindResult.h */,
 				18C8F0331A7ECB1300C7A76F /* DVTFoldingLayoutManager.h */,
 				18269AD51A8F2F4300953B3D /* DVTFoldingManager.h */,
 				184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */,
@@ -217,6 +222,8 @@
 				184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */,
 				1889464B1B11DDEE0036175B /* SCXcodeMinimapTheme.h */,
 				1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */,
+				18ECB80F1B1322A300EE4D82 /* SCXcodeMinimapCommon.h */,
+				18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */,
 				18C2EA5A1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.h */,
 				18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */,
 				188FCC881A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.h */,
@@ -225,10 +232,10 @@
 				18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */,
 				18E577FA1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.h */,
 				18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */,
+				18DE25EB1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.h */,
+				18DE25EC1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m */,
 				1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */,
 				1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */,
-				18ECB80F1B1322A300EE4D82 /* SCXcodeMinimapCommon.h */,
-				18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */,
 				18FE09BC1707639E00118FEB /* Supporting Files */,
 				184C11701A740F8A002A7C65 /* Xcode Headers */,
 			);
@@ -311,6 +318,7 @@
 				184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */,
 				184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */,
 				18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */,
+				18DE25ED1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m in Sources */,
 				1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */,
 				18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */,
 				1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */,

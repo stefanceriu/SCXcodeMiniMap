@@ -17,15 +17,6 @@
 	sc_swizzleInstanceMethod(self, @selector(_displayAutoHighlightTokens), @selector(sc_displayAutoHighlightTokens));
 }
 
-- (void)sc_displayAutoHighlightTokens
-{
-	[self sc_displayAutoHighlightTokens];
-	
-	if([self.minimapDelegate respondsToSelector:@selector(layoutManagerDidRequestSelectedSymbolInstancesHighlight:)]) {
-		[self.minimapDelegate layoutManagerDidRequestSelectedSymbolInstancesHighlight:self];
-	}
-}
-
 - (id<DVTLayoutManagerMinimapDelegate>)minimapDelegate
 {
 	return objc_getAssociatedObject(self, @selector(minimapDelegate));
@@ -34,6 +25,15 @@
 - (void)setMinimapDelegate:(id<DVTLayoutManagerMinimapDelegate>)minimapDelegate
 {
 	objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
+}
+
+- (void)sc_displayAutoHighlightTokens
+{
+	[self sc_displayAutoHighlightTokens];
+	
+	if([self.minimapDelegate respondsToSelector:@selector(layoutManagerDidRequestSelectedSymbolInstancesHighlight:)]) {
+		[self.minimapDelegate layoutManagerDidRequestSelectedSymbolInstancesHighlight:self];
+	}
 }
 
 @end

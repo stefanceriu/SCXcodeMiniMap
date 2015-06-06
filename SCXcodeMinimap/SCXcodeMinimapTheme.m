@@ -21,6 +21,8 @@ static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.prepro
 {
 	SCXcodeMinimapTheme *minimapTheme = [[SCXcodeMinimapTheme alloc] init];
 	
+	minimapTheme.dvtTheme = theme;
+	
 	minimapTheme.backgroundColor = [theme.sourceTextBackgroundColor shadowWithLevel:kBackgroundColorShadowLevel];
 	
 	minimapTheme.selectionColor = [NSColor colorWithCalibratedRed:(1.0f - [minimapTheme.backgroundColor redComponent])
@@ -28,6 +30,8 @@ static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.prepro
 															 blue:(1.0f - [minimapTheme.backgroundColor blueComponent])
 															alpha:0.2f];
 	
+	minimapTheme.sourcePlainTextColor = theme.sourcePlainTextColor;
+	minimapTheme.sourceTextBackgroundColor = theme.sourceTextBackgroundColor;
 	
 	DVTPointerArray *colors = [theme syntaxColorsByNodeType];
 	minimapTheme.commentBackgroundColor = [colors pointerAtIndex:[DVTSourceNodeTypes registerNodeTypeNamed:kXcodeSyntaxCommentNodeName]];
@@ -48,11 +52,10 @@ static NSString * const kXcodeSyntaxPreprocessorNodeName = @"xcode.syntax.prepro
 	
 	minimapTheme.buildIssueWarningBackgroundColor = [NSColor colorWithRed:1.0f green:1.0f blue:0.0f alpha:0.75f];
 	minimapTheme.buildIssueErrorBackgroundColor = [NSColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75f];
-	minimapTheme.highlightedSymbolBackgroundColor = [NSColor colorWithRed:0.0f green:1.0f blue:0.0f alpha:0.75f];
+	minimapTheme.highlightedSymbolBackgroundColor = [NSColor colorWithRed:255.0f/255.0f green:29.0f/255.0f blue:21.0f/255.0f alpha:0.75f];
 	
-	minimapTheme.sourcePlainTextColor = theme.sourcePlainTextColor;
-	minimapTheme.sourceTextBackgroundColor = theme.sourceTextBackgroundColor;
-	minimapTheme.dvtTheme = theme;
+	minimapTheme.searchResultForegroundColor = [minimapTheme.sourcePlainTextColor colorWithAlphaComponent:0.25f];
+	minimapTheme.searchResultBackgroundColor = [NSColor colorWithRed:255.0f/255.0f green:29.0f/255.0f blue:21.0f/255.0f alpha:0.75f];
 	
 	return minimapTheme;
 }
