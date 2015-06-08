@@ -30,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		180790681B263C200026A519 /* DVTFoldingManagerDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DVTFoldingManagerDelegate-Protocol.h"; sourceTree = "<group>"; };
+		180790691B263CF60026A519 /* DVTTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTTextView.h; sourceTree = "<group>"; };
 		1809FF8D1AED1A730058D946 /* NSScroller+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScroller+SCXcodeMinimap.h"; sourceTree = "<group>"; };
 		1809FF8E1AED1A730058D946 /* NSScroller+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScroller+SCXcodeMinimap.m"; sourceTree = "<group>"; };
 		180F0C651A98AE1500E97254 /* DVTAnnotationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationManager.h; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				18DE6AFB1B203D070042615D /* DVTFindResult.h */,
 				18C8F0331A7ECB1300C7A76F /* DVTFoldingLayoutManager.h */,
 				18269AD51A8F2F4300953B3D /* DVTFoldingManager.h */,
+				180790681B263C200026A519 /* DVTFoldingManagerDelegate-Protocol.h */,
 				184C11721A740F8A002A7C65 /* DVTFontAndColorTheme.h */,
 				184C11731A740F8A002A7C65 /* DVTInvalidation-Protocol.h */,
 				18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */,
@@ -156,6 +159,7 @@
 				188D38771A98B3AC005C7F85 /* DVTTextAnnotation.h */,
 				184407641A8F7B1900C530CF /* DVTTextDocumentLocation.h */,
 				184C117B1A740F8A002A7C65 /* DVTTextStorage.h */,
+				180790691B263CF60026A519 /* DVTTextView.h */,
 				184C117C1A740F8A002A7C65 /* DVTViewController.h */,
 				18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */,
 				18E577F61B119BF200421483 /* IDEBuildIssueAnnotation.h */,

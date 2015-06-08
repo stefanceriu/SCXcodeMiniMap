@@ -120,7 +120,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.editor setSearchResultsDelegate:self];
 		
 		self.editorTextView = editor.textView;
-		
+
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
@@ -145,7 +145,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.textView setTextStorage:storage];
 		[storage addLayoutManager:self.editorTextView.layoutManager];
 		
-		[self.editorTextView.foldingManager setDelegate:self];
+		[self.editorTextView.layoutManager.foldingManager setDelegate:self];
 		
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
@@ -157,7 +157,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		
 		[self updateTheme];
 		
-		for(NSDictionary *providerDictionary in self.editorTextView.annotationManager.annotationProviders) {
+		for(NSDictionary *providerDictionary in [self.editorTextView.annotationManager valueForKeyPath:@"_annotationProviders"]) {
 			
 			id annotationProvider = providerDictionary[@"annotationProviderObject"];
 			if([annotationProvider isKindOfClass:[DBGBreakpointAnnotationProvider class]]) {
@@ -439,7 +439,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 {
 	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didFoldRange:range];
 	
-	[self.textView.foldingManager foldRange:range];
+	[self.textView.layoutManager.foldingManager foldRange:range];
 	
 	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
 	[self updateOffset];
@@ -449,7 +449,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 {
 	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didUnfoldRange:range];
 	
-	[self.textView.foldingManager unfoldRange:range];
+	[self.textView.layoutManager.foldingManager unfoldRange:range];
 	
 	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
 	[self updateOffset];
