@@ -327,7 +327,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	if(self.searchResults.count) {
 		
 		NSRange closestRange = NSMakeRange(self.textView.string.length, 0);
-		for(NSDictionary *searchResultDictionary in self.searchResults) {
+		for(NSDictionary *searchResultDictionary in self.searchResults.copy) {
 			NSRange range = [searchResultDictionary[kAnnotationRangeKey] rangeValue];
 			
 			if(NSLocationInRange(charIndex, range)) {
@@ -754,27 +754,25 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)invalidateMinimap
 {
-	void (^performFullRangeInvalidation)() = ^{
+	void (^performRangeInvalidation)() = ^{
 		
 		self.shouldAllowFullSyntaxHighlight = YES;
 		
-		NSRange fullTextRange = NSMakeRange(0, self.textView.string.length);
-		
-		[self.textView.layoutManager invalidateDisplayForCharacterRange:fullTextRange];
+		[self.textView.layoutManager invalidateDisplayForCharacterRange:[self.textView visibleCharacterRange]];
 		
 		BOOL editorHighlightingEnabled = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldHighlightEditorKey] boolValue];
 		if(editorHighlightingEnabled) {
-			[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:fullTextRange];
+			[self.editorTextView.layoutManager invalidateDisplayForCharacterRange:[self.editorTextView visibleCharacterRange]];
 		}
 	};
 	
 	if(self.shouldUpdateBreakpointsAndIssues) {
 		self.shouldUpdateBreakpointsAndIssues = NO;
 		[self updateBreakpointsAndIssuesWithCompletion:^{
-			performFullRangeInvalidation();
+			performRangeInvalidation();
 		}];
 	} else {
-		performFullRangeInvalidation();
+		performRangeInvalidation();
 	}
 }
 
