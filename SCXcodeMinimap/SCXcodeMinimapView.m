@@ -324,6 +324,12 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	SCXcodeMinimapTheme *theme = ([layoutManager isEqualTo:self.textView.layoutManager] ? self.minimapTheme : self.editorTheme);
 	
+	// Delay invalidation for performance reasons and attempt a full range invalidation later
+	if(!self.shouldAllowFullSyntaxHighlight && [layoutManager isEqual:self.textView.layoutManager]) {
+		[self delayedInvalidateMinimap];
+		return @{NSForegroundColorAttributeName : theme.sourcePlainTextColor};
+	}
+	
 	if(self.searchResults.count) {
 		
 		NSRange closestRange = NSMakeRange(self.textView.string.length, 0);
@@ -343,12 +349,6 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		
 		*effectiveRange = NSMakeRange(charIndex, closestRange.location - charIndex);
 		return @{NSForegroundColorAttributeName : theme.searchResultForegroundColor};
-	}
-	
-	// Delay invalidation for performance reasons and attempt a full range invalidation later
-	if(!self.shouldAllowFullSyntaxHighlight && [layoutManager isEqual:self.textView.layoutManager]) {
-		[self delayedInvalidateMinimap];
-		return @{NSForegroundColorAttributeName : theme.sourcePlainTextColor};
 	}
 	
 	if(self.shouldAllowFullSyntaxHighlight) {
