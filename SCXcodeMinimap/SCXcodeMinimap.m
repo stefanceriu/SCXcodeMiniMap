@@ -78,11 +78,14 @@ NSString *const kEditorThemeMenuItemTitle = @"Editor Theme";
 
 + (void)pluginDidLoad:(NSBundle *)plugin
 {
-	static SCXcodeMinimap *sharedMinimap = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		sharedMinimap = [[self alloc] init];
-	});
+	BOOL isApplicationXcode = [[[NSBundle mainBundle] infoDictionary][@"CFBundleName"] isEqual:@"Xcode"];
+	if (isApplicationXcode) {
+		static SCXcodeMinimap *sharedMinimap = nil;
+		static dispatch_once_t onceToken;
+		dispatch_once(&onceToken, ^{
+			sharedMinimap = [[self alloc] init];
+		});
+	}
 }
 
 - (id)init
