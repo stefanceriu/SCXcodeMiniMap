@@ -139,11 +139,13 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		
 		self.textView = [[DVTSourceTextView alloc] init];
 		
-		// The editor's layout manager needs to be the last one, otherwise live issues don't work
 		NSTextStorage *storage = self.editorTextView.textStorage;
-		[storage removeLayoutManager:self.editorTextView.layoutManager];
 		[self.textView setTextStorage:storage];
-		[storage addLayoutManager:self.editorTextView.layoutManager];
+		
+		// The editor's layout manager needs to be the last one, otherwise live issues don't work
+		DVTLayoutManager *layoutManager = self.editorTextView.layoutManager;
+		[(NSMutableArray *)storage.layoutManagers removeObject:layoutManager];
+		[(NSMutableArray *)storage.layoutManagers addObject:layoutManager];
 		
 		[self.editorTextView.layoutManager.foldingManager setDelegate:self];
 		
