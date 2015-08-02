@@ -211,8 +211,7 @@
 				8742532217307161001C947C /* QuartzCore.framework */,
 			);
 			name = Frameworks;
-			path = "../../../../../../../../../Users/Edward/Library/Application Support/Alcatraz/Plug-ins/SCXcodeMinimap";
-			sourceTree = SDKROOT;
+			sourceTree = "<group>";
 		};
 		18FE09BB1707639E00118FEB /* SCXcodeMinimap */ = {
 			isa = PBXGroup;
@@ -412,8 +411,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SYSTEM_DEVELOPER_DIR)/../Plugins/**",
-					"$(SYSTEM_APPS_DIR)/Xcode-6.4.0.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS",
-					"$(SYSTEM_APPS_DIR)/Xcode-6.4.0.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xcplugin;
@@ -442,8 +439,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SYSTEM_DEVELOPER_DIR)/../Plugins/**",
-					"$(SYSTEM_APPS_DIR)/Xcode-6.4.0.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS",
-					"$(SYSTEM_APPS_DIR)/Xcode-6.4.0.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xcplugin;
