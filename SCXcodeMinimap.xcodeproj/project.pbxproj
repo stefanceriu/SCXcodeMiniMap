@@ -11,21 +11,21 @@
 		1819E4291AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1819E4281AA1FB5900C344F2 /* SCXcodeMinimapScrollView.m */; };
 		184C11861A740F97002A7C65 /* SCXcodeMinimapSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */; };
 		184C11871A740F97002A7C65 /* SCXcodeMinimapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */; };
-		184C118F1A741136002A7C65 /* DVTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 184C118E1A741136002A7C65 /* DVTFoundation.framework */; };
-		1876135F1A77A74300974BE1 /* IDEKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1876135E1A77A74300974BE1 /* IDEKit.framework */; };
-		1883080A1A7411830005DF40 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 188308091A7411830005DF40 /* DVTKit.framework */; };
-		188308101A7411A70005DF40 /* IDESourceEditor in Frameworks */ = {isa = PBXBuildFile; fileRef = 1883080F1A7411A70005DF40 /* IDESourceEditor */; };
 		1889464D1B11DDEE0036175B /* SCXcodeMinimapTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = 1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */; };
 		188FCC8A1A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 188FCC891A98B57A0026F529 /* DBGBreakpointAnnotationProvider+SCXcodeMinimap.m */; };
 		18C2EA5C1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18C2EA5B1A9C7F8A002CEB20 /* DBGBreakpointAnnotation+SCXcodeMinimap.m */; };
-		18C999FF1A98B04C0008AF54 /* DebuggerUI in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C999FE1A98B04C0008AF54 /* DebuggerUI */; };
-		18D6AD111A8F727B0082CB3F /* IDEFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */; };
 		18DE25ED1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18DE25EC1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m */; };
 		18E577FC1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18E577FB1B119F6600421483 /* IDEIssueAnnotationProvider+SCXcodeMinimap.m */; };
 		18ECB80E1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB80D1B13226500EE4D82 /* DVTLayoutManager+SCXcodeMinimap.m */; };
 		18ECB8111B1322A300EE4D82 /* SCXcodeMinimapCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 18ECB8101B1322A300EE4D82 /* SCXcodeMinimapCommon.m */; };
 		18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FE09B51707639E00118FEB /* Cocoa.framework */; };
 		18FE09C9170764E400118FEB /* SCXcodeMinimap.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FE09C8170764E400118FEB /* SCXcodeMinimap.m */; };
+		2BDF45EF1B6EA50300EAC683 /* DVTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45EE1B6EA50300EAC683 /* DVTFoundation.framework */; };
+		2BDF45F11B6EA51000EAC683 /* DVTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45F01B6EA51000EAC683 /* DVTKit.framework */; };
+		2BDF45F31B6EA54600EAC683 /* IDEFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45F21B6EA54600EAC683 /* IDEFoundation.framework */; };
+		2BDF45F51B6EA54E00EAC683 /* IDEKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45F41B6EA54E00EAC683 /* IDEKit.framework */; };
+		2BDF45FB1B6EAB5600EAC683 /* IDESourceEditor in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45FA1B6EAB5600EAC683 /* IDESourceEditor */; };
+		2BDF45FD1B6EAB8400EAC683 /* DebuggerUI in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDF45FC1B6EAB8400EAC683 /* DebuggerUI */; };
 		8742532317307161001C947C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8742532217307161001C947C /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -62,12 +62,8 @@
 		184C11821A740F97002A7C65 /* SCXcodeMinimapSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapSelectionView.m; sourceTree = "<group>"; };
 		184C11831A740F97002A7C65 /* SCXcodeMinimapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapView.h; sourceTree = "<group>"; };
 		184C11841A740F97002A7C65 /* SCXcodeMinimapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SCXcodeMinimapView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		184C118E1A741136002A7C65 /* DVTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTFoundation.framework; path = /Applications/Xcode.app/Contents/SharedFrameworks/DVTFoundation.framework; sourceTree = "<group>"; };
 		1876135D1A77A69F00974BE1 /* IDEEditorDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IDEEditorDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		1876135E1A77A74300974BE1 /* IDEKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEKit.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEKit.framework; sourceTree = "<group>"; };
 		187EEF6A1A8F78C400E4EF39 /* IDEFileBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEFileBreakpoint.h; sourceTree = "<group>"; };
-		188308091A7411830005DF40 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = /Applications/Xcode.app/Contents/SharedFrameworks/DVTKit.framework; sourceTree = "<group>"; };
-		1883080F1A7411A70005DF40 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = /Applications/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = "<group>"; };
 		1889464B1B11DDEE0036175B /* SCXcodeMinimapTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimapTheme.h; sourceTree = "<group>"; };
 		1889464C1B11DDEE0036175B /* SCXcodeMinimapTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimapTheme.m; sourceTree = "<group>"; };
 		188D38761A98B26E005C7F85 /* DBGBreakpointAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBGBreakpointAnnotation.h; sourceTree = "<group>"; };
@@ -82,9 +78,7 @@
 		18C8F0341A7ECB1300C7A76F /* DVTLayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTLayoutManager.h; sourceTree = "<group>"; };
 		18C999FC1A98AF370008AF54 /* DBGBreakpointAnnotationProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBGBreakpointAnnotationProvider.h; sourceTree = "<group>"; };
 		18C999FD1A98AF580008AF54 /* DVTAnnotationProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DVTAnnotationProvider.h; sourceTree = "<group>"; };
-		18C999FE1A98B04C0008AF54 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = /Applications/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = "<group>"; };
 		18CA02B61A9D0DF1001C5CE1 /* IDEBreakpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEBreakpoint.h; sourceTree = "<group>"; };
-		18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = /Applications/Xcode.app/Contents/Frameworks/IDEFoundation.framework; sourceTree = "<group>"; };
 		18DE25EB1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IDESourceCodeEditor+SCXcodeMinimap.h"; sourceTree = "<group>"; };
 		18DE25EC1B202ACA00F3D380 /* IDESourceCodeEditor+SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IDESourceCodeEditor+SCXcodeMinimap.m"; sourceTree = "<group>"; };
 		18DE6AFB1B203D070042615D /* DVTFindResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTFindResult.h; sourceTree = "<group>"; };
@@ -108,6 +102,12 @@
 		18FE09C7170764E400118FEB /* SCXcodeMinimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCXcodeMinimap.h; sourceTree = "<group>"; };
 		18FE09C8170764E400118FEB /* SCXcodeMinimap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCXcodeMinimap.m; sourceTree = "<group>"; };
 		18FEFA8C1A782D8600DC98C5 /* IDEFileTextSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDEFileTextSettings.h; sourceTree = "<group>"; };
+		2BDF45EE1B6EA50300EAC683 /* DVTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTFoundation.framework; path = ../SharedFrameworks/DVTFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		2BDF45F01B6EA51000EAC683 /* DVTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DVTKit.framework; path = ../SharedFrameworks/DVTKit.framework; sourceTree = DEVELOPER_DIR; };
+		2BDF45F21B6EA54600EAC683 /* IDEFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEFoundation.framework; path = ../Frameworks/IDEFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		2BDF45F41B6EA54E00EAC683 /* IDEKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEKit.framework; path = ../Frameworks/IDEKit.framework; sourceTree = DEVELOPER_DIR; };
+		2BDF45FA1B6EAB5600EAC683 /* IDESourceEditor */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IDESourceEditor; path = ../PlugIns/IDESourceEditor.ideplugin/Contents/MacOS/IDESourceEditor; sourceTree = DEVELOPER_DIR; };
+		2BDF45FC1B6EAB8400EAC683 /* DebuggerUI */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = DebuggerUI; path = ../PlugIns/DebuggerUI.ideplugin/Contents/MacOS/DebuggerUI; sourceTree = DEVELOPER_DIR; };
 		8742532217307161001C947C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -116,14 +116,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				188308101A7411A70005DF40 /* IDESourceEditor in Frameworks */,
-				184C118F1A741136002A7C65 /* DVTFoundation.framework in Frameworks */,
+				2BDF45F51B6EA54E00EAC683 /* IDEKit.framework in Frameworks */,
+				2BDF45F11B6EA51000EAC683 /* DVTKit.framework in Frameworks */,
+				2BDF45EF1B6EA50300EAC683 /* DVTFoundation.framework in Frameworks */,
 				8742532317307161001C947C /* QuartzCore.framework in Frameworks */,
-				1883080A1A7411830005DF40 /* DVTKit.framework in Frameworks */,
-				1876135F1A77A74300974BE1 /* IDEKit.framework in Frameworks */,
-				18C999FF1A98B04C0008AF54 /* DebuggerUI in Frameworks */,
+				2BDF45F31B6EA54600EAC683 /* IDEFoundation.framework in Frameworks */,
+				2BDF45FD1B6EAB8400EAC683 /* DebuggerUI in Frameworks */,
+				2BDF45FB1B6EAB5600EAC683 /* IDESourceEditor in Frameworks */,
 				18FE09B61707639E00118FEB /* Cocoa.framework in Frameworks */,
-				18D6AD111A8F727B0082CB3F /* IDEFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,13 +201,13 @@
 				18FE09B81707639E00118FEB /* AppKit.framework */,
 				18FE09B51707639E00118FEB /* Cocoa.framework */,
 				18FE09B91707639E00118FEB /* CoreData.framework */,
-				18C999FE1A98B04C0008AF54 /* DebuggerUI */,
-				184C118E1A741136002A7C65 /* DVTFoundation.framework */,
-				188308091A7411830005DF40 /* DVTKit.framework */,
+				2BDF45EE1B6EA50300EAC683 /* DVTFoundation.framework */,
+				2BDF45F01B6EA51000EAC683 /* DVTKit.framework */,
 				18FE09BA1707639E00118FEB /* Foundation.framework */,
-				18D6AD101A8F727B0082CB3F /* IDEFoundation.framework */,
-				1876135E1A77A74300974BE1 /* IDEKit.framework */,
-				1883080F1A7411A70005DF40 /* IDESourceEditor */,
+				2BDF45FC1B6EAB8400EAC683 /* DebuggerUI */,
+				2BDF45F21B6EA54600EAC683 /* IDEFoundation.framework */,
+				2BDF45F41B6EA54E00EAC683 /* IDEKit.framework */,
+				2BDF45FA1B6EAB5600EAC683 /* IDESourceEditor */,
 				8742532217307161001C947C /* QuartzCore.framework */,
 			);
 			name = Frameworks;
@@ -399,9 +399,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/SharedFrameworks",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Frameworks",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/OtherFrameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../SharedFrameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../Frameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../OtherFrameworks",
 				);
 				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -410,8 +410,7 @@
 				INSTALL_PATH = "/Library/Application Support/Developer/Shared/Xcode/Plug-ins";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS",
+					"$(SYSTEM_DEVELOPER_DIR)/../Plugins/**",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xcplugin;
@@ -428,9 +427,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/SharedFrameworks",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Frameworks",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/OtherFrameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../SharedFrameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../Frameworks",
+					"$(SYSTEM_DEVELOPER_DIR)/../OtherFrameworks",
 				);
 				GCC_ENABLE_OBJC_GC = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -439,8 +438,7 @@
 				INSTALL_PATH = "/Library/Application Support/Developer/Shared/Xcode/Plug-ins";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/PlugIns/IDESourceEditor.ideplugin/Contents/MacOS",
-					"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/PlugIns/DebuggerUI.ideplugin/Contents/MacOS",
+					"$(SYSTEM_DEVELOPER_DIR)/../Plugins/**",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xcplugin;
