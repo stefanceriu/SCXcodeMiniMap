@@ -420,7 +420,13 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		}
 	}
 	
-	NSColor *foregroundColor = [[((DVTFontAndColorTheme *)theme.dvtTheme) syntaxColorsByNodeType] pointerAtIndex:nodeType];
+	DVTPointerArray *colors = [((DVTFontAndColorTheme *)theme.dvtTheme) syntaxColorsByNodeType];
+	
+	NSColor *foregroundColor = nil;
+	if(nodeType < colors.count) {
+		foregroundColor = [colors pointerAtIndex:nodeType];
+	}
+	
 	if(foregroundColor == nil) {
 		foregroundColor = theme.sourcePlainTextColor;
 	}
