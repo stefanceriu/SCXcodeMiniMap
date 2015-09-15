@@ -484,6 +484,11 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	[self invalidateHighligtedSymbols];
 }
 
+- (id) foldingTokenTypesForLayoutManager:(DVTLayoutManager *)layoutManager
+{
+	return nil;
+}
+
 #pragma mark - IDESourceCodeEditorSearchResultsDelegate
 
 - (void)sourceCodeEditorDidUpdateSearchResults:(IDESourceCodeEditor *)editor
