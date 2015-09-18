@@ -12,7 +12,9 @@
 #import "SCXcodeMinimapSelectionView.h"
 
 #import "IDESourceCodeEditor+SCXcodeMinimap.h"
-#import "IDEEditorDocument.h"
+#import "IDESourceCodeComparisonEditor.h"
+#import "IDESourceCodeDocument.h"
+#import "DVTFilePath.h"
 
 #import "DVTTextStorage.h"
 #import "DVTLayoutManager+SCXcodeMinimap.h"
@@ -39,6 +41,12 @@
 #import "IDEBuildIssueWarningAnnotation.h"
 
 #import "NSScroller+SCXcodeMinimap.h"
+
+#import "IDEWorkspaceWindowController.h"
+#import "IDEWorkspaceTabController.h"
+#import "IDEEditorArea+SCXcodeMinimap.h"
+#import "IDEEditorModeViewController.h"
+#import "IDEEditorContext.h"
 
 typedef NS_ENUM(NSUInteger, SCXcodeMinimapAnnotationType) {
 	SCXcodeMinimapAnnotationTypeUndefined,
@@ -70,9 +78,13 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
                                    DBGBreakpointAnnotationProviderDelegate,
                                    IDEIssueAnnotationProviderDelegate,
                                    DVTLayoutManagerMinimapDelegate,
-                                   IDESourceCodeEditorSearchResultsDelegate >
+                                   IDESourceCodeEditorSearchResultsDelegate,
+								   IDEEditorAreaMinimapDelegate >
 
 @property (nonatomic, weak) IDESourceCodeEditor *editor;
+
+@property (nonatomic, weak) IDEEditorArea *editorArea;
+
 @property (nonatomic, strong) DVTSourceTextView *editorTextView;
 
 @property (nonatomic, strong) SCXcodeMinimapScrollView *scrollView;
@@ -120,7 +132,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.editor setSearchResultsDelegate:self];
 		
 		self.editorTextView = editor.textView;
-
+		
 		[self setWantsLayer:YES];
 		[self setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin | NSViewWidthSizable | NSViewHeightSizable];
 		
@@ -137,7 +149,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
 		[self addSubview:self.scrollView];
 		
-		self.textView = [[DVTSourceTextView alloc] init];
+		self.textView = [[DVTSourceTextView alloc] initWithFrame:CGRectZero];
 		
 		NSTextStorage *storage = self.editorTextView.textStorage;
 		[self.textView setTextStorage:storage];
@@ -191,7 +203,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		
 		__weak typeof(self) weakSelf = self;
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapShouldDisplayChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[weakSelf setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
+			[weakSelf toggleVisibility];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapZoomLevelChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -241,7 +253,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapAutohideChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
-			[self tryShowing];
+			[self toggleVisibility];
 		}]];
 		
 		[self.notificationObservers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:SCXcodeMinimapThemeChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
@@ -268,23 +280,29 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		return;
 	}
 	
-	[self tryShowing];
+	self.editorArea = [self getEditorArea];
+	[self.editorArea setMinimapDelegate:self];
+	
+	[self toggleVisibility];
 }
 
-- (void)tryShowing
+- (void)toggleVisibility
 {
+	BOOL visible = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue];
 	BOOL shouldAutohide = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldAutohideKey] boolValue];
 	
-	if(shouldAutohide) {
-		NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
-		if(NSEqualRanges(visibleEditorRange, NSMakeRange(0, self.textView.string.length))) {
-			return;
+	if(shouldAutohide && visible) {
+		if(self.editorArea == nil || self.editorArea.editorMode) {
+			visible = NO;
+		} else {
+			NSRange visibleEditorRange = [self.editorTextView visibleCharacterRange];
+			if(NSEqualRanges(visibleEditorRange, NSMakeRange(0, self.textView.string.length))) {
+				visible = NO;
+			}
 		}
 	}
 	
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[self setVisible:[[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapShouldDisplayKey] boolValue]];
-	});
+	[self setVisible:visible];
 }
 
 #pragma mark - Show/Hide
@@ -461,6 +479,13 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	
 	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
 	[self updateOffset];
+}
+
+#pragma mark - IDEEditorAreaMinimapDelegate
+
+- (void)editorAreaDidChangeEditorMode:(IDEEditorArea *)editorArea
+{
+	[self toggleVisibility];
 }
 
 #pragma mark - DBGBreakpointAnnotationProviderDelegate
@@ -693,8 +718,11 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 - (void)updateSize
 {
 	CGFloat zoomLevel = [[[NSUserDefaults standardUserDefaults] objectForKey:SCXcodeMinimapZoomLevelKey] doubleValue];
-	
 	CGFloat minimapWidth = (self.hidden ? 0.0f : self.editor.containerView.bounds.size.width * zoomLevel);
+	
+	if(CGRectGetWidth(self.bounds) == minimapWidth) {
+		return;
+	}
 	
 	NSRect editorScrollViewFrame = self.editor.scrollView.frame;
 	editorScrollViewFrame.size.width = self.editor.scrollView.superview.frame.size.width - minimapWidth;
@@ -782,6 +810,59 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	} else {
 		performRangeInvalidation();
 	}
+}
+
+- (IDEEditorArea *)getEditorArea
+{
+	IDEWorkspaceWindowController *windowController = [IDEWorkspaceWindowController workspaceWindowControllerForWindow:self.window];
+	if(!windowController) {
+		return nil;
+	}
+	IDEWorkspaceTabController *tabController = nil;
+
+	for(IDEWorkspaceTabController *someTabController in windowController.workspaceTabControllers) {
+		
+		NSView *superview = self.superview;
+		while (superview) {
+			if([superview isEqual:someTabController.view]) {
+				tabController = someTabController;
+				break;
+			}
+			
+			superview = superview.superview;
+		}
+		
+		if(tabController) {
+			break;
+		}
+	}
+	
+	if(!tabController) {
+		return nil;
+	}
+	
+	if([tabController.editorArea.primaryEditorContext.editor isKindOfClass:[IDESourceCodeEditor class]]) {
+		
+		IDEEditorDocument *document = self.editor.sourceCodeDocument;
+		IDEEditorDocument *primaryDocument = tabController.editorArea.primaryEditorDocument;
+		IDEEditorDocument *alternateDocument = tabController.editorArea.editorModeViewController.selectedAlternateEditorContext.editor.document;
+		
+		if([document isEqualTo:primaryDocument] || [document isEqualTo:alternateDocument] ||
+		   [document.filePath.fileName isEqualToString:primaryDocument.filePath.fileName] ||
+		   [document.filePath.fileName isEqualToString:alternateDocument.filePath.fileName]) {
+			return tabController.editorArea;
+		}
+		
+	} else if([tabController.editorArea.primaryEditorContext.editor isKindOfClass:[IDESourceCodeComparisonEditor class]]) {
+		
+		IDESourceCodeComparisonEditor *editor = (IDESourceCodeComparisonEditor *)tabController.editorArea.primaryEditorContext.editor;
+		
+		if([editor.primaryDocument isEqualTo:self.editor.sourceCodeDocument] || [editor.secondaryDocument isEqualTo:self.editor.sourceCodeDocument]) {
+			return tabController.editorArea;
+		}
+	}
+	
+	return nil;
 }
 
 @end
