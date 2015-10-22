@@ -621,10 +621,6 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)updateOffset
 {
-	if (self.isHidden) {
-		return;
-	}
-	
 	[self.editorTextView.layoutManager ensureLayoutForTextContainer:self.editorTextView.textContainer];
 	
 	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
