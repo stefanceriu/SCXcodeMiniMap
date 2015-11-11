@@ -28,7 +28,7 @@ Without editor highlighting |  With editor highlighting
 ![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/selectedSymbolInstancesHighlighting.gif)
 
 #### Installation
-- Through [Alcatraz](https://github.com/supermarin/Alcatraz)
+- Through [Alcatraz](https://github.com/alcatraz/Alcatraz)
 
 - or download the sources, build the project and restart Xcode
 
