@@ -13,7 +13,7 @@ static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotat
 
 @interface IDEIssueAnnotationProvider (SCXcodeMinimap_Private)
 
-@property (nonatomic, assign) BOOL isObservingAnnotations;
+@property (nonatomic, assign) BOOL observersInstalled;
 
 @end
 
@@ -30,9 +30,10 @@ static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotat
 {
 	[self sc_providerWillUninstall];
 	
-	if(self.isObservingAnnotations) {
-		[self removeObserver:self forKeyPath:@"annotations"];
-	}
+    if(self.observersInstalled) {
+        [self removeObserver:self forKeyPath:@"annotations"];
+        [self setObserversInstalled:NO];
+    }
 }
 
 - (void)_didDeleteOrReplaceParagraphForAnnotation:(id)annotation
@@ -54,8 +55,8 @@ static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotat
 	objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
 	
 	if(minimapDelegate) {
-		self.isObservingAnnotations = YES;
 		[self addObserver:self forKeyPath:@"annotations" options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:IDEIssueAnnotationProviderIssuesObservingContext];
+        [self setObserversInstalled:YES];
 	}
 }
 
@@ -68,14 +69,14 @@ static void *IDEIssueAnnotationProviderIssuesObservingContext = &IDEIssueAnnotat
 	}
 }
 
-- (BOOL)isObservingAnnotations
+- (BOOL)observersInstalled
 {
-	return [objc_getAssociatedObject(self, @selector(isObservingAnnotations)) boolValue];
+	return [objc_getAssociatedObject(self, @selector(observersInstalled)) boolValue];
 }
 
-- (void)setIsObservingAnnotations:(BOOL)isObservingAnnotations
+- (void)setObserversInstalled:(BOOL)observersInstalled
 {
-	objc_setAssociatedObject(self, @selector(isObservingAnnotations), @(isObservingAnnotations), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, @selector(observersInstalled), @(observersInstalled), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

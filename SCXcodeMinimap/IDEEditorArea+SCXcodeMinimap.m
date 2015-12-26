@@ -11,6 +11,12 @@
 
 static void *IDEEditorAreaEditorModeObservingContext = &IDEEditorAreaEditorModeObservingContext;
 
+@interface IDEEditorArea (SCXcodeMinimap_Private)
+
+@property (nonatomic, assign) BOOL observersInstalled;
+
+@end
+
 @implementation IDEEditorArea (SCXcodeMinimap)
 
 + (void)load
@@ -19,26 +25,22 @@ static void *IDEEditorAreaEditorModeObservingContext = &IDEEditorAreaEditorModeO
 	sc_swizzleInstanceMethod([self class], @selector(viewWillUninstall), @selector(sc_viewWillUninstall));
 }
 
-- (id<IDEEditorAreaMinimapDelegate>)minimapDelegate
-{
-	return objc_getAssociatedObject(self, @selector(minimapDelegate));
-}
-
-- (void)setMinimapDelegate:(id<IDEEditorAreaMinimapDelegate>)minimapDelegate
-{
-	objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
-}
-
 - (void)sc_viewDidInstall
 {
-	[self addObserver:self forKeyPath:@"editorMode" options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:IDEEditorAreaEditorModeObservingContext];
-
+    if(!self.observersInstalled) {
+        [self addObserver:self forKeyPath:@"editorMode" options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:IDEEditorAreaEditorModeObservingContext];
+        [self setObserversInstalled:YES];
+    }
+    
 	[self sc_viewDidInstall];
 }
 
 - (void)sc_viewWillUninstall
 {
-	[self removeObserver:self forKeyPath:@"editorMode"];
+    if(self.observersInstalled) {
+        [self removeObserver:self forKeyPath:@"editorMode"];
+        [self setObserversInstalled:NO];
+    }
 	
 	[self sc_viewWillUninstall];
 }
@@ -50,6 +52,26 @@ static void *IDEEditorAreaEditorModeObservingContext = &IDEEditorAreaEditorModeO
 			[self.minimapDelegate editorAreaDidChangeEditorMode:self];
 		}
 	}
+}
+
+- (BOOL)observersInstalled
+{
+    return [objc_getAssociatedObject(self, @selector(observersInstalled)) boolValue];
+}
+
+- (void)setObserversInstalled:(BOOL)observersInstalled
+{
+    objc_setAssociatedObject(self, @selector(observersInstalled), @(observersInstalled), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (id<IDEEditorAreaMinimapDelegate>)minimapDelegate
+{
+    return objc_getAssociatedObject(self, @selector(minimapDelegate));
+}
+
+- (void)setMinimapDelegate:(id<IDEEditorAreaMinimapDelegate>)minimapDelegate
+{
+    objc_setAssociatedObject(self, @selector(minimapDelegate), minimapDelegate, OBJC_ASSOCIATION_ASSIGN);
 }
 
 @end
