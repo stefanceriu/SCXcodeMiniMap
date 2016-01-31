@@ -621,6 +621,10 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)updateOffset
 {
+    if(self.editorTextView.textStorage.editedMask) {
+        return;
+    }
+    
 	[self.editorTextView.layoutManager ensureLayoutForTextContainer:self.editorTextView.textContainer];
 	
 	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
@@ -633,7 +637,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[self.selectionView setFrame:selectionViewFrame];
 		return;
 	}
-	
+    
 	CGFloat editorYOffset = CGRectGetMinY(self.editor.scrollView.contentView.bounds) + ABS(CGRectGetMinY(self.editorTextView.frame));
 	
 	CGFloat ratio = (adjustedMinimapContentHeight / adjustedEditorContentHeight) * (1 / self.scrollView.magnification);
