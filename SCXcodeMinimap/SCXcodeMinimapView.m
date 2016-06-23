@@ -466,8 +466,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didFoldRange:range];
 	
 	[self.textView.layoutManager.foldingManager foldRange:range];
-	
-	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
+    
 	[self updateOffset];
 }
 
@@ -476,8 +475,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didUnfoldRange:range];
 	
 	[self.textView.layoutManager.foldingManager unfoldRange:range];
-	
-	[self.textView.layoutManager ensureLayoutForTextContainer:self.textView.textContainer];
+
 	[self updateOffset];
 }
 
@@ -621,7 +619,9 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 - (void)updateOffset
 {
-	[self.editorTextView.layoutManager ensureLayoutForTextContainer:self.editorTextView.textContainer];
+    if(!self.editorTextView.textStorage.editedMask) {
+        [self.editorTextView.layoutManager ensureLayoutForTextContainer:self.editorTextView.textContainer];
+    }
 	
 	CGFloat editorTextHeight = CGRectGetHeight([self.editorTextView.layoutManager usedRectForTextContainer:self.editorTextView.textContainer]);
 	CGFloat adjustedEditorContentHeight = editorTextHeight - CGRectGetHeight(self.editor.scrollView.bounds);
