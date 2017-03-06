@@ -20,12 +20,12 @@ All options are configurable through the View/Minimap menu item
 #### Screenshots
 Without editor highlighting |  With editor highlighting
 :--------------------------:|:--------------------------:
-![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-01.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-03.png)  |
-![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-02.png)  | ![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/SCXcodeMinimap%20v2.0-04.png)  |
+![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltoakt2SGFVendkLTg)  | ![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltoSnBuS2R3SDNHM3M)  |
+![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltodHUwS3U1ZlV4NFU)  | ![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltoZWYtdnhRVFRDeU0)  |
 
-![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/searchResultsHighlighting.png)
+![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltoN3Z1bl9aMS1zd1E)
 
-![](https://dl.dropboxusercontent.com/u/12748201/Recordings/SCXcodeMinimap/v2.2/selectedSymbolInstancesHighlighting.gif)
+![](https://drive.google.com/uc?export=download&id=0ByLCkUO90ltoMnQ0c3h3djZWU00)
 
 #### Installation
 - Through [Alcatraz](https://github.com/alcatraz/Alcatraz)
