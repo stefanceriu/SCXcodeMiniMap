@@ -29,7 +29,7 @@
 #import "SCXcodeMinimapTheme.h"
 #import "DVTPreferenceSetManager.h"
 
-#import "DVTFoldingManager.h"
+//#import "DVTFoldingManager.h"
 
 #import "DVTAnnotationManager.h"
 #import "DBGBreakpointAnnotationProvider+SCXcodeMinimap.h"
@@ -74,7 +74,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 
 
 @interface SCXcodeMinimapView () < NSLayoutManagerDelegate,
-                                   DVTFoldingManagerDelegate,
+                                   //DVTFoldingManagerDelegate,
                                    DBGBreakpointAnnotationProviderDelegate,
                                    IDEIssueAnnotationProviderDelegate,
                                    DVTLayoutManagerMinimapDelegate,
@@ -159,7 +159,7 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		[(NSMutableArray *)storage.layoutManagers removeObject:layoutManager];
 		[(NSMutableArray *)storage.layoutManagers addObject:layoutManager];
 		
-		[self.editorTextView.layoutManager.foldingManager setDelegate:self];
+		//[self.editorTextView.layoutManager.foldingManager setDelegate:self];
 		
 		[self.textView setEditable:NO];
 		[self.textView setSelectable:NO];
@@ -413,9 +413,9 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 		}
 	}
 	
-	short nodeType = [(DVTTextStorage *)[self.textView textStorage] nodeTypeAtCharacterIndex:charIndex
-																			  effectiveRange:effectiveRange
-																					 context:self.editorTextView.syntaxColoringContext];
+	short nodeType = [(DVTTextStorage *)[self.editorTextView textStorage] nodeTypeAtCharacterIndex:charIndex
+																					effectiveRange:effectiveRange
+																						   context:[self.editor syntaxColoringContextForTextView:self.editorTextView]];
 	
 	
 	
@@ -459,24 +459,29 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 	}
 }
 
-#pragma mark - DVTFoldingManagerDelegate
+//#pragma mark - DVTFoldingManagerDelegate
+//
+//- (void)foldingManager:(DVTFoldingManager *)foldingManager didFoldRange:(NSRange)range
+//{
+//	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didFoldRange:range];
+//
+//	[self.textView.layoutManager.foldingManager foldRange:range];
+//
+//	[self updateOffset];
+//}
+//
+//- (void)foldingManager:(DVTFoldingManager *)foldingManager didUnfoldRange:(NSRange)range
+//{
+//	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didUnfoldRange:range];
+//
+//	[self.textView.layoutManager.foldingManager unfoldRange:range];
+//
+//	[self updateOffset];
+//}
 
-- (void)foldingManager:(DVTFoldingManager *)foldingManager didFoldRange:(NSRange)range
+- (id)foldingTokenTypesForLayoutManager:(DVTLayoutManager *)layoutManager
 {
-	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didFoldRange:range];
-	
-	[self.textView.layoutManager.foldingManager foldRange:range];
-    
-	[self updateOffset];
-}
-
-- (void)foldingManager:(DVTFoldingManager *)foldingManager didUnfoldRange:(NSRange)range
-{
-	[(DVTLayoutManager *)self.editorTextView.layoutManager foldingManager:foldingManager didUnfoldRange:range];
-	
-	[self.textView.layoutManager.foldingManager unfoldRange:range];
-
-	[self updateOffset];
+	return [self.editorTextView foldingTokenTypesForLayoutManager:layoutManager];
 }
 
 #pragma mark - IDEEditorAreaMinimapDelegate
@@ -505,11 +510,6 @@ static NSString * const kAnnotationTypeKey = @"kAnnotationTypeKey";
 - (void)layoutManagerDidRequestSelectedSymbolInstancesHighlight:(DVTLayoutManager *)layoutManager
 {
 	[self invalidateHighligtedSymbols];
-}
-
-- (id) foldingTokenTypesForLayoutManager:(DVTLayoutManager *)layoutManager
-{
-	return nil;
 }
 
 #pragma mark - IDESourceCodeEditorSearchResultsDelegate
